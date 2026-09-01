@@ -17,20 +17,20 @@ source_of_truth:
 
 ## What this is
 
-Somon Rent Watcher — небольшой Go-сервис для одного администратора и одной Telegram-группы. Он периодически читает свежую серверную HTML-выдачу аренды квартир в Душанбе на Somon.tj, применяет настраиваемый фильтр и отправляет подходящие впервые замеченные объявления в Telegram.
+Somon Rent Watcher — небольшой Go-сервис для настроенного списка администраторов и одной Telegram-группы. Он периодически читает свежую серверную HTML-выдачу аренды квартир в Душанбе на Somon.tj, применяет общий настраиваемый фильтр и отправляет подходящие впервые замеченные объявления в Telegram.
 
 ## Core value
 
 - Сократить ручной просмотр выдачи Somon до уведомлений о новых подходящих объявлениях.
 - Не спамить текущей выдачей при первом запуске и не отправлять один известный ID штатно повторно.
-- Дать администратору управление фильтром и состоянием мониторинга через личный чат Telegram.
+- Дать настроенным администраторам управление общим фильтром и состоянием мониторинга через личный чат Telegram или целевую группу.
 
 ## Actors and external systems
 
 | Actor / system | Current interaction |
 |---|---|
-| Администратор | Настраивает фильтр, включает/ставит на паузу мониторинг и смотрит `/status` в личном чате с ботом. |
-| Участники целевой группы | Получают подходящие объявления; управление из группы не предусмотрено. |
+| Настроенный администратор | Настраивает общий фильтр, включает/ставит на паузу мониторинг и смотрит `/status` в личном чате с ботом или целевой группе. |
+| Участники целевой группы | Получают подходящие объявления; пользователи вне admin allowlist не могут управлять ботом. |
 | Somon.tj | Отдаёт category/detail HTML по исходящему HTTPS; private/internal API и browser automation не используются. |
 | Telegram Bot API | Отдаёт updates через long polling и принимает сообщения/фото; webhook и входящий порт не нужны. |
 
@@ -45,10 +45,10 @@ Somon Rent Watcher — небольшой Go-сервис для одного а
 
 ## Current implementation constraints
 
-- Один Linux process и один `systemd` unit; входящие TCP/UDP-порты отсутствуют.
+- Один Linux process; production route использует `systemd`, локальный Kubuntu route — один Docker Compose container. Входящие TCP/UDP-порты отсутствуют.
 - Go 1.21+, стандартная библиотека Go и system `libsqlite3` через CGO; внешних Go modules нет.
 - Один SQLite-файл хранит seen IDs, JSON settings и служебное state.
-- Один Telegram admin, один глобальный filter profile и одна target group.
+- Список Telegram admin IDs, один общий filter profile и одна target group; управление из других групп запрещено.
 - Никаких browser automation, Redis/PostgreSQL, queue, mandatory Docker, proxy rotation или CAPTCHA bypass.
 - Production-эксплуатация scraper имеет явно задокументированный compliance-риск относительно опубликованных правил Somon; актуальность правил требует внешней проверки перед запуском.
 
@@ -69,3 +69,4 @@ Somon Rent Watcher — небольшой Go-сервис для одного а
 - Current architecture: [.memory-bank/architecture/system-architecture.md](architecture/system-architecture.md): C4 as-is topology and component map.
 - Current lifecycle: [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md): polling, delivery and persisted-state transitions.
 - Operations: [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md): source runbook routing and safety boundaries.
+- Local Docker operations: [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md): Kubuntu Compose runtime and persistent-state route.

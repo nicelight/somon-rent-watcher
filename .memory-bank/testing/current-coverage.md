@@ -17,13 +17,13 @@ No repository CI workflow/configuration was found during file inventory.
 
 | Surface | Existing proof path |
 |---|---|
-| Configuration | Defaults and invalid poll-range validation in `internal/config/config_test.go`. |
+| Configuration | Defaults, admin-list parsing/legacy fallback, invalid admin IDs and invalid poll-range validation in `internal/config/config_test.go`. |
 | HTML utility | Tolerant malformed HTML parsing, normalized text and URL resolution in `internal/htmlx/html_test.go`. |
 | Somon parser | DOM cards, discount/current price, visible floor over stale slug, seller fields/unknown, other-city boundary, block detection, RSC fallback, age and recovery URLs in `internal/somon/parser_test.go`. |
 | Filters/settings | Inclusive price, room/floor buckets, seller limits/unknown, normalized substrings, input/JSON normalization and non-empty choices in `internal/filter/settings_test.go`. |
 | SQLite | Settings, deduplicated seen IDs and state roundtrip in `internal/store/sqlite_test.go` (CGO build tag). |
 | App pipeline | Continuity helper, merge order, first baseline plus one-time delivery, and paused consumption without later backfill in `internal/app/app_test.go` using `httptest` servers and temp SQLite. |
-| Telegram | Menus/caption escaping and size, token URL redaction, Retry-After, photo 400 text fallback and no immediate fallback on ambiguous failure in `internal/telegram/*_test.go`. |
+| Telegram | Menus/caption escaping and size, token URL redaction, Retry-After, photo fallback semantics, multi-admin private/target-group authorization, isolated group text input and notification fan-out in `internal/telegram/*_test.go`. |
 
 ## Fixtures
 

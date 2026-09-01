@@ -106,6 +106,26 @@ func TestHiddenBlockedModalDoesNotRejectValidCards(t *testing.T) {
 	}
 }
 
+func TestPromotionClassDoesNotTreatTailwindTopPositionAsPromoted(t *testing.T) {
+	body := []byte(`<html><body>
+		<article class="advert-card absolute top-4"><span>4000 c.</span><a href="/adv/12345678_x/">1-комн. квартира, 2 этаж, 40м²</a></article>
+		<article class="advert-card bg-top"><span>5000 c.</span><a href="/adv/12345679_x/">2-комн. квартира, 3 этаж, 60м²</a></article>
+	</body></html>`)
+	cards, err := ParseCategory(DefaultCategoryURL, body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cards) != 2 {
+		t.Fatalf("cards=%v", cards)
+	}
+	if cards[0].Promoted {
+		t.Fatalf("Tailwind top positioning must stay ordinary: %+v", cards[0])
+	}
+	if !cards[1].Promoted || cards[1].PromotionLabel != "ТОП" {
+		t.Fatalf("bg-top promotion not detected: %+v", cards[1])
+	}
+}
+
 func TestBlockedPageWithoutCardsFailsAsBlocked(t *testing.T) {
 	_, err := ParseCategory(DefaultCategoryURL, []byte(`<html><body><h1>Access denied</h1></body></html>`))
 	var blocked *BlockedPageError

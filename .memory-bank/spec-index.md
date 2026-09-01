@@ -26,6 +26,7 @@ These artifacts are descriptive brownfield evidence. They do not establish accep
 | integration baseline | [.memory-bank/contracts/current-integrations.md](contracts/current-integrations.md) | active as-is | Observed external boundaries and package dependencies. |
 | lifecycle baseline | [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md) | active as-is | Poll, delivery, recovery and persisted-state transitions. |
 | operations route | [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md) | active as-is | Deployment, backup, upgrade and troubleshooting routing. |
+| operations route | [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md) | active as-is | Local Kubuntu Docker Compose build, runtime and persistent-state routing. |
 | testing baseline | [.memory-bank/testing/current-coverage.md](testing/current-coverage.md) | active as-is | Existing proof paths and verification gaps. |
 | development guide | [.memory-bank/guides/local-development.md](guides/local-development.md) | active as-is | Current build prerequisites and native gate. |
 

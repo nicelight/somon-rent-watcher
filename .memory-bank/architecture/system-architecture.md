@@ -9,6 +9,8 @@ source_of_truth:
   - internal/app/app.go
   - internal/store/sqlite_cgo.go
   - deploy/somonwatch.service
+  - Dockerfile
+  - compose.yaml
 ---
 
 # System Architecture — current state
@@ -19,15 +21,16 @@ source_of_truth:
 
 ## C4 L1 — System Context
 
-Somon Rent Watcher связывает одного Telegram administrator, одну target group, публичные HTML pages Somon.tj и Telegram Bot API. Все network connections исходящие; production process не слушает inbound ports.
+Somon Rent Watcher связывает настроенный список Telegram administrators, одну target group, публичные HTML pages Somon.tj и Telegram Bot API. Все network connections исходящие; production process не слушает inbound ports.
 
 | External actor/system | Relationship to Somon Rent Watcher |
 |---|---|
-| Administrator | Управляет filter/status через private Telegram updates. |
+| Configured administrators | Совместно управляют одним filter/status через private updates или updates из настроенной target group. |
 | Target Telegram group | Получает подходящие объявления. |
 | Somon.tj | Источник category/detail HTML для polling pipeline. |
 | Telegram Bot API | Long polling input и message/photo output. |
 | AlmaLinux 9 + systemd | Запускает один hardened host process и предоставляет local filesystem. |
+| Kubuntu + Docker Compose | Локально запускает тот же process в одном non-root container и предоставляет named volume. |
 
 ## C4 L2 — Containers / runtime units
 
@@ -84,6 +87,7 @@ Observed internal call/import relationships are catalogued separately in [.memor
 | `internal/app.saveDebug` | Private diagnostic HTML, max 20 files. |
 | `cmd.saveDoctorHTML` | Private `doctor-*.html` diagnostic page. |
 | build/install/backup scripts | `dist/`, `/opt/somonwatch`, `/etc/somonwatch`, `/var/lib/somonwatch`, `/var/backups/somonwatch`. |
+| Docker Compose | Named volume `somon-rent-watcher-data` mounted at `/var/lib/somonwatch`; root filesystem remains read-only. |
 
 ## Current constraints and unresolved verification
 
@@ -112,3 +116,4 @@ All target architecture areas remain owned by [.memory-bank/spec-backbone.md](..
 - [.memory-bank/guides/local-development.md](../guides/local-development.md): build and local verification HOW.
 - [.memory-bank/states/runtime-lifecycle.md](../states/runtime-lifecycle.md): detailed current transitions.
 - [.memory-bank/runbooks/almalinux-9-operations.md](../runbooks/almalinux-9-operations.md): operator routing.
+- [.memory-bank/runbooks/docker-local-operations.md](../runbooks/docker-local-operations.md): local Kubuntu container routing.

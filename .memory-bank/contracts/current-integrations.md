@@ -35,7 +35,7 @@ source_of_truth:
 - Provider: configurable Telegram-compatible API base, default `https://api.telegram.org`.
 - Requests: form-encoded POST to `getMe`, `deleteWebhook`, `getWebhookInfo`, `getChat`, `getUpdates`, `sendMessage`, `sendPhoto`, `editMessageText`, `answerCallbackQuery`.
 - Input topology: `getUpdates` long polling only; `run` removes a stale webhook without dropping queued updates.
-- Authorization: only the configured admin user in a private chat can process commands/callbacks; ads go to one configured target chat.
+- Authorization: only users in the configured admin allowlist can process commands/callbacks, either privately or in the configured target chat; other users and other groups are ignored. All administrators share one filter, while pending text input is isolated per administrator and chat.
 - Delivery: remote photo is preferred. A deterministic Telegram 400 photo validation error falls back to text; ambiguous/network/server failure does not immediately fall back to avoid an immediate duplicate.
 - Durability: the next Telegram update offset is written to SQLite only after processing an update attempt.
 - Token handling: token is embedded in the Bot API URL internally; client-side transport errors replace the full base URL with `<telegram-bot-api>` before returning the message.

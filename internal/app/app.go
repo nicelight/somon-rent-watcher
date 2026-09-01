@@ -89,7 +89,7 @@ func New(cfg config.Config, db *store.DB, logger *slog.Logger) (*App, error) {
 	a.status.Mode = "запуск"
 
 	tgClient := telegram.NewClient(cfg.TelegramAPIBase, cfg.TelegramBotToken)
-	a.bot = telegram.NewBot(tgClient, a, cfg.TelegramAdminUserID, cfg.TelegramTargetChatID, logger)
+	a.bot = telegram.NewBot(tgClient, a, cfg.TelegramAdminUserIDs, cfg.TelegramTargetChatID, logger)
 	return a, nil
 }
 

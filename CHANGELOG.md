@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Allow multiple configured Telegram administrators to share one filter.
+- Allow administrator commands, callbacks and scoped text input in the configured target group while rejecting other users and groups.
+- Isolate pending text input by administrator and chat, and fan out technical notifications to every configured administrator.
+- Avoid classifying Tailwind positioning classes such as `top-4` as promoted Somon cards.
+
 ## 1.0.0 — 2026-09-01
 
 - Initial production-oriented MVP.

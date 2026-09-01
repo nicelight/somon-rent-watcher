@@ -28,13 +28,13 @@ source_of_truth:
 
 ## Safe current sequence
 
-1. Prepare the Telegram bot and determine administrator/target chat IDs with `somonwatch ids`; do not run it concurrently with the service.
+1. Prepare the Telegram bot and determine all administrator/target chat IDs with `somonwatch ids`; do not run it concurrently with the service. Disable BotFather Group Privacy when group-based text input is required.
 2. Verify archive checksums and take a read-only host preflight snapshot with `scripts/preflight-almalinux.sh`.
 3. Install only Go/GCC/SQLite build prerequisites and build on the target host through `scripts/build.sh`.
 4. Install without starting through `scripts/install-almalinux.sh`; populate and protect the env file.
 5. Run `somonwatch doctor` as the service user before first start. It verifies SQLite/Telegram/live Somon parsing without creating the seen baseline.
 6. Enable/start only `somonwatch.service`; confirm the first cycle creates baseline with no group notifications and remains paused.
-7. Configure the filter privately, then explicitly enable monitoring.
+7. Configure the shared filter privately or in the target group, then explicitly enable monitoring.
 8. Compare service/container/socket/firewall state with preflight after deployment.
 
 ## Current maintenance routes

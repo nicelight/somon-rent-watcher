@@ -13,6 +13,7 @@ last_verified: 2026-09-01
 - [.memory-bank/contracts/current-integrations.md](contracts/current-integrations.md): observed external contracts and internal dependency evidence; non-authoritative for target design.
 - [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md): current polling, delivery, recovery and persisted-state lifecycle.
 - [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md): routing to the production operations procedure.
+- [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md): local Kubuntu Docker Compose build, runtime and state routing.
 - [.memory-bank/guides/local-development.md](guides/local-development.md): current Go/CGO build and verification HOW.
 - [.memory-bank/testing/current-coverage.md](testing/current-coverage.md): automated tests, fixtures, live checks and unresolved verification.
 - [.memory-bank/glossary.md](glossary.md): current-state vocabulary.

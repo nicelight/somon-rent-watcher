@@ -28,24 +28,44 @@ type Backend interface {
 type Bot struct {
 	client       *Client
 	backend      Backend
-	adminUserID  int64
+	adminUserIDs []int64
+	adminUserSet map[int64]struct{}
 	targetChatID int64
 	logger       *slog.Logger
 
 	pendingMu sync.Mutex
-	pending   string
+	pending   map[pendingKey]string
 }
 
-func NewBot(client *Client, backend Backend, adminUserID, targetChatID int64, logger *slog.Logger) *Bot {
+type pendingKey struct {
+	userID int64
+	chatID int64
+}
+
+func NewBot(client *Client, backend Backend, adminUserIDs []int64, targetChatID int64, logger *slog.Logger) *Bot {
 	if logger == nil {
 		logger = slog.Default()
+	}
+	adminSet := make(map[int64]struct{}, len(adminUserIDs))
+	cleanAdminIDs := make([]int64, 0, len(adminUserIDs))
+	for _, id := range adminUserIDs {
+		if id <= 0 {
+			continue
+		}
+		if _, exists := adminSet[id]; exists {
+			continue
+		}
+		adminSet[id] = struct{}{}
+		cleanAdminIDs = append(cleanAdminIDs, id)
 	}
 	return &Bot{
 		client:       client,
 		backend:      backend,
-		adminUserID:  adminUserID,
+		adminUserIDs: cleanAdminIDs,
+		adminUserSet: adminSet,
 		targetChatID: targetChatID,
 		logger:       logger,
+		pending:      make(map[pendingKey]string),
 	}
 }
 
@@ -102,10 +122,7 @@ func (b *Bot) processUpdate(ctx context.Context, update Update) error {
 }
 
 func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
-	if msg == nil || msg.From == nil || msg.From.ID != b.adminUserID {
-		return nil
-	}
-	if msg.Chat.Type != "private" {
+	if msg == nil || msg.From == nil || !b.canManage(msg.From.ID, msg.Chat) {
 		return nil
 	}
 	text := strings.TrimSpace(msg.Text)
@@ -114,7 +131,7 @@ func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
 	}
 
 	if strings.HasPrefix(text, "/") {
-		b.setPending("")
+		b.setPending(msg.From.ID, msg.Chat.ID, "")
 		command := strings.Fields(text)[0]
 		if i := strings.IndexByte(command, '@'); i >= 0 {
 			command = command[:i]
@@ -133,18 +150,21 @@ func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
 		}
 	}
 
-	switch b.getPending() {
+	switch b.getPending(msg.From.ID, msg.Chat.ID) {
 	case "price":
-		return b.applyPriceInput(ctx, msg.Chat.ID, text)
+		return b.applyPriceInput(ctx, msg.From.ID, msg.Chat.ID, text)
 	case "negative":
-		return b.applyNegativeInput(ctx, msg.Chat.ID, text)
+		return b.applyNegativeInput(ctx, msg.From.ID, msg.Chat.ID, text)
 	default:
+		if msg.Chat.Type != "private" {
+			return nil
+		}
 		return b.sendMainMenu(ctx, msg.Chat.ID)
 	}
 }
 
 func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
-	if query == nil || query.From.ID != b.adminUserID || query.Message == nil || query.Message.Chat.Type != "private" {
+	if query == nil || query.Message == nil || !b.canManage(query.From.ID, query.Message.Chat) {
 		if query != nil {
 			_ = b.client.AnswerCallbackQuery(ctx, query.ID, "Недоступно", false)
 		}
@@ -170,11 +190,11 @@ func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
 	case data == "m:type":
 		actionErr = b.editTypeMenu(ctx, chatID, messageID)
 	case data == "i:price":
-		b.setPending("price")
+		b.setPending(query.From.ID, chatID, "price")
 		_, actionErr = b.client.SendMessage(ctx, chatID,
 			"Введите диапазон цены одной строкой:\n<code>3500-6000</code>, <code>-6000</code>, <code>3500-</code> или <code>-</code> для снятия ограничения.\n\n/cancel — отмена.", nil)
 	case data == "i:negative":
-		b.setPending("negative")
+		b.setPending(query.From.ID, chatID, "negative")
 		_, actionErr = b.client.SendMessage(ctx, chatID,
 			"Введите негативные слова/фразы через запятую.\nНапример: <code>посуточно, подселение, без детей</code>\n<code>-</code> — очистить список.\n\n/cancel — отмена.", nil)
 	case strings.HasPrefix(data, "r:"):
@@ -198,7 +218,7 @@ func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
 	return b.client.AnswerCallbackQuery(ctx, query.ID, "", false)
 }
 
-func (b *Bot) applyPriceInput(ctx context.Context, chatID int64, text string) error {
+func (b *Bot) applyPriceInput(ctx context.Context, userID, chatID int64, text string) error {
 	min, max, err := filter.ParsePriceInput(text)
 	if err != nil {
 		_, sendErr := b.client.SendMessage(ctx, chatID, "Ошибка: "+html.EscapeString(err.Error()), nil)
@@ -215,11 +235,11 @@ func (b *Bot) applyPriceInput(ctx context.Context, chatID int64, text string) er
 	if err := b.backend.SaveSettings(settings); err != nil {
 		return err
 	}
-	b.setPending("")
+	b.setPending(userID, chatID, "")
 	return b.sendMainMenu(ctx, chatID)
 }
 
-func (b *Bot) applyNegativeInput(ctx context.Context, chatID int64, text string) error {
+func (b *Bot) applyNegativeInput(ctx context.Context, userID, chatID int64, text string) error {
 	words, err := filter.ParseNegativeInput(text)
 	if err != nil {
 		_, sendErr := b.client.SendMessage(ctx, chatID, "Ошибка: "+html.EscapeString(err.Error()), nil)
@@ -236,7 +256,7 @@ func (b *Bot) applyNegativeInput(ctx context.Context, chatID int64, text string)
 	if err := b.backend.SaveSettings(settings); err != nil {
 		return err
 	}
-	b.setPending("")
+	b.setPending(userID, chatID, "")
 	return b.sendMainMenu(ctx, chatID)
 }
 
@@ -388,13 +408,21 @@ func (b *Bot) sendStatus(ctx context.Context, chatID int64) error {
 }
 
 func (b *Bot) SendAdmin(ctx context.Context, text string) error {
-	_, err := b.client.SendMessage(ctx, b.adminUserID, html.EscapeString(text), nil)
-	return err
+	return b.sendToAdmins(ctx, html.EscapeString(text))
 }
 
 func (b *Bot) SendAdminHTML(ctx context.Context, text string) error {
-	_, err := b.client.SendMessage(ctx, b.adminUserID, text, nil)
-	return err
+	return b.sendToAdmins(ctx, text)
+}
+
+func (b *Bot) sendToAdmins(ctx context.Context, text string) error {
+	var errs []error
+	for _, adminUserID := range b.adminUserIDs {
+		if _, err := b.client.SendMessage(ctx, adminUserID, text, nil); err != nil {
+			errs = append(errs, fmt.Errorf("admin %d: %w", adminUserID, err))
+		}
+	}
+	return errors.Join(errs...)
 }
 
 func (b *Bot) SendAd(ctx context.Context, ad model.Ad) error {
@@ -420,16 +448,28 @@ func (b *Bot) SendAd(ctx context.Context, ad model.Ad) error {
 	return err
 }
 
-func (b *Bot) setPending(value string) {
-	b.pendingMu.Lock()
-	b.pending = value
-	b.pendingMu.Unlock()
+func (b *Bot) canManage(userID int64, chat Chat) bool {
+	if _, allowed := b.adminUserSet[userID]; !allowed {
+		return false
+	}
+	return chat.Type == "private" || chat.ID == b.targetChatID
 }
 
-func (b *Bot) getPending() string {
+func (b *Bot) setPending(userID, chatID int64, value string) {
 	b.pendingMu.Lock()
 	defer b.pendingMu.Unlock()
-	return b.pending
+	key := pendingKey{userID: userID, chatID: chatID}
+	if value == "" {
+		delete(b.pending, key)
+		return
+	}
+	b.pending[key] = value
+}
+
+func (b *Bot) getPending(userID, chatID int64) string {
+	b.pendingMu.Lock()
+	defer b.pendingMu.Unlock()
+	return b.pending[pendingKey{userID: userID, chatID: chatID}]
 }
 
 func ignoreNotModified(err error) error {

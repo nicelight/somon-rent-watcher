@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.agents
+.claude
+.memory-bank
+.protocols
+.tasks
+PAPERCUTS
+dist
+debug
+*.db
+*.db-shm
+*.db-wal
+*.log

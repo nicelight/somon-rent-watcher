@@ -692,13 +692,15 @@ func containsMarker(text, marker string) bool {
 }
 
 func classHasMarker(className, marker string) bool {
-	className = strings.ToLower(className)
 	marker = strings.ToLower(marker)
-	for _, token := range strings.FieldsFunc(className, func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
-	}) {
-		if token == marker {
+	for _, token := range strings.Fields(strings.ToLower(className)) {
+		if token == marker || strings.HasSuffix(token, "-"+marker) {
 			return true
+		}
+		for _, suffix := range []string{"-ad", "-advert", "-badge", "-item", "-promoted"} {
+			if token == marker+suffix {
+				return true
+			}
 		}
 	}
 	return false

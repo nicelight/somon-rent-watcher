@@ -31,6 +31,7 @@ source_of_truth:
 - **Gap suspicion** — отсутствие пересечения ordinary snapshots и/или слишком большой интервал после последнего успешного poll.
 - **Recovery sweep** — однократный опрос room-specific pages при gap suspicion.
 - **Backoff** — увеличенная задержка до следующего poll после block/HTTP 403/429; обход блокировки не выполняется.
+- **Admin allowlist** — положительные Telegram user IDs из `TELEGRAM_ADMIN_USER_IDS`; только они могут менять общий фильтр в личном чате или настроенной target group.
 - **Doctor** — read-mostly operational check SQLite/Telegram/live Somon parser; может создать/инициализировать пустой SQLite-файл, но не создаёт baseline и не меняет seen IDs.
 
 ## Evidence

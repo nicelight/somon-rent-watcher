@@ -48,7 +48,7 @@ This produces first-seen semantics. Reappearance, price changes or filter change
 
 1. A successful poll stores sorted ordinary IDs and completion time.
 2. A later active poll suspects a gap when ordinary snapshots do not intersect and/or the last successful poll is older than `SOMON_GAP_AFTER`.
-3. The service notifies the administrator with hourly per-key suppression.
+3. The service notifies every configured administrator privately with hourly per-key suppression.
 4. It derives room-specific recovery URLs from the active room filter, fetches them sequentially and keeps only cards with a parseable age inside the inferred outage window.
 5. Recovery cards merge into the primary feed by ID and enter the normal unseen pipeline once; future polls return to the main category schedule.
 

@@ -14,7 +14,7 @@ import (
 
 type Config struct {
 	TelegramBotToken     string
-	TelegramAdminUserID  int64
+	TelegramAdminUserIDs []int64
 	TelegramTargetChatID int64
 	TelegramAPIBase      string
 
@@ -42,7 +42,7 @@ func LoadFull() (Config, error) {
 		return Config{}, errors.New("TELEGRAM_BOT_TOKEN is required")
 	}
 	var err error
-	cfg.TelegramAdminUserID, err = requiredInt64("TELEGRAM_ADMIN_USER_ID")
+	cfg.TelegramAdminUserIDs, err = requiredAdminUserIDs()
 	if err != nil {
 		return Config{}, err
 	}
@@ -86,9 +86,6 @@ func LoadFull() (Config, error) {
 		return Config{}, err
 	}
 
-	if cfg.TelegramAdminUserID <= 0 {
-		return Config{}, errors.New("TELEGRAM_ADMIN_USER_ID must be positive")
-	}
 	if cfg.TelegramTargetChatID == 0 {
 		return Config{}, errors.New("TELEGRAM_TARGET_CHAT_ID must be non-zero")
 	}
@@ -150,6 +147,41 @@ func requiredInt64(name string) (int64, error) {
 		return 0, fmt.Errorf("%s: %w", name, err)
 	}
 	return n, nil
+}
+
+func requiredAdminUserIDs() ([]int64, error) {
+	value := strings.TrimSpace(os.Getenv("TELEGRAM_ADMIN_USER_IDS"))
+	name := "TELEGRAM_ADMIN_USER_IDS"
+	if value == "" {
+		value = strings.TrimSpace(os.Getenv("TELEGRAM_ADMIN_USER_ID"))
+		name = "TELEGRAM_ADMIN_USER_ID"
+	}
+	if value == "" {
+		return nil, errors.New("TELEGRAM_ADMIN_USER_IDS is required")
+	}
+
+	parts := strings.Split(value, ",")
+	ids := make([]int64, 0, len(parts))
+	seen := make(map[int64]struct{}, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil, fmt.Errorf("%s contains an empty ID", name)
+		}
+		id, err := strconv.ParseInt(part, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("%s value %q: %w", name, part, err)
+		}
+		if id <= 0 {
+			return nil, fmt.Errorf("%s value %d must be positive", name, id)
+		}
+		if _, exists := seen[id]; exists {
+			continue
+		}
+		seen[id] = struct{}{}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }
 
 func envOr(name, fallback string) string {

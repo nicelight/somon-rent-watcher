@@ -88,7 +88,7 @@ func TestPollBaselineThenSendsOnlyNewAd(t *testing.T) {
 	defer db.Close()
 	cfg := config.Config{
 		TelegramBotToken:     "token",
-		TelegramAdminUserID:  100,
+		TelegramAdminUserIDs: []int64{100},
 		TelegramTargetChatID: -200,
 		TelegramAPIBase:      telegramServer.URL,
 		DBPath:               db.Path(),
@@ -207,7 +207,7 @@ func TestPausedMonitoringConsumesFreshIDsWithoutSending(t *testing.T) {
 	defer db.Close()
 	cfg := config.Config{
 		TelegramBotToken:     "token",
-		TelegramAdminUserID:  100,
+		TelegramAdminUserIDs: []int64{100},
 		TelegramTargetChatID: -200,
 		TelegramAPIBase:      telegramServer.URL,
 		DBPath:               db.Path(),

@@ -41,11 +41,12 @@ Somon Watcher:
 2. сохранить token;
 3. добавить бота в целевую группу;
 4. дать ему право отправлять сообщения и фотографии;
-5. открыть личный чат с ботом и нажать Start.
+5. каждому будущему администратору открыть личный чат с ботом и нажать Start;
+6. если администраторы будут вводить цену и минус-слова прямо в группе, выполнить `@BotFather` → `/setprivacy` → выбрать бота → `Disable`.
 
 Боту не нужны права администратора, если обычным участникам группы разрешено отправлять сообщения и фотографии.
 
-### 2.2. Получить ID администратора и группы
+### 2.2. Получить ID администраторов и группы
 
 Это удобнее сделать после сборки бинарника, но до запуска systemd-service:
 
@@ -56,14 +57,14 @@ TELEGRAM_BOT_TOKEN='REAL_TOKEN' ./dist/somonwatch ids
 
 Затем:
 
-1. отправить `/start` боту в личном чате — строка покажет положительный `user_id`;
+1. каждому администратору отправить `/start` боту в личном чате — строки покажут положительные `user_id`;
 2. отправить в группе `/start@BotUsername` — строка покажет отрицательный `chat_id` группы;
 3. остановить `ids` через `Ctrl+C`.
 
 Полученные значения:
 
 ```text
-TELEGRAM_ADMIN_USER_ID=<личный user_id>
+TELEGRAM_ADMIN_USER_IDS=<user_id_1>,<user_id_2>
 TELEGRAM_TARGET_CHAT_ID=<chat_id группы, обычно начинается с -100>
 ```
 
@@ -228,7 +229,7 @@ chown root:root /etc/somonwatch/somonwatch.env
 
 ```text
 TELEGRAM_BOT_TOKEN=...
-TELEGRAM_ADMIN_USER_ID=...
+TELEGRAM_ADMIN_USER_IDS=...,...
 TELEGRAM_TARGET_CHAT_ID=...
 ```
 
@@ -268,7 +269,7 @@ set -a
 . /etc/somonwatch/somonwatch.env
 set +a
 runuser -u somonwatch --preserve-environment -- /opt/somonwatch/somonwatch doctor
-unset TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_USER_ID TELEGRAM_TARGET_CHAT_ID
+unset TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_USER_IDS TELEGRAM_ADMIN_USER_ID TELEGRAM_TARGET_CHAT_ID
 ```
 
 Doctor проверяет:
@@ -300,7 +301,7 @@ journalctl -u somonwatch.service -n 100 --no-pager
 1. сервис сразу получает основную выдачу;
 2. текущие ID записываются в baseline;
 3. текущие объявления **не отправляются в группу**;
-4. администратору приходит личное сообщение о создании baseline;
+4. каждому настроенному администратору приходит личное сообщение о создании baseline;
 5. мониторинг остаётся на паузе по умолчанию;
 6. следующий poll назначается случайно через 10–30 минут.
 
@@ -319,7 +320,7 @@ journalctl -u somonwatch.service --since -15min --no-pager
 
 ## 11. Настроить фильтр
 
-В личном чате с ботом:
+В личном чате с ботом или в настроенной целевой группе:
 
 ```text
 /filter
@@ -334,7 +335,7 @@ journalctl -u somonwatch.service --since -15min --no-pager
 - негативные слова;
 - обычные/VIP.
 
-Затем в главном меню нажать:
+Все администраторы изменяют один общий фильтр. Затем в главном меню нажать:
 
 ```text
 ▶ Включить мониторинг
@@ -443,7 +444,7 @@ set -a
 . /etc/somonwatch/somonwatch.env
 set +a
 runuser -u somonwatch --preserve-environment -- /opt/somonwatch/somonwatch doctor
-unset TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_USER_ID TELEGRAM_TARGET_CHAT_ID
+unset TELEGRAM_BOT_TOKEN TELEGRAM_ADMIN_USER_IDS TELEGRAM_ADMIN_USER_ID TELEGRAM_TARGET_CHAT_ID
 
 # 6. Запустить только somonwatch
 systemctl start somonwatch.service
@@ -514,7 +515,7 @@ systemctl status somonwatch.service
 
 ### 17.3. HTTP 403/429 от Somon
 
-Сервис сам переходит в backoff минимум на 2 часа и уведомляет администратора.
+Сервис сам переходит в backoff минимум на 2 часа и уведомляет каждого настроенного администратора лично.
 
 Не делать:
 
