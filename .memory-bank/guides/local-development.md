@@ -3,6 +3,11 @@ description: Current local build and verification guide for the Go/CGO repositor
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - go.mod
+  - scripts/build.sh
+  - docs/BUILD_VERIFICATION.md
 ---
 
 # Local development and build — current state

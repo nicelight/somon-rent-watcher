@@ -3,6 +3,12 @@ description: C4 current-state architecture baseline and observed runtime topolog
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - cmd/somonwatch/main.go
+  - internal/app/app.go
+  - internal/store/sqlite_cgo.go
+  - deploy/somonwatch.service
 ---
 
 # System Architecture — current state

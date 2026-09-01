@@ -3,6 +3,11 @@ description: Наблюдаемый current-state vocabulary Somon Rent Watcher 
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - internal/model/ad.go
+  - internal/app/app.go
+  - internal/filter/settings.go
 ---
 
 # Glossary — current state

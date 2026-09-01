@@ -3,6 +3,12 @@ description: Evidence-backed current-state integration and observed dependency c
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - internal/somon/client.go
+  - internal/telegram/client.go
+  - internal/store/sqlite_cgo.go
+  - deploy/somonwatch.service
 ---
 
 # Current integrations and observed boundaries

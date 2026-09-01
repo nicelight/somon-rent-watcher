@@ -3,6 +3,10 @@ description: C4 L1 current-state product baseline для Somon Rent Watcher.
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - README.md
+  - internal/app/app.go
 ---
 
 # Product — current state

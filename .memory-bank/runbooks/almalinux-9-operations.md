@@ -3,6 +3,12 @@ description: Compact Memory Bank routing for current AlmaLinux 9 deployment, ope
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - docs/RUNBOOK_ALMALINUX_9.md
+  - deploy/somonwatch.service
+  - scripts/install-almalinux.sh
+  - scripts/backup-installed.sh
 ---
 
 # AlmaLinux 9 operations — current route

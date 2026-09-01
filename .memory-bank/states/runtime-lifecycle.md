@@ -3,6 +3,11 @@ description: Current-state polling, delivery and persistence lifecycle derived f
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-01
+last_updated: 2026-09-01
+source_of_truth:
+  - internal/app/app.go
+  - internal/store/sqlite_cgo.go
+  - internal/filter/settings.go
 ---
 
 # Runtime lifecycle — current state
