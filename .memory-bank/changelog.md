@@ -22,3 +22,4 @@ status: active
 - Replaced the concrete production host address and neighbouring-workload identifiers in the public runbook/preflight script with generic operator-safe checks.
 - Recomputed delivery-manifest checksums for the changed README, runbook and preflight script.
 - Initialized the local Git repository on branch `main` with GitHub-compatible local author identity; pre-initialization history is not recoverable.
+- Published branch `main` to the public origin `https://github.com/nicelight/somon-rent-watcher`.
