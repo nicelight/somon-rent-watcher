@@ -1,0 +1,58 @@
+[Unit]
+Description=Somon Rent Watcher Telegram notifier
+Documentation=file:/opt/somonwatch/RUNBOOK_ALMALINUX_9.md
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=10min
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=somonwatch
+Group=somonwatch
+WorkingDirectory=/var/lib/somonwatch
+EnvironmentFile=/etc/somonwatch/somonwatch.env
+ExecStart=/opt/somonwatch/somonwatch run
+Restart=on-failure
+RestartSec=30s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+UMask=0077
+
+# StateDirectory remains writable under ProtectSystem=strict.
+StateDirectory=somonwatch
+StateDirectoryMode=0700
+ReadWritePaths=/var/lib/somonwatch
+
+# Low priority: under host pressure this notifier should yield to production workloads.
+CPUWeight=10
+IOWeight=10
+OOMScoreAdjust=500
+TasksMax=64
+MemoryHigh=128M
+MemoryMax=256M
+
+# Hardening. No inbound socket, privileges or device access are needed.
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RemoveIPC=true
+KeyringMode=private
+
+[Install]
+WantedBy=multi-user.target

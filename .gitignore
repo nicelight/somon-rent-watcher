@@ -1,0 +1,8 @@
+/dist/*
+!/dist/.gitkeep
+*.db
+*.db-shm
+*.db-wal
+.env
+*.log
+/debug/
