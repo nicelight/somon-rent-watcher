@@ -35,8 +35,9 @@ source_of_truth:
 - Provider: configurable Telegram-compatible API base, default `https://api.telegram.org`.
 - Requests: form-encoded POST to `getMe`, `deleteWebhook`, `getWebhookInfo`, `getChat`, `getUpdates`, `sendMessage`, `sendPhoto`, `editMessageText`, `answerCallbackQuery`.
 - Input topology: `getUpdates` long polling only; `run` removes a stale webhook without dropping queued updates.
-- Authorization: only users in the configured admin allowlist can process commands/callbacks, either privately or in the configured target chat; other users and other groups are ignored. All administrators share one filter, while pending text input is isolated per administrator and chat.
-- Delivery: remote photo is preferred. A deterministic Telegram 400 photo validation error falls back to text; ambiguous/network/server failure does not immediately fall back to avoid an immediate duplicate.
+- Authorization: only users in the configured admin allowlist can process commands/callbacks, either privately or in the configured target chat; other users and other groups are ignored. All administrators share one filter and polling range, while pending text input is isolated per administrator and chat.
+- Scheduler controls: interval input persists an inclusive minute range used for each next normal random delay; an accepted immediate-scan callback binds its chat/message to the single scheduler, exposes a temporary busy button and is rejected while another manual scan or HTTP backoff is active. Completion restores the button and sends an explicit zero-result/paused/error message when applicable.
+- Delivery: remote photo is preferred. Caption descriptions start each emoji-led field on a separate line for readability. A deterministic Telegram 400 photo validation error falls back to text; ambiguous/network/server failure does not immediately fall back to avoid an immediate duplicate.
 - Durability: the next Telegram update offset is written to SQLite only after processing an update attempt.
 - Token handling: token is embedded in the Bot API URL internally; client-side transport errors replace the full base URL with `<telegram-bot-api>` before returning the message.
 - Evidence: [internal/telegram/client.go](../../internal/telegram/client.go), [internal/telegram/bot.go](../../internal/telegram/bot.go), [internal/telegram/render.go](../../internal/telegram/render.go).
@@ -54,7 +55,7 @@ source_of_truth:
 ### Host process, environment and filesystem
 
 - `deploy/somonwatch.service` starts `/opt/somonwatch/somonwatch run` as user/group `somonwatch`, reads `/etc/somonwatch/somonwatch.env` and grants writes only to `/var/lib/somonwatch` under `ProtectSystem=strict`.
-- The env template owns required Telegram identifiers/secrets and Somon/polling limits; `internal/config` supplies defaults and validates ranges.
+- The env template owns required Telegram identifiers/secrets and initial Somon/polling defaults; `internal/config` supplies defaults and validates ranges. The persisted Telegram setting owns the runtime normal-poll range after initialization.
 - Install/backup scripts write only the documented `/opt`, `/etc`, `/var/lib`, `/var/backups` paths and systemd unit; install refuses to replace an active service.
 - Evidence: [deploy/somonwatch.env.example](../../deploy/somonwatch.env.example), [deploy/somonwatch.service](../../deploy/somonwatch.service), [internal/config/config.go](../../internal/config/config.go), [scripts/install-almalinux.sh](../../scripts/install-almalinux.sh), [scripts/backup-installed.sh](../../scripts/backup-installed.sh).
 

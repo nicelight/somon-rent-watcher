@@ -25,7 +25,8 @@ func SettingsText(s filter.Settings) string {
 		"Этаж: <b>" + html.EscapeString(choicesSummary(s.Floors, filter.FloorChoices, floorLabel)) + "</b>\n" +
 		"Автор: <b>" + html.EscapeString(authorSummary(s.SellerAdsLimit)) + "</b>\n" +
 		"Минус-слова: <b>" + html.EscapeString(negativeSummary(s.NegativeWords)) + "</b>\n" +
-		"Тип: <b>" + html.EscapeString(typeSummary(s)) + "</b>\n\n" +
+		"Тип: <b>" + html.EscapeString(typeSummary(s)) + "</b>\n" +
+		"Интервал: <b>" + html.EscapeString(pollIntervalSummary(s)) + "</b>\n\n" +
 		"Изменения применяются только к новым объявлениям."
 	if !s.Enabled {
 		text += "\nПока мониторинг на паузе, новые ID запоминаются без отправки."
@@ -92,7 +93,7 @@ func AdCaption(ad model.Ad) string {
 		lines = append(lines, "Активных объявлений: <b>не указано</b>")
 	}
 
-	if description := truncate(somon.NormalizeText(ad.Description), 360); description != "" {
+	if description := formatAdDescription(ad.Description); description != "" {
 		lines = append(lines, "", html.EscapeString(description))
 	}
 	if ad.AgeText != "" {
@@ -106,13 +107,64 @@ func AdCaption(ad model.Ad) string {
 	return strings.Join(lines, "\n")
 }
 
+func formatAdDescription(raw string) string {
+	normalized := truncate(somon.NormalizeText(raw), 360)
+	if normalized == "" {
+		return ""
+	}
+
+	out := make([]rune, 0, len([]rune(normalized)))
+	var previous rune
+	for _, r := range normalized {
+		if isEmojiFieldStart(r) && len(out) > 0 && !isEmojiContinuation(r, previous) {
+			for len(out) > 0 && out[len(out)-1] == ' ' {
+				out = out[:len(out)-1]
+			}
+			if len(out) > 0 && out[len(out)-1] != '\n' {
+				out = append(out, '\n')
+			}
+		}
+		out = append(out, r)
+		previous = r
+	}
+	return strings.TrimSpace(string(out))
+}
+
+func isEmojiFieldStart(r rune) bool {
+	return r >= 0x2600 && r <= 0x26ff ||
+		r >= 0x2700 && r <= 0x27bf ||
+		r >= 0x2b00 && r <= 0x2bff ||
+		r >= 0x1f000 && r <= 0x1faff
+}
+
+func isEmojiContinuation(current, previous rune) bool {
+	if current >= 0x1f3fb && current <= 0x1f3ff {
+		return true // skin-tone modifier
+	}
+	if previous == '\u200d' {
+		return true // joined emoji sequence
+	}
+	return current >= 0x1f1e6 && current <= 0x1f1ff && previous >= 0x1f1e6 && previous <= 0x1f1ff
+}
+
 func mainKeyboard(s filter.Settings) *InlineKeyboardMarkup {
+	return mainKeyboardWithScanState(s, false)
+}
+
+func mainKeyboardWithScanState(s filter.Settings, scanning bool) *InlineKeyboardMarkup {
 	toggleLabel := "▶ Включить мониторинг"
 	if s.Enabled {
 		toggleLabel = "⏸ Поставить на паузу"
 	}
+	scanLabel := "Сканировать сейчас"
+	scanData := "e:scan"
+	if scanning {
+		scanLabel = "⏳ Сканирую..."
+		scanData = "e:scan_busy"
+	}
 	return &InlineKeyboardMarkup{InlineKeyboard: [][]InlineKeyboardButton{
 		{{Text: toggleLabel, CallbackData: "e:toggle"}},
+		{{Text: "Интервал", CallbackData: "i:interval"}, {Text: scanLabel, CallbackData: scanData}},
 		{{Text: "Цена", CallbackData: "i:price"}, {Text: "Комнаты", CallbackData: "m:rooms"}},
 		{{Text: "Этаж", CallbackData: "m:floors"}, {Text: "Автор", CallbackData: "m:author"}},
 		{{Text: "Минус-слова", CallbackData: "i:negative"}, {Text: "Тип", CallbackData: "m:type"}},
@@ -266,6 +318,13 @@ func typeSummary(s filter.Settings) string {
 	default:
 		return "VIP"
 	}
+}
+
+func pollIntervalSummary(s filter.Settings) string {
+	if s.PollMinMinutes == s.PollMaxMinutes {
+		return strconv.Itoa(s.PollMinMinutes) + " мин"
+	}
+	return strconv.Itoa(s.PollMinMinutes) + "–" + strconv.Itoa(s.PollMaxMinutes) + " мин"
 }
 
 func formatNumber(n int) string {

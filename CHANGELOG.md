@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Persist the administrator-configurable random polling interval in minutes and reschedule the next normal poll when it changes.
+- Add a single-flight Telegram «Сканировать сейчас» action with an in-progress button state, zero-result completion message, and preserved pause/backoff semantics.
 - Allow multiple configured Telegram administrators to share one filter.
 - Allow administrator commands, callbacks and scoped text input in the configured target group while rejecting other users and groups.
 - Isolate pending text input by administrator and chat, and fan out technical notifications to every configured administrator.

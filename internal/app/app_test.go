@@ -29,12 +29,55 @@ func TestContinuityGapReason(t *testing.T) {
 	}
 }
 
+func TestEffectiveGapAfterAccountsForConfiguredPollRange(t *testing.T) {
+	if got := effectiveGapAfter(45*time.Minute, 30); got != 45*time.Minute {
+		t.Fatalf("default range gap=%s, want 45m", got)
+	}
+	if got := effectiveGapAfter(45*time.Minute, 70); got != 75*time.Minute {
+		t.Fatalf("extended range gap=%s, want 75m", got)
+	}
+
+	now := time.Now()
+	gapAfter := effectiveGapAfter(45*time.Minute, 70)
+	if got := continuityGapReason([]int64{1, 2}, []int64{2, 3}, now.Add(-61*time.Minute), now, gapAfter); got != "" {
+		t.Fatalf("scheduled 61m delay must not look stale: %q", got)
+	}
+	if got := continuityGapReason([]int64{1}, []int64{2}, now.Add(-61*time.Minute), now, gapAfter); !strings.Contains(got, "нет пересечения") || strings.Contains(got, "последний успешный") {
+		t.Fatalf("snapshot gap must remain independent from stale-time gap: %q", got)
+	}
+}
+
 func TestMergeCardsPreservesPrimaryOrder(t *testing.T) {
 	primary := []model.Card{{ID: 2}, {ID: 1}}
 	secondary := []model.Card{{ID: 1}, {ID: 3}}
 	got := mergeCards(primary, secondary)
 	if len(got) != 3 || got[0].ID != 2 || got[1].ID != 1 || got[2].ID != 3 {
 		t.Fatalf("merged=%v", got)
+	}
+}
+
+func TestManualPollRequestIsCoalescedAndRejectedDuringBackoff(t *testing.T) {
+	application := &App{
+		pollNowCh: make(chan manualPollRequest, 1),
+		logger:    slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+	if err := application.RequestPollNow(-100, 10); err != nil {
+		t.Fatal(err)
+	}
+	if err := application.RequestPollNow(-100, 11); err == nil {
+		t.Fatal("expected duplicate request rejection")
+	}
+	if len(application.pollNowCh) != 1 {
+		t.Fatalf("queued requests=%d", len(application.pollNowCh))
+	}
+	request := <-application.pollNowCh
+	if request.chatID != -100 || request.messageID != 10 {
+		t.Fatalf("request=%+v", request)
+	}
+	application.finishManualPollState()
+	application.status.BackoffUntil = time.Now().Add(time.Hour)
+	if err := application.RequestPollNow(-100, 12); err == nil {
+		t.Fatal("expected request rejection during backoff")
 	}
 }
 

@@ -27,6 +27,7 @@ Authoritative PRD и accepted Global Backbone отсутствуют. Поэто
 - не меняет seen/snapshot при category parse/sanity failure;
 - помечает подходящий ID seen только после подтверждённой Telegram delivery;
 - не делает обход 403/429, proxy rotation или CAPTCHA bypass;
+- выполняет ручной poll через единственный scheduler, отклоняет одновременный ручной запрос и не обходит backoff;
 - ограничивает detail requests на poll и сохраняет debug HTML с private file mode.
 
 Это as-is observations, не target authority. Подробные переходы и исключения: [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md): current lifecycle evidence.

@@ -94,6 +94,31 @@ func TestParseInputsAndJSON(t *testing.T) {
 	}
 }
 
+func TestPollIntervalParsingAndLegacySettingsMigration(t *testing.T) {
+	min, max, err := ParsePollIntervalInput("7–19")
+	if err != nil || min != 7 || max != 19 {
+		t.Fatalf("range=%d-%d err=%v", min, max, err)
+	}
+	min, max, err = ParsePollIntervalInput("15")
+	if err != nil || min != 15 || max != 15 {
+		t.Fatalf("fixed=%d-%d err=%v", min, max, err)
+	}
+	for _, input := range []string{"0-10", "30-10", "1-1441", "abc"} {
+		if _, _, err := ParsePollIntervalInput(input); err == nil {
+			t.Fatalf("expected invalid interval %q", input)
+		}
+	}
+
+	legacy := `{"enabled":false,"rooms":["1"],"floors":["1"],"include_ordinary":true,"include_promoted":true}`
+	settings, err := DecodeSettingsWithPollRange(legacy, 12, 24)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if settings.PollMinMinutes != 12 || settings.PollMaxMinutes != 24 {
+		t.Fatalf("migrated interval=%d-%d", settings.PollMinMinutes, settings.PollMaxMinutes)
+	}
+}
+
 func TestCannotDisableLastOption(t *testing.T) {
 	s := DefaultSettings()
 	s.Rooms = []string{"1"}

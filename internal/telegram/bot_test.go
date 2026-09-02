@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -16,9 +17,21 @@ import (
 )
 
 type botTestBackend struct {
-	mu       sync.Mutex
-	settings filter.Settings
-	offset   int64
+	mu            sync.Mutex
+	settings      filter.Settings
+	offset        int64
+	pollRequests  int
+	pollChatID    int64
+	pollMessageID int64
+}
+
+func (b *botTestBackend) RequestPollNow(chatID, messageID int64) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.pollRequests++
+	b.pollChatID = chatID
+	b.pollMessageID = messageID
+	return nil
 }
 
 func (b *botTestBackend) LoadSettings() (filter.Settings, error) {
@@ -210,6 +223,99 @@ func TestGroupTextInputIsIsolatedByAdminAndChat(t *testing.T) {
 	}
 	if got := bot.getPending(1, -100); got != "" {
 		t.Fatalf("pending after save=%q", got)
+	}
+}
+
+func TestAdminCanSetPollIntervalAndRequestImmediateScan(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			t.Fatal(err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/botTOKEN/sendMessage":
+			fmt.Fprint(w, `{"ok":true,"result":{"message_id":1,"chat":{"id":-100,"type":"group"}}}`)
+		case "/botTOKEN/editMessageText":
+			fmt.Fprint(w, `{"ok":true,"result":{"message_id":10,"chat":{"id":-100,"type":"group"}}}`)
+		case "/botTOKEN/answerCallbackQuery":
+			fmt.Fprint(w, `{"ok":true,"result":true}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	backend := &botTestBackend{settings: filter.DefaultSettings()}
+	bot := NewBot(NewClient(server.URL, "TOKEN"), backend, []int64{1}, -100, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	ctx := context.Background()
+	group := Chat{ID: -100, Type: "group"}
+
+	if err := bot.processCallback(ctx, &CallbackQuery{ID: "interval", From: User{ID: 1}, Message: &Message{MessageID: 10, Chat: group}, Data: "i:interval"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := bot.processMessage(ctx, &Message{From: &User{ID: 1}, Chat: group, Text: "8-17"}); err != nil {
+		t.Fatal(err)
+	}
+	settings, err := backend.LoadSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if settings.PollMinMinutes != 8 || settings.PollMaxMinutes != 17 {
+		t.Fatalf("interval=%d-%d", settings.PollMinMinutes, settings.PollMaxMinutes)
+	}
+
+	if err := bot.processCallback(ctx, &CallbackQuery{ID: "scan", From: User{ID: 1}, Message: &Message{MessageID: 10, Chat: group}, Data: "e:scan"}); err != nil {
+		t.Fatal(err)
+	}
+	backend.mu.Lock()
+	defer backend.mu.Unlock()
+	if backend.pollRequests != 1 {
+		t.Fatalf("poll requests=%d", backend.pollRequests)
+	}
+	if backend.pollChatID != -100 || backend.pollMessageID != 10 {
+		t.Fatalf("poll target=%d/%d", backend.pollChatID, backend.pollMessageID)
+	}
+}
+
+func TestManualPollCompletionRestoresButtonAndReportsNoMatches(t *testing.T) {
+	var mu sync.Mutex
+	var edited, sent int
+	var completionText string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			t.Fatal(err)
+		}
+		mu.Lock()
+		defer mu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/botTOKEN/editMessageText":
+			edited++
+			if !strings.Contains(r.Form.Get("reply_markup"), "Сканировать сейчас") {
+				t.Errorf("normal scan button not restored: %s", r.Form.Get("reply_markup"))
+			}
+			fmt.Fprint(w, `{"ok":true,"result":{"message_id":10,"chat":{"id":-100,"type":"group"}}}`)
+		case "/botTOKEN/sendMessage":
+			sent++
+			completionText = r.Form.Get("text")
+			fmt.Fprint(w, `{"ok":true,"result":{"message_id":11,"chat":{"id":-100,"type":"group"}}}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	settings := filter.DefaultSettings()
+	settings.Enabled = true
+	backend := &botTestBackend{settings: settings}
+	bot := NewBot(NewClient(server.URL, "TOKEN"), backend, []int64{1}, -100, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err := bot.CompleteManualPoll(context.Background(), -100, 10, 0, nil); err != nil {
+		t.Fatal(err)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if edited != 1 || sent != 1 || completionText != "Свежих объявлений под ваши ожидания пока нет." {
+		t.Fatalf("edited=%d sent=%d text=%q", edited, sent, completionText)
 	}
 }
 

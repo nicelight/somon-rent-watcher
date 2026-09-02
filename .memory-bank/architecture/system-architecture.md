@@ -38,7 +38,7 @@ Somon Rent Watcher связывает настроенный список Telegr
 |---|---|---|
 | `somonwatch` executable | CLI (`run`, `doctor`, `ids`, `version`, `help`), application process и diagnostics. | In-memory runtime state plus SQLite-backed durable state. |
 | Telegram loop goroutine | `deleteWebhook`, persisted-offset `getUpdates`, admin UI and outbound notifications. | Offset persisted in SQLite `state`. |
-| Somon scheduler goroutine | Random polling, baseline/pause/active pipeline, recovery and block backoff. | Poll timestamps/snapshot persisted in SQLite `state`. |
+| Somon scheduler goroutine | Persisted random polling range, single-flight manual trigger with Telegram completion feedback, baseline/pause/active pipeline, recovery and block backoff. | Poll range lives in singleton JSON `settings`; poll timestamps/snapshot live in SQLite `state`; current manual request is in-memory only. |
 | SQLite database | `seen_ads`, singleton JSON `settings`, key/value `state`; WAL enabled. | Default local `./somonwatch.db`, production `/var/lib/somonwatch/somonwatch.db`. |
 | Debug HTML directory | Raw category/detail HTML saved only after relevant parse/sanity failures; oldest files are pruned above 20. | Default next to DB, production `/var/lib/somonwatch/debug/`. |
 
@@ -92,10 +92,10 @@ Observed internal call/import relationships are catalogued separately in [.memor
 ## Current constraints and unresolved verification
 
 - `go.mod` declares Go 1.21 and no module dependencies; SQLite requires CGO, GCC, headers and runtime `libsqlite3`.
-- [docs/TZ_Somon_Rent_Watcher.md](../../docs/TZ_Somon_Rent_Watcher.md) still proposes `modernc.org/sqlite`, while implementation/build docs use CGO system SQLite. Current implementation truth is the latter; future target choice is unresolved until explicitly decided.
+- [docs/TZ_Somon_Rent_Watcher.md](../../docs/TZ_Somon_Rent_Watcher.md) is synchronized to the implemented Go 1.21+/project-local parser/system SQLite CGO stack, but remains draft current-state input rather than an authoritative PRD.
 - Git repository was initialized on 2026-09-01; history before that initialization is unavailable. No CI configuration was found.
-- Go is absent in the mapping environment, so current tests/build could not be re-run here; manifest integrity passed and historical build evidence is recorded in [.memory-bank/testing/current-coverage.md](../testing/current-coverage.md).
-- Live Somon/Telegram and the documented production host were not probed during this mapping; their present state remains `needs verification` through `somonwatch doctor` and the operational runbook.
+- Host Go remains absent, but the Docker builder ran the complete native formatting/test/vet/CGO/linkage gate successfully on 2026-09-01.
+- Local Docker `somonwatch doctor` verified SQLite, Telegram bot/target group and live Somon parsing on 2026-09-01. The documented production host remains unobserved and requires its own preflight/doctor.
 
 ## Architecture Spine
 

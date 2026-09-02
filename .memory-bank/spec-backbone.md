@@ -18,7 +18,7 @@ last_updated: 2026-09-01
   - [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md): operations routing.
   - [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md): local Docker operations routing.
   - [.memory-bank/testing/current-coverage.md](testing/current-coverage.md): proof paths and verification gaps.
-- Needs verification: Go checks, live Somon/Telegram and target-host state were not available in this workspace; Git history before the 2026-09-01 initialization is unavailable.
+- Verification update: local Docker formatting/tests/vet/CGO/linkage and live SQLite/Telegram/Somon doctor passed on 2026-09-01. Target-host state remains unavailable; Git history before the 2026-09-01 initialization is unavailable.
 - Downstream rule: use this baseline as evidence after the operator supplies product intent/PRD/delta; do not infer accepted target decisions from it.
 
 ## Pre-PRD Spec Status

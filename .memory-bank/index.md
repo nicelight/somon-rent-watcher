@@ -18,6 +18,7 @@ last_verified: 2026-09-01
 - [.memory-bank/testing/current-coverage.md](testing/current-coverage.md): automated tests, fixtures, live checks and unresolved verification.
 - [.memory-bank/glossary.md](glossary.md): current-state vocabulary.
 - [.memory-bank/invariants.md](invariants.md): accepted-invariant status and routing to descriptive guardrails.
+- [.memory-bank/changelog.md](changelog.md): durable log of synchronized implementation/documentation waves.
 
 Baseline scope and remaining gaps are summarized in [.memory-bank/spec-backbone.md#brownfield-current-state-baseline](spec-backbone.md#brownfield-current-state-baseline). No authoritative PRD exists, so brownfield mapping did not create roadmap/task entities or target architecture decisions.
 

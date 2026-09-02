@@ -31,6 +31,8 @@ source_of_truth:
 - **Gap suspicion** — отсутствие пересечения ordinary snapshots и/или слишком большой интервал после последнего успешного poll.
 - **Recovery sweep** — однократный опрос room-specific pages при gap suspicion.
 - **Backoff** — увеличенная задержка до следующего poll после block/HTTP 403/429; обход блокировки не выполняется.
+- **Polling range** — общий persisted inclusive-диапазон минут для случайной задержки следующего normal poll; defaults новой/legacy записи берутся из `SOMON_POLL_MIN/MAX`.
+- **Manual poll / «Сканировать сейчас»** — single-flight пробуждение того же scheduler с временной busy-кнопкой и итоговой Telegram feedback; не создаёт параллельный poll и не обходит backoff.
 - **Admin allowlist** — положительные Telegram user IDs из `TELEGRAM_ADMIN_USER_IDS`; только они могут менять общий фильтр в личном чате или настроенной target group.
 - **Doctor** — read-mostly operational check SQLite/Telegram/live Somon parser; может создать/инициализировать пустой SQLite-файл, но не создаёт baseline и не меняет seen IDs.
 

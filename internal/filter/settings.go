@@ -12,7 +12,13 @@ import (
 	"github.com/nicelight/somon-rent-watcher/internal/model"
 )
 
-const UnknownChoice = "unknown"
+const (
+	UnknownChoice         = "unknown"
+	DefaultPollMinMinutes = 10
+	DefaultPollMaxMinutes = 30
+	MinimumPollMinutes    = 1
+	MaximumPollMinutes    = 24 * 60
+)
 
 var RoomChoices = []string{"1", "2", "3", "4", "5", "6+", UnknownChoice}
 
@@ -30,6 +36,8 @@ type Settings struct {
 	NegativeWords   []string `json:"negative_words"`
 	IncludeOrdinary bool     `json:"include_ordinary"`
 	IncludePromoted bool     `json:"include_promoted"`
+	PollMinMinutes  int      `json:"poll_min_minutes"`
+	PollMaxMinutes  int      `json:"poll_max_minutes"`
 }
 
 func DefaultSettings() Settings {
@@ -40,16 +48,34 @@ func DefaultSettings() Settings {
 		SellerAdsLimit:  0,
 		IncludeOrdinary: true,
 		IncludePromoted: true,
+		PollMinMinutes:  DefaultPollMinMinutes,
+		PollMaxMinutes:  DefaultPollMaxMinutes,
 	}
 }
 
 func DecodeSettings(data string) (Settings, error) {
+	return DecodeSettingsWithPollRange(data, DefaultPollMinMinutes, DefaultPollMaxMinutes)
+}
+
+func DecodeSettingsWithPollRange(data string, pollMinMinutes, pollMaxMinutes int) (Settings, error) {
 	if strings.TrimSpace(data) == "" {
-		return DefaultSettings(), nil
+		s := DefaultSettings()
+		s.PollMinMinutes = pollMinMinutes
+		s.PollMaxMinutes = pollMaxMinutes
+		if err := s.NormalizeAndValidate(); err != nil {
+			return Settings{}, err
+		}
+		return s, nil
 	}
 	var s Settings
 	if err := json.Unmarshal([]byte(data), &s); err != nil {
 		return Settings{}, fmt.Errorf("decode settings: %w", err)
+	}
+	// Older persisted settings predate the runtime poll range. Seed only when
+	// both fields are absent so a partially invalid range is not hidden.
+	if s.PollMinMinutes == 0 && s.PollMaxMinutes == 0 {
+		s.PollMinMinutes = pollMinMinutes
+		s.PollMaxMinutes = pollMaxMinutes
 	}
 	if err := s.NormalizeAndValidate(); err != nil {
 		return Settings{}, err
@@ -103,6 +129,15 @@ func (s *Settings) NormalizeAndValidate() error {
 	}
 	if !s.IncludeOrdinary && !s.IncludePromoted {
 		return errors.New("должен быть выбран хотя бы один тип объявления")
+	}
+	if s.PollMinMinutes < MinimumPollMinutes || s.PollMaxMinutes < MinimumPollMinutes {
+		return fmt.Errorf("интервал опроса должен быть не меньше %d минуты", MinimumPollMinutes)
+	}
+	if s.PollMinMinutes > s.PollMaxMinutes {
+		return errors.New("минимальный интервал опроса больше максимального")
+	}
+	if s.PollMaxMinutes > MaximumPollMinutes {
+		return fmt.Errorf("интервал опроса должен быть не больше %d минут", MaximumPollMinutes)
 	}
 
 	seen := make(map[string]struct{})
@@ -368,4 +403,38 @@ func ParseNegativeInput(input string) ([]string, error) {
 		return nil, err
 	}
 	return s.NegativeWords, nil
+}
+
+func ParsePollIntervalInput(input string) (int, int, error) {
+	input = strings.TrimSpace(input)
+	input = strings.NewReplacer("–", "-", "—", "-").Replace(input)
+	parts := strings.Split(input, "-")
+	if len(parts) == 1 {
+		parts = []string{parts[0], parts[0]}
+	}
+	if len(parts) != 2 {
+		return 0, 0, errors.New("формат интервала: 10-30 или 15")
+	}
+	parse := func(raw string) (int, error) {
+		value, err := strconv.Atoi(strings.TrimSpace(raw))
+		if err != nil {
+			return 0, errors.New("интервал должен быть целым числом минут")
+		}
+		return value, nil
+	}
+	min, err := parse(parts[0])
+	if err != nil {
+		return 0, 0, err
+	}
+	max, err := parse(parts[1])
+	if err != nil {
+		return 0, 0, err
+	}
+	s := DefaultSettings()
+	s.PollMinMinutes = min
+	s.PollMaxMinutes = max
+	if err := s.NormalizeAndValidate(); err != nil {
+		return 0, 0, err
+	}
+	return min, max, nil
 }

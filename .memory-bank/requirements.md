@@ -10,7 +10,7 @@ last_verified: 2026-09-01
 
 - `.memory-bank/prd.md` отсутствует.
 - Формальные `REQ-*`, RTM, epics, features и product task records не создавались во время brownfield-маппинга.
-- [docs/TZ_Somon_Rent_Watcher.md](../docs/TZ_Somon_Rent_Watcher.md) имеет собственный статус `draft v1` и местами расходится с реализацией; это historical input, но не замена принятому PRD.
+- [docs/TZ_Somon_Rent_Watcher.md](../docs/TZ_Somon_Rent_Watcher.md) имеет собственный статус `draft v1.1` и синхронизирован с реализованным локальным MVP; это current-state input, но не замена принятому PRD.
 - Реализованное поведение зарегистрировано как current-state evidence в [.memory-bank/product.md](product.md), [.memory-bank/architecture/system-architecture.md](architecture/system-architecture.md) и [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md).
 
 ## REQ list

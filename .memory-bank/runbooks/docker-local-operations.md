@@ -26,4 +26,4 @@ source_of_truth:
 
 ## Telegram behavior
 
-Configured administrators share one filter and may manage it privately or in the configured target group. Group text input requires BotFather Group Privacy to be disabled. Other users and groups remain unauthorized.
+Configured administrators share one filter and persisted polling range and may manage them privately or in the configured target group. Manual scan uses the same single scheduler, shows temporary busy/completion feedback and preserves pause/backoff semantics. Group text input requires BotFather Group Privacy to be disabled. Other users and groups remain unauthorized.

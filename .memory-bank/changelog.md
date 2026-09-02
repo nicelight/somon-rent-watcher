@@ -23,3 +23,24 @@ status: active
 - Recomputed delivery-manifest checksums for the changed README, runbook and preflight script.
 - Initialized the local Git repository on branch `main` with GitHub-compatible local author identity; pre-initialization history is not recoverable.
 - Published branch `main` to the public origin `https://github.com/nicelight/somon-rent-watcher`.
+
+## [2026-09-01] Wave 1 / Local Docker, multi-admin and scheduler controls
+
+- Added: local hardened Docker Compose route with one permanent container and persisted SQLite volume.
+- Updated: Telegram control to an administrator allowlist shared across private chats and the configured target group.
+- Added: persisted configurable random polling range plus single-flight `Сканировать сейчас` with busy and zero-result feedback.
+- Fixed: live Somon promoted-card classification for Tailwind positional classes.
+- Verified: Docker formatting/tests/vet/CGO/linkage gate and local SQLite/Telegram/Somon doctor passed.
+- Synchronized: draft technical specification, product/architecture/integration/lifecycle/testing/glossary/runbook routes and verification state.
+
+## [2026-09-01] Adaptive continuity threshold
+
+- Fixed: a persisted polling range above the static 45-minute gap threshold no longer makes a normal scheduled delay look like downtime.
+- Preserved: a complete loss of overlap between consecutive ordinary-ID snapshots still independently triggers one recovery sweep.
+- Verified by an app-level regression for the 10–70 minute polling range.
+
+## [2026-09-01] Telegram description readability
+
+- Changed: each emoji-led field in an advertisement description now starts on its own Telegram caption line.
+- Preserved: description normalization, escaping, truncation and compound emoji sequences.
+- Verified by a caption-rendering regression based on an observed live advertisement.

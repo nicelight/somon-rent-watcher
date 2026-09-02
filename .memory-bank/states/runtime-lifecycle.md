@@ -23,9 +23,10 @@ source_of_truth:
 | Starting | `runService` loads full config, opens SQLite and constructs `App`. | `App.Run` starts Telegram and poll loops or returns construction error. |
 | Uninitialized baseline | SQLite `state.initialized` missing/not `1`. | First sane category poll marks every visible ID seen, writes initial ordinary snapshot and `initialized=1`; no group ad is sent. |
 | Paused | Default `settings.enabled=false` or admin disables monitoring. | Every sane poll marks unseen visible IDs seen and updates snapshot/time without detail requests or group delivery; admin toggles Enabled to enter active mode. |
-| Active / normal | `settings.enabled=true` and scheduler is not blocked. | Each scheduled cycle processes unseen cards, then schedules the next random delay. |
+| Active / normal | `settings.enabled=true` and scheduler is not blocked. | Each scheduled cycle processes unseen cards, then schedules the next random delay from persisted `poll_min_minutes..poll_max_minutes`. |
 | Polling | Scheduler clears `NextPoll` and calls `pollOnce`. | Success returns to paused/normal; ordinary error schedules a normal random delay; block enters backoff. |
 | Backoff | Somon block page or HTTP 403/429; Retry-After can extend configured block delay. | Scheduler waits until `NextPoll`, then polls again. |
+| Manual poll queued | Authorized callback binds its chat/message to a capacity-one in-process signal and changes that menu button to `Сканирую...`. | The single scheduler wakes once; another manual request and active backoff are rejected. Completion restores the button and reports zero-result, paused or error state; matching ads remain the normal output. |
 | Stopping | Parent context cancelled by SIGINT/SIGTERM or one loop returns. | `App.Run` cancels both loops and process exits. |
 
 ## Ad ID lifecycle
@@ -47,7 +48,7 @@ This produces first-seen semantics. Reappearance, price changes or filter change
 ## Gap and recovery lifecycle
 
 1. A successful poll stores sorted ordinary IDs and completion time.
-2. A later active poll suspects a gap when ordinary snapshots do not intersect and/or the last successful poll is older than `SOMON_GAP_AFTER`.
+2. A later active poll suspects a gap when ordinary snapshots do not intersect and/or the last successful poll is older than the greater of `SOMON_GAP_AFTER` and the persisted maximum poll interval plus five minutes. This keeps an intentionally long configured schedule from being treated as downtime.
 3. The service notifies every configured administrator privately with hourly per-key suppression.
 4. It derives room-specific recovery URLs from the active room filter, fetches them sequentially and keeps only cards with a parseable age inside the inferred outage window.
 5. Recovery cards merge into the primary feed by ID and enter the normal unseen pipeline once; future polls return to the main category schedule.
@@ -59,7 +60,7 @@ SQLite schema is created automatically by `store.Open`:
 | Table | Current fields | Current writer/reader |
 |---|---|---|
 | `seen_ads` | `ad_id INTEGER PRIMARY KEY`, `first_seen_at TEXT NOT NULL` | `App.pollOnce/processNewCards` writes through `MarkSeen`; app/status/doctor query. |
-| `settings` | singleton row `id=1`, JSON text | `App.LoadSettings/SaveSettings`; Telegram admin actions mutate the JSON. |
+| `settings` | singleton row `id=1`, JSON text including filter, enabled state and polling minute range | `App.LoadSettings/SaveSettings`; Telegram admin actions mutate the JSON. |
 | `state` | string `key`, string `value` | App poll state and Telegram offset. |
 
 Known `state` keys:
@@ -75,7 +76,8 @@ There is no explicit schema version or migration table in the current repository
 
 - `RuntimeStatus` UI snapshot, next poll/backoff time and last cycle counts.
 - Random generator and throttled admin-notification timestamps.
-- Telegram pending text-input mode (`price` or `negative`); a restart clears it.
+- Telegram pending text-input mode (`price`, `negative` or `interval`); a restart clears it.
+- Capacity-one manual-poll and schedule-change signals plus the current manual request chat/message binding; a restart clears them.
 
 ## Evidence and proof paths
 

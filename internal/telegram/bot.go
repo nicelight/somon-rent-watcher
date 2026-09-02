@@ -20,6 +20,7 @@ import (
 type Backend interface {
 	LoadSettings() (filter.Settings, error)
 	SaveSettings(filter.Settings) error
+	RequestPollNow(chatID, messageID int64) error
 	RuntimeStatus() model.RuntimeStatus
 	TelegramOffset() (int64, error)
 	SetTelegramOffset(int64) error
@@ -155,6 +156,8 @@ func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
 		return b.applyPriceInput(ctx, msg.From.ID, msg.Chat.ID, text)
 	case "negative":
 		return b.applyNegativeInput(ctx, msg.From.ID, msg.Chat.ID, text)
+	case "interval":
+		return b.applyPollIntervalInput(ctx, msg.From.ID, msg.Chat.ID, text)
 	default:
 		if msg.Chat.Type != "private" {
 			return nil
@@ -175,12 +178,21 @@ func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
 	messageID := query.Message.MessageID
 	data := query.Data
 	var actionErr error
+	callbackText := ""
 
 	switch {
 	case data == "m:main":
 		actionErr = b.editMainMenu(ctx, chatID, messageID)
 	case data == "e:toggle":
 		actionErr = b.toggleEnabled(ctx, chatID, messageID)
+	case data == "e:scan":
+		actionErr = b.backend.RequestPollNow(chatID, messageID)
+		if actionErr == nil {
+			actionErr = b.editMainMenuWithScanState(ctx, chatID, messageID, true)
+			callbackText = "Сканирование началось"
+		}
+	case data == "e:scan_busy":
+		callbackText = "Сканирование уже выполняется"
 	case data == "m:rooms":
 		actionErr = b.editRoomsMenu(ctx, chatID, messageID)
 	case data == "m:floors":
@@ -197,6 +209,10 @@ func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
 		b.setPending(query.From.ID, chatID, "negative")
 		_, actionErr = b.client.SendMessage(ctx, chatID,
 			"Введите негативные слова/фразы через запятую.\nНапример: <code>посуточно, подселение, без детей</code>\n<code>-</code> — очистить список.\n\n/cancel — отмена.", nil)
+	case data == "i:interval":
+		b.setPending(query.From.ID, chatID, "interval")
+		_, actionErr = b.client.SendMessage(ctx, chatID,
+			"Введите диапазон интервала в минутах:\n<code>10-30</code> — случайно от 10 до 30 минут\n<code>15</code> — каждые 15 минут.\n\n/cancel — отмена.", nil)
 	case strings.HasPrefix(data, "r:"):
 		actionErr = b.toggleRoom(ctx, chatID, messageID, strings.TrimPrefix(data, "r:"))
 	case strings.HasPrefix(data, "f:"):
@@ -215,7 +231,7 @@ func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
 		_ = b.client.AnswerCallbackQuery(ctx, query.ID, actionErr.Error(), true)
 		return actionErr
 	}
-	return b.client.AnswerCallbackQuery(ctx, query.ID, "", false)
+	return b.client.AnswerCallbackQuery(ctx, query.ID, callbackText, false)
 }
 
 func (b *Bot) applyPriceInput(ctx context.Context, userID, chatID int64, text string) error {
@@ -253,6 +269,28 @@ func (b *Bot) applyNegativeInput(ctx context.Context, userID, chatID int64, text
 		return err
 	}
 	settings.NegativeWords = words
+	if err := b.backend.SaveSettings(settings); err != nil {
+		return err
+	}
+	b.setPending(userID, chatID, "")
+	return b.sendMainMenu(ctx, chatID)
+}
+
+func (b *Bot) applyPollIntervalInput(ctx context.Context, userID, chatID int64, text string) error {
+	min, max, err := filter.ParsePollIntervalInput(text)
+	if err != nil {
+		_, sendErr := b.client.SendMessage(ctx, chatID, "Ошибка: "+html.EscapeString(err.Error()), nil)
+		if sendErr != nil {
+			return sendErr
+		}
+		return nil
+	}
+	settings, err := b.backend.LoadSettings()
+	if err != nil {
+		return err
+	}
+	settings.PollMinMinutes = min
+	settings.PollMaxMinutes = max
 	if err := b.backend.SaveSettings(settings); err != nil {
 		return err
 	}
@@ -348,11 +386,15 @@ func (b *Bot) sendMainMenu(ctx context.Context, chatID int64) error {
 }
 
 func (b *Bot) editMainMenu(ctx context.Context, chatID, messageID int64) error {
+	return b.editMainMenuWithScanState(ctx, chatID, messageID, false)
+}
+
+func (b *Bot) editMainMenuWithScanState(ctx context.Context, chatID, messageID int64, scanning bool) error {
 	settings, err := b.backend.LoadSettings()
 	if err != nil {
 		return err
 	}
-	_, err = b.client.EditMessageText(ctx, chatID, messageID, SettingsText(settings), mainKeyboard(settings))
+	_, err = b.client.EditMessageText(ctx, chatID, messageID, SettingsText(settings), mainKeyboardWithScanState(settings, scanning))
 	return ignoreNotModified(err)
 }
 
@@ -413,6 +455,36 @@ func (b *Bot) SendAdmin(ctx context.Context, text string) error {
 
 func (b *Bot) SendAdminHTML(ctx context.Context, text string) error {
 	return b.sendToAdmins(ctx, text)
+}
+
+func (b *Bot) CompleteManualPoll(ctx context.Context, chatID, messageID int64, sent int, scanErr error) error {
+	settings, settingsErr := b.backend.LoadSettings()
+	var errs []error
+	if settingsErr == nil {
+		if err := b.editMainMenuWithScanState(ctx, chatID, messageID, false); err != nil {
+			errs = append(errs, err)
+		}
+	} else {
+		errs = append(errs, settingsErr)
+	}
+
+	var text string
+	switch {
+	case scanErr != nil:
+		text = "Сканирование завершилось с ошибкой: <code>" + html.EscapeString(truncate(scanErr.Error(), 400)) + "</code>"
+	case settingsErr != nil:
+		text = "Сканирование завершено, но не удалось прочитать текущие настройки."
+	case settingsErr == nil && !settings.Enabled:
+		text = "Сканирование завершено. Мониторинг на паузе, поэтому новые объявления сохранены без отправки."
+	case sent == 0:
+		text = "Свежих объявлений под ваши ожидания пока нет."
+	}
+	if text != "" {
+		if _, err := b.client.SendMessage(ctx, chatID, text, nil); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
 }
 
 func (b *Bot) sendToAdmins(ctx context.Context, text string) error {

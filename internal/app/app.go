@@ -31,12 +31,18 @@ const (
 	stateTelegramOffset    = "telegram_offset"
 	maxDebugFiles          = 20
 	adminNotificationPause = time.Hour
+	scheduledPollGapGrace  = 5 * time.Minute
 )
 
 type processStats struct {
 	NewIDs         int
 	DetailRequests int
 	Sent           int
+}
+
+type manualPollRequest struct {
+	chatID    int64
+	messageID int64
 }
 
 type App struct {
@@ -52,6 +58,11 @@ type App struct {
 	randMu sync.Mutex
 	rand   *rand.Rand
 
+	pollNowCh         chan manualPollRequest
+	scheduleChangedCh chan struct{}
+	manualPollMu      sync.Mutex
+	manualPollBusy    bool
+
 	notifyMu   sync.Mutex
 	lastNotify map[string]time.Time
 }
@@ -64,12 +75,14 @@ func New(cfg config.Config, db *store.DB, logger *slog.Logger) (*App, error) {
 		logger = slog.Default()
 	}
 	a := &App{
-		cfg:        cfg,
-		store:      db,
-		somon:      somon.NewClient(cfg.UserAgent, cfg.RequestDelay, cfg.HTTPTimeout, cfg.MaxBodyBytes),
-		logger:     logger,
-		rand:       rand.New(rand.NewSource(time.Now().UnixNano())),
-		lastNotify: make(map[string]time.Time),
+		cfg:               cfg,
+		store:             db,
+		somon:             somon.NewClient(cfg.UserAgent, cfg.RequestDelay, cfg.HTTPTimeout, cfg.MaxBodyBytes),
+		logger:            logger,
+		rand:              rand.New(rand.NewSource(time.Now().UnixNano())),
+		pollNowCh:         make(chan manualPollRequest, 1),
+		scheduleChangedCh: make(chan struct{}, 1),
+		lastNotify:        make(map[string]time.Time),
 	}
 	if _, err := a.LoadSettings(); err != nil {
 		return nil, fmt.Errorf("initialize settings: %w", err)
@@ -121,7 +134,10 @@ func (a *App) LoadSettings() (filter.Settings, error) {
 		return filter.Settings{}, err
 	}
 	if !ok {
-		settings := filter.DefaultSettings()
+		settings, err := filter.DecodeSettingsWithPollRange("", durationMinutes(a.cfg.PollMin), durationMinutes(a.cfg.PollMax))
+		if err != nil {
+			return filter.Settings{}, err
+		}
 		encoded, err := settings.Encode()
 		if err != nil {
 			return filter.Settings{}, err
@@ -131,10 +147,11 @@ func (a *App) LoadSettings() (filter.Settings, error) {
 		}
 		return settings, nil
 	}
-	return filter.DecodeSettings(raw)
+	return filter.DecodeSettingsWithPollRange(raw, durationMinutes(a.cfg.PollMin), durationMinutes(a.cfg.PollMax))
 }
 
 func (a *App) SaveSettings(settings filter.Settings) error {
+	previous, previousErr := a.LoadSettings()
 	encoded, err := settings.Encode()
 	if err != nil {
 		return err
@@ -142,8 +159,36 @@ func (a *App) SaveSettings(settings filter.Settings) error {
 	if err := a.store.SaveSettingsJSON(encoded); err != nil {
 		return err
 	}
-	a.logger.Info("filter settings updated")
+	if previousErr != nil || previous.PollMinMinutes != settings.PollMinMinutes || previous.PollMaxMinutes != settings.PollMaxMinutes {
+		a.signalScheduleChanged()
+	}
+	a.logger.Info("settings updated", "poll_min_minutes", settings.PollMinMinutes, "poll_max_minutes", settings.PollMaxMinutes)
 	return nil
+}
+
+func (a *App) RequestPollNow(chatID, messageID int64) error {
+	now := time.Now()
+	a.statusMu.RLock()
+	backoffUntil := a.status.BackoffUntil
+	a.statusMu.RUnlock()
+	if backoffUntil.After(now) {
+		return fmt.Errorf("Somon backoff активен до %s", backoffUntil.Format("2006-01-02 15:04:05 -07"))
+	}
+	a.manualPollMu.Lock()
+	if a.manualPollBusy {
+		a.manualPollMu.Unlock()
+		return errors.New("сканирование уже выполняется")
+	}
+	a.manualPollBusy = true
+	a.manualPollMu.Unlock()
+	select {
+	case a.pollNowCh <- manualPollRequest{chatID: chatID, messageID: messageID}:
+		a.logger.Info("manual poll requested", "chat_id", chatID, "message_id", messageID)
+		return nil
+	default:
+		a.finishManualPollState()
+		return errors.New("сканирование уже поставлено в очередь")
+	}
 }
 
 func (a *App) RuntimeStatus() model.RuntimeStatus {
@@ -171,13 +216,12 @@ func (a *App) SetTelegramOffset(offset int64) error {
 func (a *App) pollLoop(ctx context.Context) error {
 	first := true
 	for {
+		var manual *manualPollRequest
 		if !first {
-			a.statusMu.RLock()
-			next := a.status.NextPoll
-			a.statusMu.RUnlock()
-			wait := time.Until(next)
-			if wait > 0 && !sleepContext(ctx, wait) {
-				return ctx.Err()
+			var err error
+			manual, err = a.waitForNextPoll(ctx)
+			if err != nil {
+				return err
 			}
 		}
 		first = false
@@ -221,6 +265,9 @@ func (a *App) pollLoop(ctx context.Context) error {
 			a.status.BackoffUntil = time.Time{}
 		}
 		a.statusMu.Unlock()
+		if manual != nil {
+			a.completeManualPoll(ctx, *manual, err)
+		}
 	}
 }
 
@@ -292,7 +339,8 @@ func (a *App) pollOnce(ctx context.Context) error {
 		return err
 	}
 	lastSuccessful := a.lastSuccessfulPoll()
-	gapReason := continuityGapReason(previous, ordinary, lastSuccessful, now, a.cfg.GapAfter)
+	gapAfter := effectiveGapAfter(a.cfg.GapAfter, settings.PollMaxMinutes)
+	gapReason := continuityGapReason(previous, ordinary, lastSuccessful, now, gapAfter)
 	if gapReason != "" {
 		a.logger.Warn("possible category gap", "reason", gapReason)
 		a.notifyAdmin(ctx, "gap", "Возможен разрыв свежей ленты Somon ("+gapReason+"). Выполняется один recovery-опрос выбранных комнат.", adminNotificationPause)
@@ -428,12 +476,13 @@ func (a *App) recoverCards(ctx context.Context, settings filter.Settings, now, l
 	if len(urls) == 0 {
 		return nil, nil
 	}
-	window := a.cfg.GapAfter + a.cfg.PollMax
+	pollMax := time.Duration(settings.PollMaxMinutes) * time.Minute
+	window := a.cfg.GapAfter + pollMax
 	if !lastSuccessful.IsZero() {
-		window = now.Sub(lastSuccessful) + a.cfg.PollMax
+		window = now.Sub(lastSuccessful) + pollMax
 	}
-	if window < a.cfg.PollMax {
-		window = a.cfg.PollMax
+	if window < pollMax {
+		window = pollMax
 	}
 
 	byID := make(map[int64]model.Card)
@@ -558,14 +607,100 @@ func prioritizeOrdinary(cards []model.Card) []model.Card {
 }
 
 func (a *App) randomPollDelay() time.Duration {
-	if a.cfg.PollMax <= a.cfg.PollMin {
-		return a.cfg.PollMin
+	min, max := a.cfg.PollMin, a.cfg.PollMax
+	if settings, err := a.LoadSettings(); err == nil {
+		min = time.Duration(settings.PollMinMinutes) * time.Minute
+		max = time.Duration(settings.PollMaxMinutes) * time.Minute
+	} else {
+		a.logger.Error("load polling interval failed; using environment defaults", "error", err)
 	}
-	delta := a.cfg.PollMax - a.cfg.PollMin
+	if max <= min {
+		return min
+	}
+	delta := max - min
 	a.randMu.Lock()
 	n := a.rand.Int63n(int64(delta) + 1)
 	a.randMu.Unlock()
-	return a.cfg.PollMin + time.Duration(n)
+	return min + time.Duration(n)
+}
+
+func (a *App) waitForNextPoll(ctx context.Context) (*manualPollRequest, error) {
+	for {
+		a.statusMu.RLock()
+		next := a.status.NextPoll
+		backoffUntil := a.status.BackoffUntil
+		a.statusMu.RUnlock()
+		wait := time.Until(next)
+		if wait < 0 {
+			wait = 0
+		}
+		timer := time.NewTimer(wait)
+		select {
+		case <-ctx.Done():
+			if !timer.Stop() {
+				<-timer.C
+			}
+			return nil, ctx.Err()
+		case <-timer.C:
+			return nil, nil
+		case request := <-a.pollNowCh:
+			if !timer.Stop() {
+				<-timer.C
+			}
+			if backoffUntil.After(time.Now()) {
+				a.logger.Warn("manual poll ignored during backoff", "backoff_until", backoffUntil)
+				a.completeManualPoll(ctx, request, fmt.Errorf("Somon backoff активен до %s", backoffUntil.Format("2006-01-02 15:04:05 -07")))
+				continue
+			}
+			return &request, nil
+		case <-a.scheduleChangedCh:
+			if !timer.Stop() {
+				<-timer.C
+			}
+			if backoffUntil.After(time.Now()) {
+				continue
+			}
+			next = time.Now().Add(a.randomPollDelay())
+			a.statusMu.Lock()
+			a.status.NextPoll = next
+			a.statusMu.Unlock()
+			a.logger.Info("next poll rescheduled", "next_poll", next)
+		}
+	}
+}
+
+func (a *App) completeManualPoll(ctx context.Context, request manualPollRequest, pollErr error) {
+	defer a.finishManualPollState()
+	a.statusMu.RLock()
+	sent := a.status.LastSentCount
+	a.statusMu.RUnlock()
+	if err := a.bot.CompleteManualPoll(ctx, request.chatID, request.messageID, sent, pollErr); err != nil {
+		a.logger.Error("manual poll completion notification failed", "chat_id", request.chatID, "message_id", request.messageID, "error", err)
+	}
+}
+
+func (a *App) finishManualPollState() {
+	a.manualPollMu.Lock()
+	a.manualPollBusy = false
+	a.manualPollMu.Unlock()
+}
+
+func (a *App) signalScheduleChanged() {
+	select {
+	case a.scheduleChangedCh <- struct{}{}:
+	default:
+	}
+}
+
+func durationMinutes(value time.Duration) int {
+	minutes := int(value / time.Minute)
+	if value%time.Minute != 0 {
+		minutes++
+	}
+	if minutes < 1 {
+		return 1
+	}
+	return minutes
 }
 
 func (a *App) notifyAdmin(ctx context.Context, key, message string, minInterval time.Duration) {
@@ -624,6 +759,14 @@ func continuityGapReason(previous, current []int64, lastSuccessful, now time.Tim
 		reasons = append(reasons, "последний успешный опрос был "+now.Sub(lastSuccessful).Round(time.Minute).String()+" назад")
 	}
 	return strings.Join(reasons, "; ")
+}
+
+func effectiveGapAfter(configured time.Duration, pollMaxMinutes int) time.Duration {
+	scheduled := time.Duration(pollMaxMinutes)*time.Minute + scheduledPollGapGrace
+	if scheduled > configured {
+		return scheduled
+	}
+	return configured
 }
 
 func hasIntersection(a, b []int64) bool {
