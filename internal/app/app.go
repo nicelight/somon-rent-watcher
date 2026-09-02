@@ -40,6 +40,11 @@ type processStats struct {
 	Sent           int
 }
 
+type continuityGap struct {
+	ordinaryIDsDisjoint bool
+	lastSuccessAge      time.Duration
+}
+
 type manualPollRequest struct {
 	chatID    int64
 	messageID int64
@@ -340,10 +345,12 @@ func (a *App) pollOnce(ctx context.Context) error {
 	}
 	lastSuccessful := a.lastSuccessfulPoll()
 	gapAfter := effectiveGapAfter(a.cfg.GapAfter, settings.PollMaxMinutes)
-	gapReason := continuityGapReason(previous, ordinary, lastSuccessful, now, gapAfter)
-	if gapReason != "" {
-		a.logger.Warn("possible category gap", "reason", gapReason)
-		a.notifyAdmin(ctx, "gap", "Возможен разрыв свежей ленты Somon ("+gapReason+"). Выполняется один recovery-опрос выбранных комнат.", adminNotificationPause)
+	gap := detectContinuityGap(previous, ordinary, lastSuccessful, now, gapAfter)
+	if gap.detected() {
+		a.logger.Warn("possible category gap", "reason", gap.reason())
+		if gap.shouldNotifyAdmin() {
+			a.notifyAdmin(ctx, "gap", "Возможен разрыв свежей ленты Somon ("+gap.reason()+"). Выполняется один recovery-опрос выбранных комнат.", adminNotificationPause)
+		}
 		recovered, recErr := a.recoverCards(ctx, settings, now, lastSuccessful)
 		if recErr != nil {
 			if _, _, blocked := somon.IsBlocked(recErr); blocked {
@@ -750,13 +757,31 @@ func (a *App) saveDebug(prefix string, body []byte) {
 	}
 }
 
-func continuityGapReason(previous, current []int64, lastSuccessful, now time.Time, gapAfter time.Duration) string {
-	var reasons []string
-	if len(previous) > 0 && len(current) > 0 && !hasIntersection(previous, current) {
-		reasons = append(reasons, "нет пересечения обычных ID")
+func detectContinuityGap(previous, current []int64, lastSuccessful, now time.Time, gapAfter time.Duration) continuityGap {
+	gap := continuityGap{
+		ordinaryIDsDisjoint: len(previous) > 0 && len(current) > 0 && !hasIntersection(previous, current),
 	}
 	if !lastSuccessful.IsZero() && now.Sub(lastSuccessful) > gapAfter {
-		reasons = append(reasons, "последний успешный опрос был "+now.Sub(lastSuccessful).Round(time.Minute).String()+" назад")
+		gap.lastSuccessAge = now.Sub(lastSuccessful)
+	}
+	return gap
+}
+
+func (g continuityGap) detected() bool {
+	return g.ordinaryIDsDisjoint || g.lastSuccessAge > 0
+}
+
+func (g continuityGap) shouldNotifyAdmin() bool {
+	return g.lastSuccessAge > 0
+}
+
+func (g continuityGap) reason() string {
+	var reasons []string
+	if g.ordinaryIDsDisjoint {
+		reasons = append(reasons, "нет пересечения обычных ID")
+	}
+	if g.lastSuccessAge > 0 {
+		reasons = append(reasons, "последний успешный опрос был "+g.lastSuccessAge.Round(time.Minute).String()+" назад")
 	}
 	return strings.Join(reasons, "; ")
 }

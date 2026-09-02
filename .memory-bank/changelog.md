@@ -44,3 +44,10 @@ status: active
 - Changed: each emoji-led field in an advertisement description now starts on its own Telegram caption line.
 - Preserved: description normalization, escaping, truncation and compound emoji sequences.
 - Verified by a caption-rendering regression based on an observed live advertisement.
+
+## [2026-09-02] Silent snapshot-gap recovery
+
+- Refactored: continuity detection now keeps snapshot discontinuity and overdue-poll age as typed causes instead of coupling behavior to a rendered reason string.
+- Changed: ordinary-ID turnover continues to trigger recovery and structured warning logs but no longer sends repetitive private Telegram messages.
+- Preserved: an adaptive overdue successful-poll condition still triggers recovery and an hourly rate-limited private warning.
+- Verified: an app integration test proves silent snapshot recovery and overdue-only administrator notification.

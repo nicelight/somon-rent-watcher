@@ -22,7 +22,7 @@ No repository CI workflow/configuration was found during file inventory.
 | Somon parser | DOM cards, discount/current price, visible floor over stale slug, seller fields/unknown, other-city boundary, block detection, RSC fallback, age and recovery URLs in `internal/somon/parser_test.go`. |
 | Filters/settings | Inclusive price, room/floor buckets, seller limits/unknown, normalized substrings, polling-range parsing/legacy defaults, input/JSON normalization and non-empty choices in `internal/filter/settings_test.go`. |
 | SQLite | Settings, deduplicated seen IDs and state roundtrip in `internal/store/sqlite_test.go` (CGO build tag). |
-| App pipeline | Continuity helper including the adaptive stale-time threshold, merge order, single-flight manual-poll rejection/backoff guard, first baseline plus one-time delivery, and paused consumption without later backfill in `internal/app/app_test.go` using `httptest` servers and temp SQLite. |
+| App pipeline | Typed continuity detection including adaptive stale-time threshold, silent snapshot-gap recovery and overdue-only admin warning; merge order, single-flight manual-poll rejection/backoff guard, first baseline plus one-time delivery, and paused consumption without later backfill in `internal/app/app_test.go` using `httptest` servers and temp SQLite. |
 | Telegram | Menus/caption escaping, size and emoji-field line formatting; polling interval/manual scan busy/completion controls; token URL redaction, Retry-After, photo fallback semantics, multi-admin private/target-group authorization, isolated group text input and notification fan-out in `internal/telegram/*_test.go`. |
 
 ## Fixtures
