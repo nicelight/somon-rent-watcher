@@ -1,7 +1,7 @@
 ---
 description: Главная карта знаний проекта и brownfield current-state baseline для агентов.
 status: active
-last_verified: 2026-09-01
+last_verified: 2026-09-02
 ---
 
 # Memory Bank Index

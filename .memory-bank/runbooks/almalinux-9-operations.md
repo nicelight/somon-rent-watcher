@@ -2,8 +2,8 @@
 description: Compact Memory Bank routing for current AlmaLinux 9 deployment, operation, backup and recovery procedures.
 status: active
 baseline_kind: as-is
-last_verified: 2026-09-01
-last_updated: 2026-09-01
+last_verified: 2026-09-02
+last_updated: 2026-09-02
 source_of_truth:
   - docs/RUNBOOK_ALMALINUX_9.md
   - deploy/somonwatch.service
@@ -55,6 +55,9 @@ source_of_truth:
 - Do not react to 403/429 with rapid restarts, lower poll intervals or blocking circumvention.
 - Re-check current Somon legal/robots terms before sustained production operation.
 
-## Needs verification
+## Production verification
 
-The mapped workspace contains only repository evidence. The current state of the documented server, Telegram bot/group and live Somon HTML has not been observed; run preflight and `somonwatch doctor` on the intended host.
+- On 2026-09-02 the target AlmaLinux 9 host passed the read-only preflight, native build/test/vet/linkage gate and live `somonwatch doctor` for commit `7f9c5f50d659`.
+- The installed systemd service created a fresh 60-card baseline while paused, remained active with zero restarts and passed unit verification.
+- Existing containers, listening sockets, firewall configuration, failed-unit state and SELinux behavior were unchanged after deployment.
+- Administrators whom the bot has never contacted must open the bot once before Telegram permits private operational notifications; target-group control is independent of that limitation.

@@ -51,3 +51,11 @@ status: active
 - Changed: ordinary-ID turnover continues to trigger recovery and structured warning logs but no longer sends repetitive private Telegram messages.
 - Preserved: an adaptive overdue successful-poll condition still triggers recovery and an hourly rate-limited private warning.
 - Verified: an app integration test proves silent snapshot recovery and overdue-only administrator notification.
+
+## [2026-09-02] AlmaLinux production deployment
+
+- Deployed GitHub commit `7f9c5f50d659` from a retained clean checkout as a native, unprivileged systemd service.
+- Verified the production build/test/vet/CGO gate and live SQLite, Telegram and Somon doctor before service startup.
+- Created a fresh paused 60-card baseline with zero service restarts and no current-ad delivery.
+- Confirmed existing containers, listening sockets, firewall configuration and SELinux behavior were unchanged.
+- Kept the local Compose container stopped to prevent competing Telegram long polling with the same bot token.

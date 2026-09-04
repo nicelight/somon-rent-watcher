@@ -2,7 +2,7 @@
 description: Evidence-backed inventory of current automated, fixture, build and live verification paths.
 status: active
 baseline_kind: as-is
-last_verified: 2026-09-01
+last_verified: 2026-09-02
 ---
 
 # Current test and verification coverage
@@ -46,11 +46,11 @@ These are repository fixtures, not proof of the current live Somon page.
 | `sha256sum -c MANIFEST.sha256` | Historical PASS before the current working-tree changes; manifest was not regenerated because no release/archive was requested. |
 | Docker native package/test/vet/CGO/linkage gate | PASS on 2026-09-01 through `docker compose build somonwatch`; host Go is not required for this route. |
 | Local live Somon/Telegram doctor | PASS on 2026-09-01 inside the permanent Compose container: SQLite, bot, target group and 60-card live parse were OK. |
-| Target host preflight/post-start | NOT RUN: production host was not accessed. |
+| Target host build and live doctor | PASS on 2026-09-02: formatting/tests/vet, CGO SQLite linkage, Telegram bot/group and 60-card Somon parse were OK for commit `7f9c5f50d659`. |
+| Target host systemd/post-start isolation | PASS on 2026-09-02: fresh paused baseline stored 60 IDs; service active with zero restarts; containers, sockets, firewall and SELinux behavior remained unchanged. |
 
 Historical native evidence remains in [docs/BUILD_VERIFICATION.md](../../docs/BUILD_VERIFICATION.md); the Docker rows above are fresh local reruns from the current wave.
 
 ## Needs verification
 
-- Target-host build/linkage and systemd behavior.
 - Current compliance posture based on time-sensitive external rules.
