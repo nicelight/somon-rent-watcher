@@ -4,6 +4,12 @@ status: active
 ---
 # Changelog
 
+## [2026-09-09] Somon price parsing hotfix
+
+- Correct category/detail price extraction: image counts and house numbers no longer inflate prices (5000 → 65000 and 4800 → 314800 regressions). Reuse scoped DOM price extraction; retain existing metadata/marked-price and plain price-line support.
+- Add focused regression cases; preserve seen history, settings, filtering, and delivery semantics.
+- Source: operator-reported production missing listings; reproduced using current Somon HTML. Release is isolated from unfinished local product changes.
+
 ## [2026-09-01] Initial setup
 - Created Memory Bank skeleton
 - Seeded core docs (product, requirements, testing, task registry)
