@@ -82,7 +82,7 @@ func parseCategoryDOM(pageURL string, root *htmlx.Node) []model.Card {
 			ID:       id,
 			URL:      normalizeAdURL(pageURL, anchor.GetAttr("href")),
 			Title:    title,
-			Price:    parsePrice(text),
+			Price:    domPrice(container),
 			Rooms:    parseRooms(title),
 			Floor:    parseFloor(title),
 			ImageURL: firstImageURL(pageURL, container, title),
@@ -427,7 +427,7 @@ func mergeVisibleDetail(ad *model.Ad, pageURL string, root *htmlx.Node) {
 	} else if floor := parseFloor(ad.Title); floor != nil {
 		ad.Floor = floor
 	}
-	if price := detailPrice(root, linesText); price != nil {
+	if price := domPrice(root); price != nil {
 		ad.Price = price
 	}
 	if description := extractDescriptionFromDOM(root, linesText); description != "" {
@@ -820,7 +820,9 @@ func firstInt(text string) *int {
 	return &n
 }
 
-func detailPrice(root *htmlx.Node, linesText string) *int {
+// domPrice keeps neighbouring image counts and address numbers out of prices.
+// Structured price fields and dedicated visible price nodes take precedence.
+func domPrice(root *htmlx.Node) *int {
 	for _, keys := range []map[string]string{
 		{"property": "product:price:amount"},
 		{"itemprop": "price"},
@@ -836,7 +838,7 @@ func detailPrice(root *htmlx.Node, linesText string) *int {
 		if found != nil {
 			return false
 		}
-		if n.GetAttr("itemprop") == "price" || classHasMarker(n.GetAttr("class"), "price") {
+		if n.GetAttr("itemprop") == "price" || classHasMarker(n.GetAttr("class"), "price") || n.GetAttr("data-component") == "SidebarPrice" {
 			if raw := firstNonEmpty(n.GetAttr("content"), htmlx.Text(n)); raw != "" {
 				found = parsePrice(raw)
 			}
@@ -846,7 +848,18 @@ func detailPrice(root *htmlx.Node, linesText string) *int {
 	if found != nil {
 		return found
 	}
-	return parsePrice(linesText)
+	// Older plain markup can lack price attributes. Accept a price-only line,
+	// never the entire card/page where unrelated numbers can become its prefix.
+	for _, line := range strings.Split(htmlx.TextLines(root), "\n") {
+		line = htmlx.NormalizeSpace(line)
+		if strings.HasPrefix(strings.ToLower(line), "цена:") {
+			line = strings.TrimSpace(line[len("цена:"):])
+		}
+		if priceOnlyRE.MatchString(line) {
+			return parsePrice(line)
+		}
+	}
+	return nil
 }
 
 func extractDescriptionFromDOM(root *htmlx.Node, fallbackLines string) string {

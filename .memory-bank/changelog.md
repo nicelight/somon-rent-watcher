@@ -4,6 +4,19 @@ status: active
 ---
 # Changelog
 
+## [2026-09-09] Price extraction hotfix
+
+- Corrected category/detail DOM price extraction and added regressions for adjacent photo counts and house numbers.
+- Isolated release checkout based on installed `7f9c5f50d659` excludes unfinished local feature changes. Native local tests/vet/build passed; offline replay matched all 60 category prices and 38 cached detail prices.
+- Completed TASK-005-T3-FT-004-W1 after functional and independent semantic verification. Operational evidence: [hotfix protocol](../.protocols/TASK-005-T3-FT-004-W1/progress.md).
+- Final deployed commit `93cbe9ebcfe6` also preserves the existing `Цена:` fixture behavior. Target build/doctor and all normalized final host comparisons passed; verified running binary, rollback backup, intact SQLite/settings/environment. First cycle sent one valid new ad. History retained without replay; first-attempt measurement limitation stays documented in historical receipts.
+
+## [2026-09-09] Production empty-result diagnosis
+
+- Read-only production and website comparison established working polls, differing filters, and 38 already-seen IDs among 60 extracted website ad links. Evidence and limits: [runtime lifecycle](states/runtime-lifecycle.md#production-diagnostic-website-results-versus-bot-2026-09-09).
+- Production and implementation were unchanged; individual rejection causes for remaining links are unconfirmed.
+- Follow-up checked all 60 detail pages: 14 match real prices and production filters, 46 fail seller count; 11 matching IDs are already seen. Reproduced inflated-price parsing for 11 matches, correcting the initial incomplete explanation. [Full comparison](../.protocols/diagnostics/production-search-audit-2026-09-09/report.md). No implementation or production changes.
+
 ## [2026-09-01] Initial setup
 - Created Memory Bank skeleton
 - Seeded core docs (product, requirements, testing, task registry)

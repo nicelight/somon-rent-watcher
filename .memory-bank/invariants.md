@@ -1,39 +1,42 @@
 ---
-description: Status of accepted global invariants and routing to descriptive current-state guardrails.
-status: draft
-last_verified: 2026-09-01
+description: Accepted product and architecture invariants for the current watcher delta.
+status: active
+last_verified: 2026-09-02
+last_updated: 2026-09-04
+source_of_truth:
+  - .memory-bank/prd.md
+  - .memory-bank/requirements.md
+  - .memory-bank/architecture/system-architecture.md
 ---
 
 # Invariants
 
-## Authority status
-
-Authoritative PRD и accepted Global Backbone отсутствуют. Поэтому brownfield-маппинг не превращает наблюдаемое поведение кода в новые нормативные `MUST/NEVER` rules.
-
 ## Accepted MUST
 
-- Не определены владельцем product/spec workflow.
+- Exact candidates MUST be evaluated before fallback, and any exact match MUST suppress fallback for that poll.
+- Exact and fallback detail work MUST share the configured per-poll cap; incomplete exact evaluation MUST suppress fallback.
+- Only IDs fresh at poll start MAY be delivered; final rejection/confirmed delivery becomes seen, while deferred/transient/failed-delivery IDs remain unseen.
+- A fallback ad MUST pass every non-maximum-price filter and have known price in `(PriceMax, floor(1.5 * PriceMax)]`; delivery order is ascending price with stable feed-order ties and count is at most three.
+- Authorized Telegram callbacks MUST be acknowledged promptly and their resulting current UI MUST be sent as a new message.
+- Deployment MUST follow the accepted ordered route, preserve SQLite/settings, stop on ambiguous/unhealthy preflight, and change only the watcher runtime.
 
 ## Accepted NEVER
 
-- Не определены владельцем product/spec workflow.
+- NEVER run fallback without `PriceMax`, after an exact match, or after incomplete exact evaluation.
+- NEVER mark ambiguous/failed Telegram delivery seen.
+- NEVER use runtime `editMessageText` for admin callback, text-input completion, or manual-scan feedback.
+- NEVER add schema/config/dependency/worker/client-detection machinery for this delta.
+- NEVER modify unrelated production services, containers, networks, firewall, routing, reverse proxy, SELinux, or databases.
 
-## Descriptive current-state guardrails
+## Existing compatibility guardrails
 
-Текущая реализация фактически:
+- Initial baseline is not delivered; paused polls advance the baseline without backfill.
+- Category parse/sanity failure advances neither seen IDs nor successful snapshot.
+- Manual poll remains single-flight and does not bypass backoff.
+- Somon 403/429 is not bypassed through restart pressure, proxies, or CAPTCHA circumvention.
 
-- не отправляет initial baseline;
-- на паузе продвигает seen-baseline без backfill;
-- не меняет seen/snapshot при category parse/sanity failure;
-- помечает подходящий ID seen только после подтверждённой Telegram delivery;
-- не делает обход 403/429, proxy rotation или CAPTCHA bypass;
-- выполняет ручной poll через единственный scheduler, отклоняет одновременный ручной запрос и не обходит backoff;
-- ограничивает detail requests на poll и сохраняет debug HTML с private file mode.
+## Verification routes
 
-Это as-is observations, не target authority. Подробные переходы и исключения: [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md): current lifecycle evidence.
-
-## Evidence
-
-- [internal/app/app.go](../internal/app/app.go): writers and guard conditions.
-- [internal/telegram/bot.go](../internal/telegram/bot.go): delivery/fallback behavior and admin-only control.
-- [internal/store/sqlite_cgo.go](../internal/store/sqlite_cgo.go): private SQLite permissions and transactional writes.
+- FT-001/FT-002 deterministic tests and repository-native build gate.
+- FT-003 ordered release receipts and production preflight/postflight.
+- Detailed current transitions: [Runtime lifecycle](states/runtime-lifecycle.md).

@@ -1,0 +1,124 @@
+{
+  "id": "TASK-002-T3-FT-002-W1",
+  "title": "Implement append-only Telegram callback navigation",
+  "status": "ready",
+  "wave": "W1",
+  "feature": "FT-002",
+  "reqs": [
+    "REQ-002",
+    "REQ-006"
+  ],
+  "depends_on": [],
+  "touched_files": [
+    "internal/telegram/bot.go",
+    "internal/telegram/bot_test.go"
+  ],
+  "tier": "T3",
+  "gates": [
+    {
+      "name": "Focused callback and text-input tests",
+      "command": "CGO_ENABLED=1 go test -count=1 ./internal/telegram",
+      "required": true
+    },
+    {
+      "name": "Repository-native build gate",
+      "command": "./scripts/build.sh",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-002-append-only-telegram-ui.md",
+    ".memory-bank/requirements.md",
+    ".memory-bank/changelog.md"
+  ],
+  "evidence_required": [
+    "FT-002-AC-001 — RED: captured authorized navigation/mutation callbacks currently issue editMessageText before a late answerCallbackQuery, while unauthorized and wrong-group callbacks emit answerCallbackQuery rejection output. GREEN: private and target-chat authorized navigation/mutation traces begin with answerCallbackQuery and then send one applicable fresh menu/state from current settings; old-menu actions use current persisted settings, unauthorized and wrong-group traces have zero settings mutation and zero Bot API requests, invalid authorized callbacks retain bounded append-only rejection feedback, and owned traces have zero editMessageText. Decisive comparison: ordered methods change from edit-before-ack and unauthorized rejection output to authorized [answerCallbackQuery, sendMessage] and unauthorized/wrong-group [], while Backend before/after state distinguishes permitted mutations. Artifact: .tasks/TASK-002-T3-FT-002-W1/TASK-002-T3-FT-002-W1-acceptance-evidence.md.",
+    "FT-002-AC-002 RED_NOT_APPLICABLE: the baseline already persists valid price, negative-word, and interval input through the Backend, clears only the submitting administrator/chat pending key, and sends a fresh main menu, so observing claim absence would require breaking preserved behavior; alternative proof: capture pre-change GREEN for all three modes and cross-admin/cross-chat isolation, then claim-equivalent post-change GREEN. Decisive comparison: settings values, pending-key state, destination chat, sendMessage count, and zero editMessageText remain equivalent before and after, with no mutation by a different administrator/chat. Artifact: .tasks/TASK-002-T3-FT-002-W1/TASK-002-T3-FT-002-W1-acceptance-evidence.md.",
+    "FT-002-AC-004 / REQ-006 RED_NOT_APPLICABLE: the baseline contains none of the forbidden client detection, edit retry/cache, old-message deletion, persistence/configuration/dependency/worker/compatibility machinery, and observing RED would require introducing a forbidden mechanism; alternative proof: capture pre-change production-path, dependency, configuration, persistence, runtime-call, and owner inventory, then compare the post-change diff and required native build. Decisive comparison: go.mod/go.sum, internal/config, internal/store, changed production paths, Telegram method call sites, and boundary ownership show only reuse of the existing Bot, Backend settings, pending map, renderers, sendMessage, and answerCallbackQuery, while ./scripts/build.sh passes. Artifact: .tasks/TASK-002-T3-FT-002-W1/TASK-002-T3-FT-002-W1-acceptance-evidence.md."
+  ],
+  "purpose": "Make authorized callback navigation and filter mutation visible across Telegram clients through prompt acknowledgement and fresh current-state messages while preserving authorization and existing text-input isolation.",
+  "success_outcome": "Authorized private/target-chat navigation and mutation callbacks are acknowledged first and produce fresh current-state messages with zero edits; unauthorized and wrong-group callbacks are silent and non-mutating, and all valid text-input modes retain isolated persistence and fresh main-menu output without new machinery.",
+  "anti_goals": [
+    "Do not implement manual-scan start/completion/error feedback owned by TASK-003-T2-FT-002-W1.",
+    "Do not add client detection, edit retry/cache, old-message deletion, compatibility machinery, persistence, schema, configuration, dependency, worker, profile, or group support.",
+    "Do not change the administrator allowlist, private/target-chat authorization decision, Telegram offset durability, shared settings ownership, or pending-key identity.",
+    "Do not change Polling Application production behavior, FT-001 polling behavior, or FT-003 publication/deployment behavior.",
+    "Do not remove or redesign the generic Telegram client edit API; the required outcome is zero edit requests from the owned runtime flows."
+  ],
+  "runtime_context": {
+    "write_boundary": [
+      "internal/telegram/bot.go",
+      "internal/telegram/bot_test.go",
+      "dist/somonwatch",
+      "dist/somonwatch.sha256"
+    ],
+    "forbidden_scope": [
+      "manual-scan start/completion/error implementation owned by TASK-003-T2-FT-002-W1",
+      "internal/app production polling, scheduling, backoff, and state-transition behavior",
+      "internal/store schema, paths, or stored-row interpretation",
+      "internal/config and environment configuration surface",
+      "go.mod and go.sum dependency graph",
+      "administrator allowlist and target-chat authorization policy",
+      "Telegram offset durability",
+      "deploy, publication, and production runtime",
+      "FT-001 and FT-003 behavior"
+    ],
+    "stop_conditions": [
+      "A required production change cannot stay inside the accepted Telegram Adapter owner and current Backend contract.",
+      "Execution requires changing manual-scan feedback, authorization policy, pending-key identity, scheduler ownership, polling lifecycle, Telegram offset durability, SQLite, configuration, dependency graph, or production runtime.",
+      "Execution requires a project path outside the hard write boundary, excluding workflow-owned evidence and lifecycle bookkeeping.",
+      "Execution reveals an unresolved product behavior, public contract, data authority, tier, dependency, or task-boundary decision.",
+      "Any authorization-boundary probe cannot run in the disposable in-memory Backend and local httptest harness with safe rerun and no external side effect.",
+      "Execution cannot obtain honest claim-linked RED/GREEN or accepted alternative proof for FT-002-AC-001, FT-002-AC-002, and FT-002-AC-004."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-002-append-only-telegram-ui.md#FT-002-AC-001",
+    ".memory-bank/features/FT-002-append-only-telegram-ui.md#FT-002-AC-002",
+    ".memory-bank/features/FT-002-append-only-telegram-ui.md#FT-002-AC-004",
+    ".memory-bank/epics/EP-001-reliable-watcher-upgrade.md",
+    ".memory-bank/prd.md#req-002--append-only-telegram-admin-controls",
+    ".memory-bank/prd.md#nfr-001--simplicity-and-maintainability",
+    "internal/telegram/bot.go#Bot.processCallback",
+    "internal/telegram/bot.go#Bot.processMessage",
+    "internal/telegram/bot_test.go"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md#iv-minimal-verifiable-change",
+    ".memory-bank/requirements.md#req-002--append-only-telegram-controls",
+    ".memory-bank/requirements.md#req-006--kiss-maintainability-prd-nfr-001",
+    ".memory-bank/architecture/system-architecture.md#ad-001--preserve-one-cohesive-deployable",
+    ".memory-bank/architecture/system-architecture.md#ad-003--telegram-administration-is-append-only",
+    ".memory-bank/contracts/boundary-map.md#telegram-application-boundary",
+    ".memory-bank/contracts/boundary-map.md#external-boundary-rules",
+    ".memory-bank/states/runtime-lifecycle.md#telegram-admin-transitions",
+    ".memory-bank/states/runtime-lifecycle.md#non-durable-process-state",
+    ".memory-bank/invariants.md#accepted-must",
+    ".memory-bank/invariants.md#accepted-never",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/testing/current-coverage.md#automated-coverage-by-package"
+  ],
+  "constraints": [
+    "Keep one Go modular monolith and the accepted package dependency graph.",
+    "Acknowledge an authorized navigation/mutation callback before its action and send the resulting current state as a fresh message without an edit request.",
+    "Keep old menus actionable against current persisted settings without deleting or caching old messages.",
+    "Keep pending price, negative-word, and interval input in the existing map keyed by administrator and chat and persist only through the existing Backend.",
+    "Keep manual-scan feedback outside this task while preserving compatibility with its existing callback branch.",
+    "Use only the isolated existing httptest and in-memory Backend harness; no live Telegram, Somon, SQLite, or production probe is authorized.",
+    "The non-empty write boundary is hard; the native build gate may write only its exact two listed dist artifacts."
+  ],
+  "invariants": [
+    "Authorized private/target-chat navigation and mutation callbacks are acknowledged promptly; unauthorized users and wrong group chats neither mutate settings nor emit bot output.",
+    "Owned callback results and valid text-input completion use new messages and make no runtime editMessageText request.",
+    "The newest bot message represents current settings/state; an old menu action reads and mutates current persisted settings.",
+    "Pending input remains isolated by administrator and chat and clears only after valid persistence or explicit cancellation.",
+    "No client detection, edit retry/cache, deletion, persistence, schema, configuration, dependency, worker, compatibility layer, profile, group, or duplicate owner is added."
+  ],
+  "verification_targets": [
+    "FT-002-AC-001: isolated Bot API traces and Backend state for authorized private/target-chat, stale-menu, unauthorized, wrong-group, and invalid-callback cases prove prompt acknowledgement order, fresh current-state output, boundary isolation, and zero edits in owned flows.",
+    "FT-002-AC-002: all three valid input modes plus cross-admin and cross-chat scenarios prove settings persistence, exact pending-key isolation/clearance, one fresh main menu, and zero edits.",
+    "FT-002-AC-004 / REQ-006: pre/post dependency, configuration, persistence, runtime-call, changed-path, and owner review plus ./scripts/build.sh prove the forbidden mechanisms and duplicate owners remain absent.",
+    "T3 safety: every authorization probe uses only the in-process Bot, disposable Backend, and local httptest server; it is safely rerunnable, makes no external request, and records request/state isolation."
+  ]
+}

@@ -2,9 +2,9 @@
 description: Project Constitution — governing principles for AI-first development.
 status: active
 version: 1
-project_principles: framework-default
+project_principles: skipped
 ratified: null
-last_updated: 2026-09-01
+last_updated: 2026-09-04
 ---
 # Project Constitution
 
@@ -16,7 +16,7 @@ This Constitution defines the non-negotiable principles that guide AI agents whe
 
 ### 0. Project Principles Status
 
-This skeleton uses framework-default principles until `/constitution` runs the contextual interview. `ratified: null` means project principles are not ratified yet. When `/constitution` sets `project_principles: ratified` or `project_principles: partial`, it must fill `ratified: YYYY-MM-DD`. If the user explicitly skips that interview, keep or set `project_principles: skipped`, keep `ratified: null`, and continue; revisit `/constitution` later.
+The operator explicitly skipped the contextual interview on 2026-09-04 and chose to continue with the existing framework principles and the project KISS policy from `AGENTS.md`. `ratified: null` records that project-specific principles were not separately ratified. The interview may be revisited later.
 
 ### I. AI-First Spec-Driven Development
 
@@ -57,4 +57,8 @@ After meaningful changes, agents MUST synchronize affected Memory Bank docs, tas
 - Amendments must include rationale and update affected docs if needed.
 - Constitution should stay short. Put concrete project rules into `invariants.md`, `contracts/*`, `states/*`, or workflow policy docs.
 
-**Version**: 1 | **Ratified**: not ratified | **Last updated**: 2026-09-01
+## Governance Decisions
+
+- 2026-09-04: keep the existing framework principles, do not add project-specific constitutional machinery, and apply the existing KISS gate from `AGENTS.md`.
+
+**Version**: 1 | **Ratified**: skipped | **Last updated**: 2026-09-04

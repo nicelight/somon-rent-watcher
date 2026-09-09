@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "tool": "mb-doctor",
+  "strict": false,
+  "status": "pass",
+  "summary": {
+    "errors": 0,
+    "warnings": 4,
+    "infos": 2
+  },
+  "counts": {
+    "error": 0,
+    "warning": 4,
+    "info": 2
+  },
+  "findings": [
+    {
+      "severity": "info",
+      "code": "MB_LINT_PASSED",
+      "message": ".memory-bank/scripts/mb-lint.mjs passed.",
+      "path": ".memory-bank/scripts/mb-lint.mjs"
+    },
+    {
+      "severity": "warning",
+      "code": "TASKS_FROM_UNCLARIFIED_FEATURE",
+      "message": "Indexed tasks exist for unclarified feature FT-000 (feature_doc_missing).",
+      "path": ".memory-bank/tasks/index.json",
+      "details": {
+        "feature": "FT-000",
+        "reason": "feature_doc_missing",
+        "feature_paths": [],
+        "tasks": [
+          {
+            "id": "TASK-005-T3-FT-000-W1",
+            "path": ".memory-bank/tasks/TASK-005-T3-FT-000-W1.task.json",
+            "status": "done"
+          }
+        ]
+      },
+      "suggested_fix": "Complete /feature-doctor FT-000 before generating or running task records for that feature."
+    },
+    {
+      "severity": "warning",
+      "code": "FOUNDATION_GATE_TASK_INVALID",
+      "message": ".memory-bank/foundation.md: Foundation is not required, but indexed FT-000 records still exist.",
+      "path": ".memory-bank/foundation.md",
+      "details": {
+        "gate_task": "not_required",
+        "foundation_tasks": [
+          {
+            "id": "TASK-005-T3-FT-000-W1",
+            "path": ".memory-bank/tasks/TASK-005-T3-FT-000-W1.task.json",
+            "status": "done"
+          }
+        ]
+      },
+      "suggested_fix": "Reconcile the accepted Foundation decision through /spec-design; use /foundation-to-tasks --verify-existing only when existing-baseline evidence is the authoritative route."
+    },
+    {
+      "severity": "warning",
+      "code": "TASK_REQUIREMENT_LINK_MISSING",
+      "message": ".memory-bank/tasks/TASK-005-T3-FT-000-W1.task.json: T3 task has no concrete REQ-* requirement link.",
+      "path": ".memory-bank/tasks/TASK-005-T3-FT-000-W1.task.json",
+      "task_id": "TASK-005-T3-FT-000-W1",
+      "suggested_fix": "Add at least one real REQ-<NNN> or REQ-<DOMAIN>-<NNN> to task.reqs; placeholder REQ-XXX does not count."
+    },
+    {
+      "severity": "warning",
+      "code": "TASK_FEATURE_FILE_MISSING",
+      "message": ".memory-bank/tasks/TASK-005-T3-FT-000-W1.task.json: referenced feature FT-000 has no matching file in .memory-bank/features/.",
+      "path": ".memory-bank/tasks/TASK-005-T3-FT-000-W1.task.json",
+      "task_id": "TASK-005-T3-FT-000-W1",
+      "details": {
+        "feature": "FT-000"
+      },
+      "suggested_fix": "Create .memory-bank/features/FT-000-<slug>.md or correct task.feature."
+    },
+    {
+      "severity": "info",
+      "code": "TASK_QUEUE_SUMMARY",
+      "message": "Task queue summary.",
+      "path": ".memory-bank/tasks/index.json",
+      "details": {
+        "total": 5,
+        "planned": 1,
+        "ready": 2,
+        "in_progress": 1,
+        "blocked": 0,
+        "done": 1,
+        "done_for_prod": 0,
+        "failed": 0,
+        "invalid": 0
+      }
+    }
+  ]
+}
+

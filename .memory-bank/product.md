@@ -1,73 +1,55 @@
 ---
-description: C4 L1 current-state product baseline для Somon Rent Watcher.
+description: Product identity and accepted target scope for Somon Rent Watcher.
 status: active
-baseline_kind: as-is
-last_verified: 2026-09-01
-last_updated: 2026-09-01
+last_updated: 2026-09-04
 source_of_truth:
-  - README.md
-  - internal/app/app.go
+  - .memory-bank/prd.md
+  - .memory-bank/analysis/product-brief.md
 ---
 
-# Product — current state
+# Product — Somon Rent Watcher
 
-## Scope warning
+## Identity
 
-Этот документ описывает только реализованное состояние репозитория на 2026-09-01. Он не является PRD, roadmap или утверждённым target-state решением.
-
-## What this is
-
-Somon Rent Watcher — небольшой Go-сервис для настроенного списка администраторов и одной Telegram-группы. Он периодически читает свежую серверную HTML-выдачу аренды квартир в Душанбе на Somon.tj, применяет общий настраиваемый фильтр и отправляет подходящие впервые замеченные объявления в Telegram.
+Somon Rent Watcher is a small Go service for one configured Telegram group and its administrators. It watches fresh apartment-rental listings on Somon.tj, applies one shared filter, and sends useful first-seen results without normal duplicates.
 
 ## Core value
 
-- Сократить ручной просмотр выдачи Somon до уведомлений о новых подходящих объявлениях.
-- Не спамить текущей выдачей при первом запуске и не отправлять один известный ID штатно повторно.
-- Дать настроенным администраторам управление общим фильтром и состоянием мониторинга через личный чат Telegram или целевую группу.
+- Replace repeated manual browsing with timely filtered notifications.
+- Keep strict matches primary while surfacing a small, bounded set of close higher-price alternatives when a completed poll is otherwise empty.
+- Keep administrator actions visible across Telegram clients through append-only feedback.
 
-## Actors and external systems
+## Audience
 
-| Actor / system | Current interaction |
-|---|---|
-| Настроенный администратор | Настраивает общий фильтр и polling interval, включает/ставит на паузу мониторинг, запрашивает немедленный scan и смотрит `/status` в личном чате с ботом или целевой группе. |
-| Участники целевой группы | Получают подходящие объявления; пользователи вне admin allowlist не могут управлять ботом. |
-| Somon.tj | Отдаёт category/detail HTML по исходящему HTTPS; private/internal API и browser automation не используются. |
-| Telegram Bot API | Отдаёт updates через long polling и принимает сообщения/фото; webhook и входящий порт не нужны. |
+- Configured administrators who manage one shared filter and scheduler controls.
+- Members of the configured group who consume ad notifications.
 
-## Primary current flows
+## Primary flow
 
-1. `somonwatch run` открывает SQLite и параллельно запускает Telegram long polling и Somon polling loop.
-2. Первый успешный poll создаёт seen-baseline без рассылки и оставляет мониторинг на паузе.
-3. На паузе новые ID продолжают становиться seen без отправки и без последующего backfill.
-4. В активном режиме новые карточки проходят дешёвый card-prefilter; detail HTML запрашивается только для кандидатов и в пределах per-poll cap.
-5. Прошедшее detail-filter объявление отправляется в одну группу и только после успешной отправки помечается seen.
-6. Подозрение на разрыв обычной ленты запускает один recovery sweep по выбранным room pages; 403/429 переводят scheduler в длинный backoff.
-7. Администратор может изменить persisted-диапазон следующей случайной задержки или поставить один немедленный poll в очередь; ручной запрос не обходит backoff.
+1. One process polls Somon category HTML and validates the feed.
+2. Baseline, pause, first-seen, recovery, backoff, and request-cap behavior protect delivery and state.
+3. Fresh exact candidates are evaluated first.
+4. Only when exact evaluation completes with no match, up to three closest fresh higher-price ads within `150%` of `PriceMax` may be sent.
+5. Authorized Telegram callbacks are acknowledged and their current result/menu is sent as a new message.
+6. Verified changes are published and deployed in an isolated sequence affecting only Somon Rent Watcher.
 
-## Current implementation constraints
+## Constraints
 
-- Один Linux process; production route использует `systemd`, локальный Kubuntu route — один Docker Compose container. Входящие TCP/UDP-порты отсутствуют.
-- Go 1.21+, стандартная библиотека Go и system `libsqlite3` через CGO; внешних Go modules нет.
-- Один SQLite-файл хранит seen IDs, JSON settings и служебное state.
-- Список Telegram admin IDs, один общий filter profile и одна target group; управление из других групп запрещено.
-- Никаких browser automation, Redis/PostgreSQL, queue, mandatory Docker, proxy rotation или CAPTCHA bypass.
-- Production-эксплуатация scraper имеет явно задокументированный compliance-риск относительно опубликованных правил Somon; актуальность правил требует внешней проверки перед запуском.
+- One process, one SQLite file, one shared filter, one target group, and an admin allowlist.
+- No new database schema, dependency, setting, worker, inbound port, browser automation, block bypass, or client-specific behavior for this delta.
+- A single detail-request cap covers exact and fallback work.
+- Production settings/seen history must survive upgrades; unrelated workloads must remain unchanged.
 
-## Current non-goals
+## Non-goals
 
-Текущая версия не является полным crawler/archive и не реализует pagination/lazy-load reverse engineering, историю цен, дедупликацию квартир, несколько профилей/групп, web UI, NLP/LLM, телефон автора или обход блокировок.
+- Full crawler/archive, price history, apartment-level deduplication, multiple profiles/groups, web UI, NLP/LLM, or private Somon APIs.
+- Separate shown-history, old-ID backfill, configurable fallback policy, Telegram message-edit retries, or old-menu cleanup.
+- Changes to unrelated production containers, services, networks, firewall, routing, reverse proxy, SELinux, or databases.
 
-## Evidence
+## Current-state evidence
 
-- [README.md](../README.md): публичное описание реализованного сервиса, stack и flows.
-- [docs/IMPLEMENTATION_NOTES.md](../docs/IMPLEMENTATION_NOTES.md): намеренные safety additions и фактический dependency choice.
-- [cmd/somonwatch/main.go](../cmd/somonwatch/main.go): CLI entrypoints `run`, `doctor`, `ids`, `version`, `help`.
-- [internal/app/app.go](../internal/app/app.go): scheduler, baseline, pause, filtering, delivery, recovery и backoff.
-- [docs/TZ_Somon_Rent_Watcher.md](../docs/TZ_Somon_Rent_Watcher.md): draft pre-implementation intent; использовать как historical product evidence, а не как принятый Memory Bank PRD.
-
-## Routing
-
-- Current architecture: [.memory-bank/architecture/system-architecture.md](architecture/system-architecture.md): C4 as-is topology and component map.
-- Current lifecycle: [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md): polling, delivery and persisted-state transitions.
-- Operations: [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md): source runbook routing and safety boundaries.
-- Local Docker operations: [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md): Kubuntu Compose runtime and persistent-state route.
+- [Architecture baseline](architecture/system-architecture.md)
+- [Integration baseline](contracts/current-integrations.md)
+- [Runtime lifecycle baseline](states/runtime-lifecycle.md)
+- [Current test coverage](testing/current-coverage.md)
+- [AlmaLinux operations route](runbooks/almalinux-9-operations.md)

@@ -419,58 +419,181 @@ func (a *App) processNewCards(ctx context.Context, settings filter.Settings, car
 		}
 	}
 	stats := processStats{NewIDs: len(unseenCards)}
-	for _, card := range unseenCards {
-		if ok, reason := filter.CardMatches(settings, card); !ok {
-			a.logger.Debug("new card rejected by prefilter", "ad_id", card.ID, "reason", reason)
-			if err := a.store.MarkSeen([]int64{card.ID}, now); err != nil {
-				return stats, err
-			}
-			continue
-		}
+	nonMaxSettings := settings
+	nonMaxSettings.PriceMax = nil
 
-		if stats.DetailRequests >= a.cfg.MaxDetailsPerPoll {
-			a.logger.Warn("detail request cap reached; remaining IDs stay unseen", "cap", a.cfg.MaxDetailsPerPoll)
-			break
+	markSeen := func(cardID int64) error {
+		return a.store.MarkSeen([]int64{cardID}, now)
+	}
+	fallbackPriceMatches := func(price *int) bool {
+		if settings.PriceMax == nil || price == nil || *price <= *settings.PriceMax {
+			return false
 		}
+		return *price-*settings.PriceMax <= *settings.PriceMax/2
+	}
+	fetchDetail := func(card model.Card) (model.Ad, bool, error) {
 		stats.DetailRequests++
 		ad, detailBody, err := a.somon.FetchDetail(ctx, card, a.cfg.CategoryURL)
-		if err != nil {
-			var httpErr *somon.HTTPError
-			if errors.As(err, &httpErr) {
-				switch httpErr.StatusCode {
-				case http.StatusNotFound, http.StatusGone:
-					if markErr := a.store.MarkSeen([]int64{card.ID}, now); markErr != nil {
-						return stats, markErr
-					}
-					continue
-				case http.StatusForbidden, http.StatusTooManyRequests:
-					return stats, err
-				}
-			}
-			if len(detailBody) > 0 {
-				a.saveDebug(fmt.Sprintf("detail-%d-parse-error", card.ID), detailBody)
-				a.notifyAdmin(ctx, "detail-parser", fmt.Sprintf("Не удалось разобрать detail-page Somon для ID %d. ID не помечен просмотренным и будет повторён, пока остаётся в ленте.", card.ID), adminNotificationPause)
-			}
-			a.logger.Error("detail fetch/parse failed; ad remains unseen", "ad_id", card.ID, "error", err)
-			continue
+		if err == nil {
+			return ad, true, nil
 		}
+		var httpErr *somon.HTTPError
+		if errors.As(err, &httpErr) {
+			switch httpErr.StatusCode {
+			case http.StatusNotFound, http.StatusGone:
+				return model.Ad{}, true, markSeen(card.ID)
+			case http.StatusForbidden, http.StatusTooManyRequests:
+				return model.Ad{}, false, err
+			}
+		}
+		if len(detailBody) > 0 {
+			a.saveDebug(fmt.Sprintf("detail-%d-parse-error", card.ID), detailBody)
+			a.notifyAdmin(ctx, "detail-parser", fmt.Sprintf("Не удалось разобрать detail-page Somon для ID %d. ID не помечен просмотренным и будет повторён, пока остаётся в ленте.", card.ID), adminNotificationPause)
+		}
+		a.logger.Error("detail fetch/parse failed; ad remains unseen", "ad_id", card.ID, "error", err)
+		return model.Ad{}, false, nil
+	}
+	deliverExact := func(cardID int64, ad model.Ad) error {
+		if err := a.bot.SendAd(ctx, ad); err != nil {
+			a.logger.Error("Telegram delivery failed; ad remains unseen", "ad_id", ad.ID, "error", err)
+			return nil
+		}
+		if err := markSeen(cardID); err != nil {
+			return fmt.Errorf("mark sent ad %d seen: %w", cardID, err)
+		}
+		stats.Sent++
+		a.logger.Info("new exact ad sent", "ad_id", ad.ID, "price", pointerValue(ad.Price), "seller_ads", pointerValue(ad.SellerAds))
+		return nil
+	}
 
-		if ok, reason := filter.AdMatches(settings, ad); !ok {
-			a.logger.Debug("new ad rejected by detail filter", "ad_id", ad.ID, "reason", reason)
-			if err := a.store.MarkSeen([]int64{card.ID}, now); err != nil {
+	exactCards := make([]model.Card, 0, len(unseenCards))
+	fallbackCards := make([]model.Card, 0, len(unseenCards))
+	for _, card := range unseenCards {
+		if ok, reason := filter.CardMatches(nonMaxSettings, card); !ok {
+			a.logger.Debug("new card rejected by prefilter", "ad_id", card.ID, "reason", reason)
+			if err := markSeen(card.ID); err != nil {
 				return stats, err
 			}
 			continue
 		}
-		if err := a.bot.SendAd(ctx, ad); err != nil {
-			a.logger.Error("Telegram delivery failed; ad remains unseen", "ad_id", ad.ID, "error", err)
+		if settings.PriceMax != nil && card.Price != nil && *card.Price > *settings.PriceMax {
+			if fallbackPriceMatches(card.Price) {
+				fallbackCards = append(fallbackCards, card)
+			} else if err := markSeen(card.ID); err != nil {
+				return stats, err
+			}
 			continue
 		}
-		if err := a.store.MarkSeen([]int64{card.ID}, now); err != nil {
-			return stats, fmt.Errorf("mark sent ad %d seen: %w", card.ID, err)
+		exactCards = append(exactCards, card)
+	}
+
+	type fallbackCandidate struct {
+		cardID int64
+		ad     model.Ad
+		order  int
+	}
+	feedOrder := make(map[int64]int, len(cards))
+	for i, card := range cards {
+		feedOrder[card.ID] = i
+	}
+	fallbackCandidates := make([]fallbackCandidate, 0, len(fallbackCards))
+	exactFound := false
+	exactComplete := true
+	for _, card := range exactCards {
+		if stats.DetailRequests >= a.cfg.MaxDetailsPerPoll {
+			exactComplete = false
+			a.logger.Warn("detail request cap reached during exact evaluation; remaining IDs stay unseen", "cap", a.cfg.MaxDetailsPerPoll)
+			break
 		}
-		stats.Sent++
-		a.logger.Info("new ad sent", "ad_id", ad.ID, "price", pointerValue(ad.Price), "seller_ads", pointerValue(ad.SellerAds))
+		ad, resolved, err := fetchDetail(card)
+		if err != nil {
+			return stats, err
+		}
+		if !resolved {
+			exactComplete = false
+			continue
+		}
+		if ad.ID == 0 {
+			continue
+		}
+		if ok, _ := filter.AdMatches(settings, ad); ok {
+			exactFound = true
+			if err := deliverExact(card.ID, ad); err != nil {
+				return stats, err
+			}
+			continue
+		}
+		if ok, _ := filter.AdMatches(nonMaxSettings, ad); ok && fallbackPriceMatches(ad.Price) {
+			fallbackCandidates = append(fallbackCandidates, fallbackCandidate{cardID: card.ID, ad: ad, order: feedOrder[card.ID]})
+			continue
+		}
+		a.logger.Debug("new ad rejected by detail filter", "ad_id", ad.ID)
+		if err := markSeen(card.ID); err != nil {
+			return stats, err
+		}
+	}
+
+	if settings.PriceMax != nil && !exactFound && exactComplete {
+		fallbackComplete := true
+		for _, card := range fallbackCards {
+			if stats.DetailRequests >= a.cfg.MaxDetailsPerPoll {
+				fallbackComplete = false
+				a.logger.Warn("detail request cap reached during fallback evaluation; fallback suppressed", "cap", a.cfg.MaxDetailsPerPoll)
+				break
+			}
+			ad, resolved, err := fetchDetail(card)
+			if err != nil {
+				return stats, err
+			}
+			if !resolved {
+				fallbackComplete = false
+				continue
+			}
+			if ad.ID == 0 {
+				continue
+			}
+			if ok, _ := filter.AdMatches(settings, ad); ok {
+				exactFound = true
+				if err := deliverExact(card.ID, ad); err != nil {
+					return stats, err
+				}
+				continue
+			}
+			if ok, _ := filter.AdMatches(nonMaxSettings, ad); ok && fallbackPriceMatches(ad.Price) {
+				fallbackCandidates = append(fallbackCandidates, fallbackCandidate{cardID: card.ID, ad: ad, order: feedOrder[card.ID]})
+				continue
+			}
+			if err := markSeen(card.ID); err != nil {
+				return stats, err
+			}
+		}
+
+		if !exactFound && fallbackComplete {
+			sort.SliceStable(fallbackCandidates, func(i, j int) bool {
+				left, right := fallbackCandidates[i], fallbackCandidates[j]
+				if *left.ad.Price == *right.ad.Price {
+					return left.order < right.order
+				}
+				return *left.ad.Price < *right.ad.Price
+			})
+			for i, candidate := range fallbackCandidates {
+				if i >= 3 {
+					if err := markSeen(candidate.cardID); err != nil {
+						return stats, err
+					}
+					continue
+				}
+				if err := a.bot.SendAd(ctx, candidate.ad); err != nil {
+					a.logger.Error("Telegram fallback delivery failed; ad remains unseen", "ad_id", candidate.ad.ID, "error", err)
+					continue
+				}
+				if err := markSeen(candidate.cardID); err != nil {
+					return stats, fmt.Errorf("mark fallback ad %d seen: %w", candidate.cardID, err)
+				}
+				stats.Sent++
+				a.logger.Info("new fallback ad sent", "ad_id", candidate.ad.ID, "price", pointerValue(candidate.ad.Price), "seller_ads", pointerValue(candidate.ad.SellerAds))
+			}
+		}
 	}
 	if stats.NewIDs > 0 {
 		a.logger.Info("new IDs processed", "count", stats.NewIDs)

@@ -25,6 +25,7 @@ source_of_truth:
 - Provider: configurable category URL and `/adv/...` detail pages on Somon.tj; recovery uses known room-specific category paths.
 - Requests: sequential HTTP GET, static User-Agent, optional Referer, shared client/keep-alive, configured minimum delay, timeout and maximum response body.
 - Inputs: server-rendered HTML; deterministic Next.js/RSC data is a fallback/enrichment source. Visible DOM controls city-feed membership/order when visible cards exist.
+- Price extraction uses structured price metadata or dedicated visible price nodes (including `SidebarPrice`), then standalone price-only lines (including an explicit `Цена:` label). Whole-card/page text must not join image counts or address numbers to the price. Regression coverage: `TestParseCategoryPriceExcludesPhotoCount` and `TestParseDetailPriceExcludesAddressNumber` in `internal/somon/parser_test.go`.
 - Failures: non-2xx becomes typed `HTTPError`; 403/429 or detected block page enter blocked handling; parse/sanity failures return raw body to the caller for private diagnostics and do not authorize state advancement.
 - No current interaction with Somon private `/api`, `/author/`, pagination, browser automation, proxy rotation or CAPTCHA bypass.
 - Evidence: [internal/somon/client.go](../../internal/somon/client.go), [internal/somon/parser.go](../../internal/somon/parser.go), [internal/app/app.go](../../internal/app/app.go).

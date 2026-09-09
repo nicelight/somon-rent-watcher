@@ -1,0 +1,78 @@
+{
+  "id": "TASK-005-T3-FT-004-W1",
+  "title": "Correct Somon price extraction and deploy isolated production hotfix",
+  "status": "done",
+  "wave": "W1",
+  "feature": "FT-004",
+  "reqs": [
+    "REQ-009",
+    "REQ-005",
+    "REQ-008"
+  ],
+  "depends_on": [],
+  "touched_files": [
+    "internal/somon/parser.go",
+    "internal/somon/parser_test.go",
+    ".memory-bank/contracts/current-integrations.md",
+    ".memory-bank/changelog.md"
+  ],
+  "tier": "T3",
+  "gates": [
+    {
+      "name": "native-build",
+      "command": "./scripts/build.sh",
+      "required": true
+    }
+  ],
+  "verify": [
+    "Functional PASS: .protocols/TASK-005-T3-FT-004-W1/verification.md. Deployed d5fdc120400acba96d088c465aa71db9ab1402ab; all old seen rows/settings/env preserved; semantic verification pending.",
+    "Attempt2 functional PASS: final93cbe9ebcfe6421040461f4ee4e049430bf5028d deployed; all3786 prior rows preserved among3792; all normalized host comparison fields pass; first poll sent1. Current verification.md supersedes attempt1. Final semantic check pending.",
+    "Explicit GENERAL standalone owner closure: done on2026-09-09 for final93cbe9ebcfe6421040461f4ee4e049430bf5028d after current functional PASS and semantic-pass (.protocols/TASK-005-T3-FT-004-W1/red-verification.md); production acceptance complete, no pending task-owned work.",
+    "Metadata reconciliation: initial temporary FT-000 classification corrected to FT-004 because Foundation is not required. Actual hotfix scope, commits, probes and verdicts unchanged; no retrospective task-plan approval is claimed."
+  ],
+  "docs": [
+    ".memory-bank/contracts/current-integrations.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Apply the operator-authorized correction of reproduced inflated category/detail prices to the existing deployed baseline. Standalone maintenance hotfix; does not execute the pending product feature queue.",
+  "success_outcome": "Saved failing cases parse the displayed prices; native gates and live doctor pass; the exact hotfix commit is installed in the one existing watcher service with settings/history and unrelated host state preserved.",
+  "anti_goals": [
+    "No history reset or replay",
+    "No unfinished local price-fallback or Telegram UI changes",
+    "No unrelated production changes"
+  ],
+  "source_artifacts": [
+    ".protocols/diagnostics/production-search-audit-2026-09-09/report.md",
+    ".memory-bank/features/FT-004-price-extraction-hotfix.md",
+    ".memory-bank/requirements.md#req-009--correct-somon-price-extraction",
+    ".memory-bank/features/FT-004-price-extraction-hotfix.md#FT-004-AC-001",
+    ".memory-bank/features/FT-004-price-extraction-hotfix.md#FT-004-AC-002"
+  ],
+  "normative_inputs": [
+    ".memory-bank/contracts/current-integrations.md",
+    ".memory-bank/runbooks/almalinux-9-operations.md",
+    ".memory-bank/states/runtime-lifecycle.md",
+    ".memory-bank/invariants.md"
+  ],
+  "constraints": [
+    "Operator explicitly authorized corrections and careful deployment on 2026-09-09.",
+    "Separate clean checkout based on installed commit; preserve existing dirty working tree.",
+    "Only watcher source/build/install/service may change on production; preserve SQLite, settings, environment, and unrelated workloads."
+  ],
+  "invariants": [
+    "Extract prices from dedicated price nodes, never adjacent image counts or address numbers.",
+    "Existing seen and delivery semantics are unchanged."
+  ],
+  "verification_targets": [
+    "Regression RED before parser mutation and GREEN after for category photo-count and detail address-number contamination.",
+    "Run scripts/build.sh on isolated hotfix checkout locally and on target before stopping service.",
+    "Check saved 60-card category matches independent visible prices; compare saved details with dedicated visible price blocks.",
+    "Read-only production identity and SQLite integrity preflight; pre/post unrelated workload fingerprints; stopped-state settings/environment and seen-row digests preserved.",
+    "Installed binary version/checksum and service health match target build; rollback binary retained."
+  ],
+  "evidence_required": [
+    "Regression RED/GREEN outputs and final native gate output in .protocols/TASK-005-T3-FT-004-W1/",
+    "Production mutation RED_NOT_APPLICABLE for state-loss/isolation: manufacturing those failures would harm unrelated services or data. Use before/after stable fingerprints around the scoped release.",
+    "Exact hotfix commit, target doctor, deployment and postflight receipts in .protocols/TASK-005-T3-FT-004-W1/"
+  ]
+}

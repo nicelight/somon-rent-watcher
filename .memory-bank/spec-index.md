@@ -1,65 +1,60 @@
 ---
 description: Pure SDD spec registry and planned-spec index.
 status: active
-last_updated: 2026-09-01
+last_updated: 2026-09-04
 source_of_truth:
   - .memory-bank/spec-index.md
 ---
+
 # SDD Spec Index
 
 ## Purpose
-- Keep a concise registry of existing and planned SDD specs.
-- Read this index before creating new specs or doing serious design-pressure work.
-- Keep readiness, open design questions, backbone status, and routing handoffs in [.memory-bank/spec-backbone.md](spec-backbone.md).
-- Feature `spec_design_status` lives in feature frontmatter, not in this index.
-- `/spec-design` routes below mean initial backbone creation; accepted
-  backbone/shared-contract changes use `/spec-redesign`.
+
+- Register canonical current/target specs without duplicating their decisions.
+- Keep readiness, matrix, open questions and handoffs in [spec-backbone.md](spec-backbone.md).
+- Feature `spec_design_status` and exact applicable links live in feature documents.
+- Accepted backbone/shared-contract changes route to `/spec-redesign`; feature-local extensions route through `/feature-to-tasks` or `/spec-auto`.
 
 ## Current-State Baseline Registry
 
-These artifacts are descriptive brownfield evidence. They do not establish accepted target architecture, requirements, dependency edges or Global Backbone decisions.
+These artifacts remain descriptive evidence and do not override accepted target specs.
 
 | Type | Path | Status | Current-state scope |
 |---|---|---|---|
-| product baseline | [.memory-bank/product.md](product.md) | active as-is | Implemented product, actors, flows and constraints. |
-| architecture baseline | [.memory-bank/architecture/system-architecture.md](architecture/system-architecture.md) | active as-is | C4 runtime/components, entrypoints, flows and writers. |
 | integration baseline | [.memory-bank/contracts/current-integrations.md](contracts/current-integrations.md) | active as-is | Observed external boundaries and package dependencies. |
-| lifecycle baseline | [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md) | active as-is | Poll, delivery, recovery and persisted-state transitions. |
-| operations route | [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md) | active as-is | Deployment, backup, upgrade and troubleshooting routing. |
-| operations route | [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md) | active as-is | Local Kubuntu Docker Compose build, runtime and persistent-state routing. |
-| testing baseline | [.memory-bank/testing/current-coverage.md](testing/current-coverage.md) | active as-is | Existing proof paths and verification gaps. |
-| development guide | [.memory-bank/guides/local-development.md](guides/local-development.md) | active as-is | Current build prerequisites and native gate. |
+| operations route | [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md) | active as-is | Local Docker build/runtime and persistent-state route. |
+| testing baseline | [.memory-bank/testing/current-coverage.md](testing/current-coverage.md) | active as-is | Existing tests, fixtures, live checks and gaps. |
+| development guide | [.memory-bank/guides/local-development.md](guides/local-development.md) | active as-is | Build prerequisites and native gate. |
 
 ## Spec Registry
+
 | Type | Path | Status | Scope | Change route |
 |---|---|---|---|---|
 | governance | [.memory-bank/constitution.md](constitution.md) | active | Top governing policy. | /constitution |
-| invariants | [.memory-bank/invariants.md](invariants.md) | planned | Global MUST/NEVER rules when evidence exists. | /spec-init or initial /spec-design; post-acceptance /spec-redesign |
-| glossary | [.memory-bank/glossary.md](glossary.md) | planned | Shared vocabulary. | /brief, /spec-init, or initial /spec-design; post-acceptance /spec-redesign |
-| contract | [.memory-bank/contracts/boundary-map.md](contracts/boundary-map.md) | draft | Canonical accepted module/change-unit dependency graph and boundary contracts. | initial /spec-design, post-acceptance /spec-redesign, or /feature-to-tasks |
-| testing | [.memory-bank/testing/strategy.md](testing/strategy.md) | active | Framework baseline testing policy. | explicit project-level user decision |
+| architecture | [.memory-bank/architecture/system-architecture.md](architecture/system-architecture.md) | active | Accepted system shape, owners, data flow, deployment boundary and Architecture Spine. | initial /spec-design; post-acceptance /spec-redesign |
+| invariants | [.memory-bank/invariants.md](invariants.md) | active | Accepted global MUST/NEVER and compatibility guardrails. | initial /spec-design; post-acceptance /spec-redesign |
+| glossary | [.memory-bank/glossary.md](glossary.md) | active | Shared current and accepted target vocabulary. | /brief, /spec-init, or initial /spec-design; post-acceptance /spec-redesign |
+| contract | [.memory-bank/contracts/boundary-map.md](contracts/boundary-map.md) | active | Canonical module identities, allowed dependency graph and boundary contracts. | initial /spec-design, post-acceptance /spec-redesign, or /feature-to-tasks |
+| state | [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md) | active | Current lifecycle plus accepted exact/fallback and append-only target transitions. | initial /spec-design; post-acceptance /spec-redesign; feature-local /feature-to-tasks |
+| foundation | [.memory-bank/foundation.md](foundation.md) | active | Existing executable baseline sufficiency and Foundation Gate anchors. | initial /spec-design; /foundation-to-tasks only when required |
+| testing | [.memory-bank/testing/strategy.md](testing/strategy.md) | active | Risk-based testing and evidence policy. | explicit project-level user decision |
+| runbook | [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md) | active | Current AlmaLinux operations evidence plus the accepted FT-003 isolated release sequence and proof boundary. | /spec-auto or /feature-to-tasks for feature-local detail; /spec-redesign for shared deployment changes |
 
 ## Planned Specs
+
 | Area | Expected path | Needed by | Notes |
 |---|---|---|---|
-| user_scenarios | .memory-bank/user-scenarios.md | /prd-to-features, /spec-design | Create only when scenario evidence exists or gaps must be explicit. |
-| core_domain | .memory-bank/domains/core-domain.md | /prd-to-features, /spec-design | Create only when domain model affects decomposition or shared design. |
-| module_dependency_graph | .memory-bank/contracts/boundary-map.md | /spec-design, /feature-to-tasks | Establish accepted architecture units first, then register concrete modules, allowed dependency edges, and exact contract blocks before task handoff. |
-| lifecycle_hints | .memory-bank/states/lifecycle-map.md | /prd-to-features, /spec-design | Create only when lifecycles affect feature boundaries. |
-| system_architecture | .memory-bank/architecture/system-architecture.md | /spec-design | Candidate architecture hub; fill only when selected or needed by /spec-design. |
-| interface_contract_specs | .memory-bank/contracts/*, .memory-bank/testing/*, and .memory-bank/runbooks/* | /spec-design, /foundation-to-tasks, /feature-to-tasks | Generate/update Interface Specification and only applicable Component/API/Event/Data contracts, protocol/agent/tool I/O, boundary compatibility, evidence/redaction, safety/security, testing, runbook, or verification contracts. Data Contract defines payloads crossing a boundary. |
-| data_specs | .memory-bank/domains/* and .memory-bank/states/* | /spec-design, /feature-to-tasks | Generate/update Data Specification for internal models, DB schemas, storage/persistence/migrations, internal data formats, validation/serialization rules, lifecycle, retention, seed, or runtime data paths. |
-| foundation_substrate_specs | .memory-bank/architecture/*, .memory-bank/contracts/*, .memory-bank/domains/*, .memory-bank/states/*, .memory-bank/testing/*, .memory-bank/runbooks/* | /foundation-to-tasks | Apply Architecture, Interfaces/Contracts, and Data lenses to the walking-skeleton proof path. Generate only applicable subject-based substrate contracts/specs. Product-level detail reuses or extends those paths later. |
-| subject_feature_concerns | .memory-bank/contracts/*, .memory-bank/domains/*, .memory-bank/states/*, .memory-bank/testing/*, .memory-bank/runbooks/*, or .memory-bank/guides/* | /feature-to-tasks | Discover existing canonical specs first; create only missing subject-based concerns and link exact paths from features/tasks. |
+| interface_contract_specs | existing `.memory-bank/contracts/*`, `.memory-bank/testing/*`, and `.memory-bank/runbooks/*` | /feature-to-tasks | Extend only when one feature proves concrete missing boundary/verification detail. |
+| data_specs | existing `.memory-bank/states/*` | /feature-to-tasks | Extend only when feature design proves current lifecycle/storage contract insufficient. |
+| subject_feature_concerns | existing registered architecture/contract/state/testing/runbook/guide owners | /spec-auto, /feature-to-tasks | Reuse first; create no feature technical-spec hub. |
 
 ## Broken / Missing Links
-- TBD
+
+- None.
 
 ## Update Rules
-- Keep this file as index/registry only: types, canonical paths, statuses,
-  scopes, change routes, and broken links.
-- Canonical identity is the path. Do not add a separate spec key, feature owner,
-  `used_by`, or reverse-usage copy; derive usage from feature/task links.
-- Do not add global backbone status, backbone matrices, feature status maps, long hard rules, or open design question dumps here.
-- Use [.memory-bank/spec-backbone.md](spec-backbone.md) for pre-PRD readiness, decomposition inputs, global backbone status, matrix, and handoffs.
-- Use linked specs or ADRs for detailed decisions, rationale, contracts, state transitions, schemas, invariants, and testing rules.
+
+- Keep this file to registry/index content: types, paths, statuses, scopes, change routes and broken links.
+- Canonical identity is the path; do not add reverse-usage or feature ownership copies.
+- Do not add backbone matrices, decision bodies, feature status maps, state machines, schemas or open-question dumps here.
+- Use registered specs for detailed decisions and [spec-backbone.md](spec-backbone.md) for readiness/routing.

@@ -1,0 +1,119 @@
+{
+  "id": "TASK-003-T2-FT-002-W1",
+  "title": "Implement append-only manual-scan feedback",
+  "status": "ready",
+  "wave": "W1",
+  "feature": "FT-002",
+  "reqs": [
+    "REQ-001",
+    "REQ-002"
+  ],
+  "depends_on": [],
+  "touched_files": [
+    "internal/telegram/bot.go",
+    "internal/telegram/bot_test.go",
+    "internal/telegram/render.go",
+    "internal/telegram/render_test.go",
+    "internal/app/app_test.go"
+  ],
+  "tier": "T2",
+  "gates": [
+    {
+      "name": "Focused manual-scan and scheduler tests",
+      "command": "CGO_ENABLED=1 go test -count=1 ./internal/telegram ./internal/app",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-002-append-only-telegram-ui.md",
+    ".memory-bank/requirements.md",
+    ".memory-bank/changelog.md"
+  ],
+  "evidence_required": [
+    "FT-002-AC-003 — RED: an accepted manual scan currently issues editMessageText for the busy state and again on completion, and successful scans with sent ads can omit an explicit completion message. GREEN: the accepted trace sends a fresh start message and later a distinct success-with-sent, zero-result, paused, or error completion message with zero edits; duplicate and active-backoff requests retain their existing rejection, capacity-one state, and busy-state release. Decisive comparison: captured Telegram methods change from busy/restore edits and conditional completion to start/completion sendMessage calls only, while request count, duplicate/backoff rejection, pause outcome, sent count, error outcome, and final busy state remain claim-equivalent. Artifact: .tasks/TASK-003-T2-FT-002-W1/TASK-003-T2-FT-002-W1-acceptance-evidence.md."
+  ],
+  "purpose": "Make accepted manual scans visibly append-only through separate start and completion/error messages without moving or weakening Polling Application scheduler behavior.",
+  "success_outcome": "Every accepted manual scan sends a fresh start message and a later fresh completion/error message with zero edits, while duplicate requests, active backoff, pause handling, capacity-one single-flight, and busy-state release remain unchanged.",
+  "anti_goals": [
+    "Do not implement callback navigation/mutation, authorization-boundary rejection, text-input, or FT-002-AC-004 proof owned by TASK-002-T3-FT-002-W1.",
+    "Do not change administrator authorization policy, pending-input behavior, Telegram offset durability, or shared settings ownership.",
+    "Do not move manual-scan queueing, capacity, pause, backoff, polling, or state transitions into Telegram.",
+    "Do not change internal/app production code, persistence, schema, configuration, dependencies, polling candidates, deployment, FT-001, or FT-003.",
+    "Do not remove or redesign the generic Telegram client edit API; only the owned manual-scan runtime flow stops calling it."
+  ],
+  "runtime_context": {
+    "write_boundary": [
+      "internal/telegram/bot.go",
+      "internal/telegram/bot_test.go",
+      "internal/telegram/render.go",
+      "internal/telegram/render_test.go",
+      "internal/app/app_test.go"
+    ],
+    "forbidden_scope": [
+      "callback navigation/mutation, authorization-boundary rejection, and text-input behavior owned by TASK-002-T3-FT-002-W1",
+      "internal/app production polling, scheduling, backoff, and state-transition behavior",
+      "internal/store schema, paths, or stored-row interpretation",
+      "internal/config and environment configuration surface",
+      "go.mod and go.sum dependency graph",
+      "administrator allowlist and target-chat authorization policy",
+      "Telegram offset durability",
+      "deploy, publication, and production runtime",
+      "FT-001 and FT-003 behavior"
+    ],
+    "stop_conditions": [
+      "The manual-scan outcome requires a production change outside Telegram Adapter or a change to the existing Polling Application interaction contract.",
+      "Execution requires changing callback navigation/mutation, authorization policy, pending input, scheduler ownership, Polling Application production behavior, Telegram offset durability, SQLite, configuration, dependency graph, or production runtime.",
+      "Execution requires a project path outside the hard write boundary, excluding workflow-owned evidence and lifecycle bookkeeping.",
+      "Execution reveals an unresolved product behavior, public contract, data authority, tier, dependency, or task-boundary decision.",
+      "Execution cannot reproduce accepted start/completion/error and scheduler-state outcomes safely in the local httptest/app unit harness.",
+      "Execution cannot obtain honest RED/GREEN evidence for FT-002-AC-003."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-002-append-only-telegram-ui.md#FT-002-AC-003",
+    ".memory-bank/epics/EP-001-reliable-watcher-upgrade.md",
+    ".memory-bank/prd.md#req-002--append-only-telegram-admin-controls",
+    "internal/telegram/bot.go#Bot.processCallback",
+    "internal/telegram/bot.go#Bot.CompleteManualPoll",
+    "internal/telegram/render.go#mainKeyboardWithScanState",
+    "internal/telegram/bot_test.go",
+    "internal/app/app.go#App.RequestPollNow",
+    "internal/app/app.go#App.completeManualPoll",
+    "internal/app/app_test.go#TestManualPollRequestIsCoalescedAndRejectedDuringBackoff"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md#iv-minimal-verifiable-change",
+    ".memory-bank/requirements.md#req-001--preserve-monitoring-semantics",
+    ".memory-bank/requirements.md#req-002--append-only-telegram-controls",
+    ".memory-bank/architecture/system-architecture.md#ad-003--telegram-administration-is-append-only",
+    ".memory-bank/contracts/boundary-map.md#telegram-application-boundary",
+    ".memory-bank/contracts/boundary-map.md#polling-orchestration-contract",
+    ".memory-bank/contracts/boundary-map.md#external-boundary-rules",
+    ".memory-bank/states/runtime-lifecycle.md#telegram-admin-transitions",
+    ".memory-bank/states/runtime-lifecycle.md#non-durable-process-state",
+    ".memory-bank/invariants.md#accepted-never",
+    ".memory-bank/invariants.md#existing-compatibility-guardrails",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/testing/current-coverage.md#automated-coverage-by-package"
+  ],
+  "constraints": [
+    "Keep one Go modular monolith and the accepted package dependency graph.",
+    "Send accepted manual-scan start and completion/error feedback as separate fresh messages and make no manual-flow edit request.",
+    "Keep request capacity, single-flight, pause, backoff, polling, completion callback, and busy-state release in Polling Application.",
+    "Use app production behavior only as an unchanged provider through the accepted Telegram/Polling Application contract.",
+    "Use only the local Telegram httptest/in-memory Backend and app unit harness; no live Telegram, Somon, SQLite, or production probe is authorized.",
+    "The non-empty write boundary is hard and excludes internal/app production code."
+  ],
+  "invariants": [
+    "An accepted manual scan emits fresh start and completion/error messages and makes no runtime editMessageText request.",
+    "Polling Application retains capacity-one manual-scan single-flight, pause, backoff, completion, and busy-state ownership.",
+    "Duplicate and active-backoff requests remain rejected without an additional queued poll.",
+    "Callback authorization, text-input state, persisted settings, Telegram offset, and SQLite behavior remain unchanged.",
+    "No client detection, edit retry/cache, deletion, persistence, schema, configuration, dependency, worker, compatibility layer, or duplicate scheduler owner is added."
+  ],
+  "verification_targets": [
+    "FT-002-AC-003: captured accepted start and success-with-sent/zero-result/paused/error completion traces prove separate sendMessage feedback and zero edits, while app/backend state proves one queued request, duplicate/backoff rejection, unchanged pause behavior, completion values, and busy-state release.",
+    "Isolation and rerun: all Telegram calls target a local httptest server, Backend state is disposable, app scheduler proof is in-process, and no external request or durable state mutation occurs."
+  ]
+}

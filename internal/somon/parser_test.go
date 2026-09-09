@@ -58,6 +58,42 @@ func TestParseCategoryDOM(t *testing.T) {
 	}
 }
 
+func TestParseCategoryPriceExcludesPhotoCount(t *testing.T) {
+	// Current BigAdCard markup puts the image count immediately before price.
+	// Parsing the whole card used to turn "6 5 000 c." into 65000.
+	for _, priceHTML := range []string{
+		`<div><meta itemprop="price" content="5 000 c."><span>5 000 c.</span></div>`,
+		`<div><span>5 000 c.</span></div>`,
+	} {
+		page := []byte(`<div data-component="BigAdCard" itemscope itemtype="http://schema.org/Product">
+		<a href="/adv/17094278_flat/" data-marker="listing-advert_card-advert:17094278"></a>
+		<div><img alt="2-комн. квартира, 16 этаж, 56м², Фирдавси" src="/flat.jpg"><span>6</span></div>` + priceHTML + `
+		<a href="/adv/17094278_flat/">2-комн. квартира, 16 этаж, 56м², Фирдавси</a>
+		</div>`)
+		cards, err := ParseCategory(DefaultCategoryURL, page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(cards) != 1 || cards[0].Price == nil || *cards[0].Price != 5000 {
+			t.Fatalf("price must be 5000 without photo count: %+v", cards)
+		}
+	}
+}
+
+func TestParseDetailPriceExcludesAddressNumber(t *testing.T) {
+	page := []byte(`<html><head><title>2-комн. квартира, Н.Карабоев д-31 4 800 c.</title></head>
+	<body><h1>2-комн. квартира, 15 этаж, 50м², Н.Карабоев д-31</h1>
+	<div data-component="SidebarPrice"><span class="text-3xl">4 800 c.</span></div>
+	</body></html>`)
+	ad, err := ParseDetail("https://somon.tj/adv/17087959_flat/", page, model.Card{ID: 17087959})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ad.Price == nil || *ad.Price != 4800 {
+		t.Fatalf("price must be 4800 without house number, got %v", ad.Price)
+	}
+}
+
 func TestParseDetailUsesVisibleDataNotStaleURLSlug(t *testing.T) {
 	fallback := model.Card{
 		ID:       17000001,
@@ -92,6 +128,9 @@ func TestParseDetailUnknownSellerIsAllowed(t *testing.T) {
 	ad, err := ParseDetail(url, fixture(t, "detail_unknown_seller.html"), model.Card{ID: 17000003, URL: url})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if ad.Price == nil || *ad.Price != 4200 {
+		t.Fatalf("labeled detail price must remain 4200, got %v", ad.Price)
 	}
 	if ad.SellerAds != nil || ad.SellerName != "" {
 		t.Fatalf("seller should be unknown: %+v", ad)

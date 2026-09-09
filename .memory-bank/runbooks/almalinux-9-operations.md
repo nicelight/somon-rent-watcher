@@ -1,21 +1,92 @@
 ---
-description: Compact Memory Bank routing for current AlmaLinux 9 deployment, operation, backup and recovery procedures.
+description: AlmaLinux 9 operations route with the accepted isolated production-release contract.
 status: active
 baseline_kind: as-is
 last_verified: 2026-09-02
-last_updated: 2026-09-02
+last_updated: 2026-09-04
 source_of_truth:
+  - .memory-bank/prd.md
+  - .memory-bank/requirements.md
   - docs/RUNBOOK_ALMALINUX_9.md
   - deploy/somonwatch.service
   - scripts/install-almalinux.sh
   - scripts/backup-installed.sh
 ---
 
-# AlmaLinux 9 operations — current route
+# AlmaLinux 9 operations
 
 ## Source of procedural detail
 
-[docs/RUNBOOK_ALMALINUX_9.md](../../docs/RUNBOOK_ALMALINUX_9.md) is the existing step-by-step operator document. This Memory Bank page records where the current operational contracts live; it does not duplicate every shell command.
+[docs/RUNBOOK_ALMALINUX_9.md](../../docs/RUNBOOK_ALMALINUX_9.md) is the existing
+step-by-step operator document. Its current procedures remain as-is evidence;
+the accepted FT-003 delta below is the target contract that an implementation
+task must reflect in executable procedures before deployment.
+
+## Accepted FT-003 release procedure
+
+FT-003 reuses the existing systemd upgrade route and adds only the accepted
+publication, git-synchronization, runtime-identity, and isolation boundaries.
+The executable task must preserve this order:
+
+1. On the intended local release tree, run the repository-native formatting,
+   tests, vet, CGO build, linkage, and version gate.
+2. Without changing the gated source tree, create or confirm the release
+   commit, require a clean worktree, record the full commit ID, push it to the
+   configured GitHub remote, and verify that the intended remote ref resolves
+   to that exact commit.
+3. Immediately before the first production write, take a fresh read-only host
+   snapshot and re-establish one healthy watcher identity from current evidence:
+   production checkout, systemd unit, active process/executable, environment
+   and SQLite paths, and absence of a competing watcher process/container.
+   Also confirm that unrelated workloads are healthy. Missing, conflicting, or
+   ambiguous identity stops the release without a production write.
+4. Synchronize only the identified production checkout to the already-pushed
+   commit. The update must be fast-forward/exact-commit and must not discard,
+   overwrite, stash, or reset production-local work; a dirty or diverged
+   checkout stops the release, and a post-sync HEAD mismatch also stops.
+5. Build in that checkout with `scripts/build.sh`, verify the produced binary
+   reports the intended commit and has valid target linkage, then run that
+   produced binary through the existing redacted `doctor` environment and
+   service-user route. A failure leaves the installed runtime unchanged and
+   stops the release.
+6. Stop only the identified `somonwatch.service`, record the now-stable
+   read-only SQLite/settings evidence, use the existing scoped install route,
+   and start only that unit. Preserve `/etc/somonwatch/somonwatch.env`,
+   `/var/lib/somonwatch/somonwatch.db`, and the debug directory; no database
+   deletion, replacement, migration, or reset is permitted.
+7. Verify the installed version/commit, unit health and restart count, redacted
+   doctor result, and scoped recent logs. Repeat the stable host/state probes
+   and compare them with preflight, allowing changes only to the watcher
+   checkout, build/install artifacts, process, and unit lifecycle.
+
+The accepted production runtime remains the documented host
+`somonwatch.service`. If fresh evidence identifies another runtime shape, the
+release stops for an explicit operator decision; FT-003 does not introduce a
+generic multi-runtime deployment mechanism or a runtime migration.
+
+## FT-003 release proof
+
+- Known initial state: local gate and GitHub ref identify one commit; production
+  is healthy; exactly one documented watcher runtime and its checkout/state
+  paths resolve; the checkout is safe for exact-commit synchronization; SQLite
+  passes a read-only integrity probe. Historical runtime evidence cannot
+  substitute for this fresh preflight.
+- State preservation: compare a non-secret settings digest and `seen_ads` count
+  from the stopped pre-install state with the post-start state, require settings
+  equality and no loss of previously counted seen rows, and keep the database
+  path in place. Normal watcher activity after restart may increase the seen
+  count.
+- Host isolation: compare stable identities/statuses for unrelated containers
+  and services, failed units, listening sockets, firewall rules, routes, and
+  SELinux mode. Do not publish host inventory or secrets.
+- Safe rerun: any retry starts again from the fresh read-only identity/health
+  preflight and exact commit checks. Target build/doctor failure requires no
+  runtime mutation or unrelated cleanup; later failure handling stays confined
+  to the existing watcher upgrade/troubleshooting route.
+- Evidence: keep ordered, redacted receipts in the task-selected operational
+  evidence path; include local/remote/production commit IDs, preflight identity
+  and health, target build/version/linkage/doctor, scoped unit/log status,
+  state comparison, and unrelated-host comparison.
 
 ## Current deployment shape
 
@@ -56,6 +127,18 @@ source_of_truth:
 - Re-check current Somon legal/robots terms before sustained production operation.
 
 ## Production verification
+
+- On 2026-09-09 final parser hotfix `93cbe9ebcfe6` was built and tested locally
+  and on the target, passed staged service-user doctor, and replaced only the
+  existing watcher via the backup/install route. Running, installed and target-built
+  binaries matched; SQLite/settings/env and all pre-final-release seen rows survived.
+  The first cycle successfully delivered one new matching ad. Other service/container/
+  listener/route/firewall-rule/SELinux/failed-unit fingerprints matched across the
+  final release. Firewall fingerprints omit generated timestamps and traffic counters.
+  The first attempt's invalid counter-sensitive fingerprint remains explicitly limited
+  in historical receipts and is not substituted for the final normalized comparison.
+  [Hotfix verification](../../.protocols/TASK-005-T3-FT-004-W1/verification.md) records
+  the exact receipts and rollback backup.
 
 - On 2026-09-02 the target AlmaLinux 9 host passed the read-only preflight, native build/test/vet/linkage gate and live `somonwatch doctor` for commit `7f9c5f50d659`.
 - The installed systemd service created a fresh 60-card baseline while paused, remained active with zero restarts and passed unit verification.

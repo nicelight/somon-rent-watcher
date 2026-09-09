@@ -1,0 +1,11 @@
+{
+  "functional_postflight": "PASS",
+  "running_installed_built_sha256": "ea25d21beefc71e1ccbdd3dec749805598ef35accaecf318e522ae70239895b1",
+  "exact_source_commit": "d5fdc120400acba96d088c465aa71db9ab1402ab",
+  "backup_rows_preserved": 3775,
+  "current_rows": 3786,
+  "settings_and_environment_preserved": true,
+  "rollback_binary_verified": true,
+  "sqlite_integrity": "ok",
+  "restarts": 0
+}

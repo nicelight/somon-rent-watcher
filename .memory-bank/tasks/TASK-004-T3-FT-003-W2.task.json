@@ -1,0 +1,141 @@
+{
+  "id": "TASK-004-T3-FT-003-W2",
+  "title": "Production acceptance: publish and deploy the exact verified release",
+  "status": "planned",
+  "wave": "W2",
+  "feature": "FT-003",
+  "reqs": [
+    "REQ-005",
+    "REQ-008"
+  ],
+  "depends_on": [
+    "TASK-001-T2-FT-001-W1",
+    "TASK-002-T3-FT-002-W1",
+    "TASK-003-T2-FT-002-W1"
+  ],
+  "touched_files": [
+    "dist/somonwatch",
+    "dist/somonwatch.sha256"
+  ],
+  "tier": "T3",
+  "gates": [
+    {
+      "name": "Repository-native local release gate",
+      "command": "./scripts/build.sh",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-003-isolated-production-release.md",
+    ".memory-bank/runbooks/almalinux-9-operations.md",
+    ".memory-bank/requirements.md",
+    ".memory-bank/changelog.md"
+  ],
+  "evidence_required": [
+    "FT-003-AC-001 — RED: after dependency closure and the local gate, fresh read-only production comparison is expected to show that production checkout HEAD and installed version do not yet both equal the newly gated full commit; if a safe rerun finds the exact commit already installed and healthy, RED_NOT_APPLICABLE because manufacturing absence would require an unauthorized downgrade or service disruption, and alternative proof is preserved pre-implementation GREEN followed by the same ordered no-broader-mutation revalidation. GREEN: one time-ordered redacted receipt chain proves the gated tree stayed unchanged; an ordinary clean commit was pushed without force and the configured GitHub ref resolved to its full ID; the actual access route was resolved from current read-only evidence; fresh preflight found exactly one healthy systemd somonwatch.service identity with no competitor; the clean production checkout advanced only by safe fast-forward to that ID; target build, linkage, embedded version and redacted produced-binary doctor passed before runtime mutation; only somonwatch.service was stopped, installed and started; installed version, active health, restart count and scoped logs passed. Decisive comparison: local HEAD, GitHub ref, production HEAD, target-built version and installed version converge on one full commit while ordered receipts show every stop boundary and no runtime mutation before target proof. Artifact: .tasks/TASK-004-T3-FT-003-W2/TASK-004-T3-FT-003-W2-acceptance-evidence.md.",
+    "FT-003-AC-002 / REQ-008 — RED_NOT_APPLICABLE: deliberately deleting/replacing/migrating SQLite, changing settings, or disturbing an unrelated workload to observe claim absence would violate the accepted production-safety claim; alternative proof: use read-only before/after identity, integrity and host comparisons around the one scoped watcher update. GREEN: stopped pre-install and post-start receipts prove the same SQLite path/file identity, successful read-only integrity check, equal non-secret settings digest, and post seen_ads count not below the stable pre-install count; redacted stable comparisons prove unrelated containers/services, failed units, sockets, firewall, routes and SELinux unchanged, with no secret or raw host inventory disclosed. Decisive comparison: settings digest equality, nondecreasing seen count, stable database identity, and equal unrelated-host fingerprints/statuses permit differences only in the watcher checkout/build/install artifacts, process and somonwatch.service lifecycle. Artifact: .tasks/TASK-004-T3-FT-003-W2/TASK-004-T3-FT-003-W2-acceptance-evidence.md."
+  ],
+  "purpose": "Deliver the completed local feature set to production through one exact, state-preserving and host-isolated systemd release with auditable redacted evidence.",
+  "success_outcome": "The locally gated commit is the exact commit on the configured GitHub ref, production checkout, target-built binary and installed binary; exactly one healthy somonwatch.service is updated, its settings/SQLite survive, and unrelated host state remains unchanged.",
+  "anti_goals": [
+    "Do not reimplement or adopt acceptance proof owned by the three local implementation dependencies.",
+    "Do not add a deployment abstraction, script, CI/CD layer, alternative runtime, container route, migration, compatibility mechanism, package transaction, or infrastructure change.",
+    "Do not force-push, rewrite refs/history, reset, stash, discard, overwrite, or commit unrelated/unattributed local or production work.",
+    "Do not delete, replace, migrate, repair, reset, or intentionally mutate the watcher database or settings.",
+    "Do not act on any container or unrelated service, process, socket, firewall, route, reverse proxy, SELinux setting/policy, package, database, or host configuration.",
+    "Do not expose Telegram tokens, environment contents, raw production inventory, access endpoints, or other secrets in commands, logs, receipts, Git, or chat.",
+    "Do not infer that the operator phrase sh igorprod is executable authority or that historical systemd evidence is current."
+  ],
+  "runtime_context": {
+    "write_boundary": [
+      ".git",
+      "dist/somonwatch",
+      "dist/somonwatch.sha256"
+    ],
+    "forbidden_scope": [
+      "local production-source edits after the repository-native release gate starts",
+      "local Git history/ref rewrite, force push, deletion, or publication of unrelated/unattributed work",
+      "any production checkout other than the one bound by fresh evidence to the accepted watcher service and pushed commit",
+      "production Git reset, stash, force, discarded local work, non-fast-forward update, or ref rewrite",
+      "any production runtime other than one healthy host systemd somonwatch.service",
+      "all production containers and all unrelated services, processes, sockets, firewall, routes, reverse proxy, SELinux policy/mode, packages, databases, and host configuration",
+      "database content/schema mutation, migration, deletion, replacement, reset, or repair",
+      "environment-file content changes or any secret-bearing output/evidence",
+      "FT-001/FT-002 implementation or proof scope owned by dependency tasks"
+    ],
+    "stop_conditions": [
+      "Any dependency is not done or done_for_prod, its required verification is incomplete, or the current Planning Revision 1 task plans are not approved.",
+      "The local release gate fails, changes the gated source tree, or the intended commit contains an unexplained, unrelated, secret-bearing, or unattributed worktree change.",
+      "The configured publication target is not the intended GitHub repository/ref, a normal non-force push fails, or the remote ref does not resolve to the exact full commit ID.",
+      "Fresh read-only local discovery cannot reconcile the operator phrase sh igorprod with one authorized actual access command; an alias, script, host, user, privilege route, or target remains missing, conflicting, or ambiguous.",
+      "Fresh production preflight is not fully read-only before the first write or finds an unhealthy host, an unhealthy/absent/ambiguous/non-systemd watcher, more than one watcher process/runtime, any competing watcher container, or inconsistent checkout/unit/process/executable/user/environment/database paths.",
+      "The identified production checkout is dirty, diverged, ahead of the intended commit, cannot fast-forward exactly, requires force/reset/stash/discard, or does not equal the full commit after synchronization.",
+      "The target scripts/build.sh gate, linkage, embedded commit/version, or redacted produced-binary service-user doctor fails; the installed runtime must remain unchanged.",
+      "SQLite cannot be inspected read-only, integrity/path/file identity is uncertain, or stable pre-install settings digest and seen_ads count cannot be captured after stopping only somonwatch.service.",
+      "The existing installer would modify anything outside watcher-owned install/backup paths and somonwatch.service metadata/lifecycle, would alter environment contents or database state, or requires a user/group/runtime migration.",
+      "Stopping, installing, starting, or checking only somonwatch.service fails, or recovery would require an improvised rollback, database replacement, container action, unrelated-service action, rapid restart pressure, or broader host mutation.",
+      "Postflight installed commit, unit health/restart count, redacted doctor, scoped logs, settings digest, seen_ads non-loss, database identity, or unrelated-host comparison fails or is inconclusive.",
+      "Any command or evidence path would expose a token, environment contents, access endpoint, raw host inventory, or other secret.",
+      "Execution reveals an unresolved permission, runtime, production checkout, state authority, tier, dependency, proof, or task-boundary decision, or requires a project path outside the hard write boundary apart from workflow-owned evidence/lifecycle bookkeeping."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-003-isolated-production-release.md#FT-003-AC-001",
+    ".memory-bank/features/FT-003-isolated-production-release.md#FT-003-AC-002",
+    ".memory-bank/epics/EP-001-reliable-watcher-upgrade.md",
+    ".memory-bank/prd.md#req-005--ordered-and-isolated-release",
+    ".memory-bank/prd.md#nfr-003--production-isolation",
+    ".protocols/FT-003/decision-log.md#authoritative-decisions-applied",
+    "scripts/build.sh",
+    "scripts/preflight-almalinux.sh",
+    "scripts/install-almalinux.sh",
+    "deploy/somonwatch.service",
+    "docs/RUNBOOK_ALMALINUX_9.md#15-безопасный-upgrade"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md#iv-minimal-verifiable-change",
+    ".memory-bank/constitution.md#v-evidence-before-done",
+    ".memory-bank/requirements.md#req-005--ordered-release",
+    ".memory-bank/requirements.md#req-008--production-isolation-prd-nfr-003",
+    ".memory-bank/architecture/system-architecture.md#deployment-boundary",
+    ".memory-bank/architecture/system-architecture.md#ad-004--deployment-is-runtime-detected-and-isolated",
+    ".memory-bank/contracts/boundary-map.md#external-boundary-rules",
+    ".memory-bank/states/runtime-lifecycle.md#persisted-current-state",
+    ".memory-bank/invariants.md#accepted-must",
+    ".memory-bank/invariants.md#accepted-never",
+    ".memory-bank/foundation.md#feature-pressure-map",
+    ".memory-bank/runbooks/almalinux-9-operations.md#accepted-ft-003-release-procedure",
+    ".memory-bank/runbooks/almalinux-9-operations.md#ft-003-release-proof",
+    ".memory-bank/runbooks/almalinux-9-operations.md#current-deployment-shape",
+    ".memory-bank/runbooks/almalinux-9-operations.md#safety-boundaries",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/testing/current-coverage.md#live-and-operational-verification"
+  ],
+  "constraints": [
+    "Preserve the exact order: closed local dependencies and ./scripts/build.sh; ordinary clean commit and non-force GitHub push with exact remote-ref match; freshly resolved access command; fresh read-only production identity/health/state/host preflight; safe exact-commit fast-forward synchronization; target scripts/build.sh plus linkage/version and redacted produced-binary doctor; stop/install/start only somonwatch.service; installed-version, health, restart, log, state and host-isolation postflight.",
+    "Before any production connection, resolve the actual authorized access command read-only from current shell/command/SSH evidence; neither sh igorprod nor prior SSH-alias diagnostics may be assumed, executed, or recorded unredacted without unambiguous confirmation.",
+    "Continue past preflight only for one healthy existing host systemd somonwatch.service consistently bound to one process, executable, service user, environment path, SQLite/debug paths and production checkout, with no competitor and healthy unrelated workloads.",
+    "Production Git may fetch and fast-forward only the identified clean watcher checkout to the already-pushed exact commit; no force, reset, stash, checkout overwrite, discarded work, merge commit, alternate ref, or other checkout is allowed.",
+    "Run the target-compatible build and redacted produced-binary doctor before stopping the installed service; a failure makes no runtime/install change.",
+    "After stopping only somonwatch.service, capture stable database/settings evidence, invoke only the existing scoped install route, and start only the same unit; keep the environment file, SQLite database and debug directory in place.",
+    "Receipts must be time-ordered and redacted, prove every decisive comparison, and omit tokens, environment values, access endpoints and raw host inventory.",
+    "The local non-empty write boundary is hard. External writes are limited to the exact GitHub ref, identified watcher checkout/build, watcher-owned installer targets/backups and somonwatch.service lifecycle; all other external state is forbidden."
+  ],
+  "invariants": [
+    "All three implementation dependencies are closed before local release verification, and their acceptance proof remains owned by those tasks.",
+    "One full commit ID is identical at local HEAD, configured GitHub ref, synchronized production HEAD, target-built version and installed version.",
+    "No production write occurs before a fresh healthy unambiguous systemd-only watcher identity and unrelated-host preflight; historical evidence is insufficient.",
+    "The production checkout is advanced only by a clean exact fast-forward with no force/reset/stash/discard, and target build/doctor passes before installed-runtime mutation.",
+    "Only somonwatch.service and watcher-owned checkout/build/install artifacts may change; no container or unrelated host/service/network/security/database state changes.",
+    "The existing environment, SQLite and debug paths remain in place; settings digest is unchanged and seen_ads loses no stable pre-install rows.",
+    "Secrets and raw production inventory never enter Git, chat, command echo, logs, or acceptance receipts.",
+    "A retry begins again with access resolution and fresh read-only preflight; ambiguity or failure stops instead of broadening authority or improvising recovery."
+  ],
+  "verification_targets": [
+    "FT-003-AC-001: one ordered redacted receipt chain proves dependency closure, local ./scripts/build.sh, unchanged gated tree, full release commit, exact configured GitHub ref, freshly resolved access route, single healthy systemd identity, no competing watcher, clean exact fast-forward production sync, target gate/linkage/version/redacted doctor before runtime mutation, only somonwatch.service stop/install/start, and passing installed-version/unit/restart/log postflight.",
+    "FT-003-AC-002 / REQ-008: read-only preflight, stopped stable-state and post-start observations prove SQLite integrity and file identity, equal non-secret settings digest, nondecreasing seen_ads count, and unchanged redacted fingerprints/statuses for unrelated containers/services, failed units, sockets, firewall, routes and SELinux.",
+    "T3 wrong-target and overwrite safety: receipts show how the actual access route, checkout, unit, process, executable, user, environment and database paths were cross-bound before first write; show a clean ancestry/fast-forward decision and exact post-sync HEAD; and show that every ambiguity, dirty/diverged state and non-systemd/container branch is a stop rather than an executed alternative.",
+    "T3 rerun and disclosure safety: a retry restarts from read-only discovery/preflight, pre-existing exact healthy deployment uses pre-implementation GREEN without manufactured downgrade, target build/doctor failure leaves the installed runtime unchanged, and stored evidence is redacted of secrets, access endpoints and raw host inventory."
+  ]
+}

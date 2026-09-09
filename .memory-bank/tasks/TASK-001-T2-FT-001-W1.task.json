@@ -1,0 +1,126 @@
+{
+  "id": "TASK-001-T2-FT-001-W1",
+  "title": "Implement exact-before-fallback polling",
+  "status": "in_progress",
+  "wave": "W1",
+  "feature": "FT-001",
+  "reqs": [
+    "REQ-001",
+    "REQ-003",
+    "REQ-004",
+    "REQ-006",
+    "REQ-007"
+  ],
+  "depends_on": [],
+  "touched_files": [
+    "internal/app/app.go",
+    "internal/app/price_fallback_test.go",
+    "internal/filter/settings.go",
+    "internal/filter/settings_test.go"
+  ],
+  "tier": "T2",
+  "gates": [
+    {
+      "name": "Focused FT-001 package tests",
+      "command": "CGO_ENABLED=1 go test -count=1 ./internal/app ./internal/filter",
+      "required": true
+    },
+    {
+      "name": "Repository-native build gate",
+      "command": "./scripts/build.sh",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-001-price-fallback.md",
+    ".memory-bank/requirements.md",
+    ".memory-bank/changelog.md"
+  ],
+  "evidence_required": [
+    "FT-001-AC-001 — RED_NOT_APPLICABLE: because the baseline already sends no higher-price ad when an exact match exists, and manufacturing claim absence would break preserved behavior; alternative proof: record pre-implementation GREEN from mixed exact/fallback candidates for both successful and failed exact delivery. GREEN: the claim-equivalent post-change scenarios identify the exact match before delivery and capture zero fallback sends for both delivery outcomes, with the failed exact ID still unseen. Decisive comparison: exact-match presence implies fallback-send count = 0 in captured Telegram requests before and after the change, while temporary-SQLite state distinguishes confirmed from failed delivery. Artifact: .tasks/TASK-001-T2-FT-001-W1/TASK-001-T2-FT-001-W1-acceptance-evidence.md.",
+    "FT-001-AC-002 — RED: with PriceMax=1000, a completed exact-empty baseline poll containing otherwise eligible prices 1001, 1200 (first), 1200 (second), and 1500 sends zero fallback ads instead of the required closest three. GREEN: the same poll captures prices [1001, 1200(first), 1200(second)] in that order, excludes the fourth candidate and prices above 1500 or unknown, and a separate PriceMax-absent poll shows no fallback pass, fallback-only request, or duplicate delivery. Decisive comparison: captured Somon detail order and Telegram output differ from baseline zero fallback to the expected ordered three only when PriceMax is present; the absent-PriceMax trace contains no fallback phase. Artifact: .tasks/TASK-001-T2-FT-001-W1/TASK-001-T2-FT-001-W1-acceptance-evidence.md.",
+    "FT-001-AC-003 — RED_NOT_APPLICABLE: because baseline seen-ID exclusion, final-rejection seen writes, and no-result silence already satisfy this claim; alternative proof: record pre-implementation GREEN from captured transport and temporary-SQLite post-state. GREEN: claim-equivalent post-change scenarios make pre-seen IDs trigger no detail or delivery request, make unknown-price, over-ceiling, and other final rejections silent and seen, and capture zero ad messages when no eligible fresh candidate exists. Decisive comparison: requested/delivered ID sets and the SQLite seen set equal the expected per-ID classification before and after the change. Artifact: .tasks/TASK-001-T2-FT-001-W1/TASK-001-T2-FT-001-W1-acceptance-evidence.md.",
+    "FT-001-AC-004 — RED: with an exact-empty poll, remaining detail capacity, and an eligible higher-price candidate, the baseline performs no fallback delivery and prematurely treats the candidate as rejected, so shared-cap fallback lifecycle is absent; preserve separate pre-implementation GREEN observations for existing cap, 403/429 backoff, and delivery-retry behavior. GREEN: claim-equivalent low-cap and typed-failure scenarios show one counter shared by exact and fallback details, cap exhaustion or unresolved exact detail suppressing fallback and leaving deferred IDs unseen, 403/429 retaining backoff, failed exact/fallback delivery remaining unseen, and a complete exact-empty poll with spare capacity delivering fallback. Decisive comparison: per-scenario detail-request count never exceeds MaxDetailsPerPoll, fallback-send count matches completeness, and temporary-SQLite state distinguishes final rejection from deferred, blocked, transient, and failed-delivery IDs. Artifact: .tasks/TASK-001-T2-FT-001-W1/TASK-001-T2-FT-001-W1-acceptance-evidence.md.",
+    "FT-001-AC-005 / REQ-006 — RED_NOT_APPLICABLE: because the baseline already has no forbidden mechanism and adding one merely to observe RED would falsify the claim; alternative proof: record pre-implementation GREEN from the production-source/dependency inventory and native build. GREEN: post-change repository diff and owner review show no new schema, setting, dependency, worker, compatibility layer, second history model, or duplicate candidate/state-transition owner, and ./scripts/build.sh passes. Decisive comparison: pre/post go.mod, go.sum, storage/config surfaces, changed production paths, and boundary ownership show only reuse of Settings.PriceMax, seen_ads, the scheduler, existing clients/cap, Polling Application orchestration, and pure Filtering support. Artifact: .tasks/TASK-001-T2-FT-001-W1/TASK-001-T2-FT-001-W1-acceptance-evidence.md."
+  ],
+  "purpose": "Provide useful closest higher-price alternatives only after a conclusively exact-empty poll while preserving existing freshness, cap, backoff, and delivery safety.",
+  "success_outcome": "One active poll sends exact matches with priority or, only after complete exact-empty evaluation, sends at most three eligible fresh higher-price ads in deterministic order; all cap, error, delivery, and seen transitions match FT-001 without new durable machinery.",
+  "anti_goals": [
+    "Do not add or reinterpret SQLite schema or persisted settings.",
+    "Do not add dependencies, workers, compatibility layers, configurable fallback controls, or separate shown history.",
+    "Do not move candidate orchestration or seen-state decisions into Somon, Telegram, Filtering, Persistence, Shared Data, or composition owners.",
+    "Do not implement FT-002 Telegram administration or FT-003 production release behavior."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "internal/store schema or stored-row interpretation",
+      "internal/config and environment configuration surface",
+      "go.mod and go.sum dependency graph",
+      "deploy and production runtime",
+      "FT-002 and FT-003 behavior"
+    ],
+    "stop_conditions": [
+      "A required change cannot stay inside the accepted Polling Application and pure Filtering ownership/contracts.",
+      "Execution requires a schema, persisted setting, dependency, worker, compatibility layer, or separate history model.",
+      "Execution reveals an unresolved product behavior, public contract, data authority, or task-boundary decision.",
+      "Execution triggers T3 or cannot obtain honest claim-linked RED/GREEN evidence in the existing isolated test harness."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-001-price-fallback.md#FT-001-AC-001",
+    ".memory-bank/features/FT-001-price-fallback.md#FT-001-AC-002",
+    ".memory-bank/features/FT-001-price-fallback.md#FT-001-AC-003",
+    ".memory-bank/features/FT-001-price-fallback.md#FT-001-AC-004",
+    ".memory-bank/features/FT-001-price-fallback.md#FT-001-AC-005",
+    ".memory-bank/epics/EP-001-reliable-watcher-upgrade.md",
+    ".memory-bank/prd.md#req-003--bounded-higher-price-fallback",
+    ".memory-bank/prd.md#req-004--freshness-deduplication-and-failures",
+    "internal/app/app.go#processNewCards",
+    "internal/app/app_test.go",
+    "internal/filter/settings.go#CardMatches",
+    "internal/filter/settings.go#AdMatches"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md#iv-minimal-verifiable-change",
+    ".memory-bank/requirements.md#req-001--preserve-monitoring-semantics",
+    ".memory-bank/requirements.md#req-003--bounded-price-fallback",
+    ".memory-bank/requirements.md#req-004--freshness-and-failure-behavior",
+    ".memory-bank/requirements.md#req-006--kiss-maintainability-prd-nfr-001",
+    ".memory-bank/requirements.md#req-007--filtering-and-delivery-reliability-prd-nfr-002",
+    ".memory-bank/architecture/system-architecture.md#ad-001--preserve-one-cohesive-deployable",
+    ".memory-bank/architecture/system-architecture.md#ad-002--polling-application-owns-candidate-and-seen-transitions",
+    ".memory-bank/contracts/boundary-map.md#polling-orchestration-contract",
+    ".memory-bank/contracts/boundary-map.md#filtering-contract",
+    ".memory-bank/contracts/boundary-map.md#somon-adapter-contract",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract",
+    ".memory-bank/contracts/boundary-map.md#telegram-application-boundary",
+    ".memory-bank/states/runtime-lifecycle.md#active-poll-candidate-phases",
+    ".memory-bank/invariants.md#accepted-must",
+    ".memory-bank/invariants.md#accepted-never",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/testing/current-coverage.md#automated-coverage-by-package"
+  ],
+  "constraints": [
+    "Keep one Go modular monolith and the accepted package dependency graph.",
+    "Use Settings.PriceMax only; derive floor(1.5 * PriceMax) in memory and send no fallback without PriceMax.",
+    "Keep proof, tests, RED/GREEN, and UAT with this implementation task.",
+    "Use the existing httptest Somon/Telegram and temporary-SQLite harness; no live or production probe is required.",
+    "Expected paths are advisory and non-exhaustive; any additional file must remain necessary to this same outcome and respect ownership."
+  ],
+  "invariants": [
+    "Exact evaluation precedes fallback; an exact match or incomplete exact evaluation suppresses fallback.",
+    "Exact and fallback detail requests share MaxDetailsPerPoll.",
+    "Only IDs fresh at poll start are eligible; final rejection and confirmed delivery become seen, while deferred, transient, blocked, and failed-delivery outcomes remain unseen as specified.",
+    "Fallback requires known PriceMax < price <= floor(1.5 * PriceMax), every other filter, ascending price with stable feed-order ties, and a maximum of three sends.",
+    "Polling Application alone orders candidate phases and requests seen transitions; Filtering remains pure and adapters retain their existing boundaries.",
+    "No schema, setting, dependency, worker, compatibility layer, second history model, or duplicate candidate/state-transition owner is added."
+  ],
+  "verification_targets": [
+    "FT-001-AC-001: app integration scenarios with mixed exact/fallback cards and Telegram success/failure prove that any exact match suppresses fallback.",
+    "FT-001-AC-002: deterministic app integration scenarios prove that absent PriceMax causes no fallback pass or fallback-only delivery and that present PriceMax enforces open lower/inclusive upper bounds, ascending price, stable feed-order ties, and exclusion after the third fallback candidate.",
+    "FT-001-AC-003: temporary-SQLite post-state and captured Telegram calls prove seen-ID exclusion, final-rejection seen writes, ineligible silence, and no-output exact-empty behavior.",
+    "FT-001-AC-004: low-cap and typed Somon/Telegram failure scenarios prove shared-cap suppression, backoff preservation, and unseen retry semantics.",
+    "FT-001-AC-005 / REQ-006: repository diff and owner review plus ./scripts/build.sh prove no new schema, setting, dependency, worker, compatibility layer, second history model, or duplicate candidate/state-transition owner while preserving the native build gate."
+  ]
+}
