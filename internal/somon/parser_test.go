@@ -129,6 +129,9 @@ func TestParseDetailUnknownSellerIsAllowed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if ad.Price == nil || *ad.Price != 4200 {
+		t.Fatalf("labeled detail price must remain 4200, got %v", ad.Price)
+	}
 	if ad.SellerAds != nil || ad.SellerName != "" {
 		t.Fatalf("seller should be unknown: %+v", ad)
 	}

@@ -851,7 +851,11 @@ func domPrice(root *htmlx.Node) *int {
 	// Older plain markup can lack price attributes. Accept a price-only line,
 	// never the entire card/page where unrelated numbers can become its prefix.
 	for _, line := range strings.Split(htmlx.TextLines(root), "\n") {
-		if priceOnlyRE.MatchString(htmlx.NormalizeSpace(line)) {
+		line = htmlx.NormalizeSpace(line)
+		if strings.HasPrefix(strings.ToLower(line), "цена:") {
+			line = strings.TrimSpace(line[len("цена:"):])
+		}
+		if priceOnlyRE.MatchString(line) {
 			return parsePrice(line)
 		}
 	}

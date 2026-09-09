@@ -8,6 +8,7 @@ status: active
 
 - Correct category/detail price extraction: image counts and house numbers no longer inflate prices (5000 → 65000 and 4800 → 314800 regressions). Reuse scoped DOM price extraction; retain existing metadata/marked-price and plain price-line support.
 - Add focused regression cases; preserve seen history, settings, filtering, and delivery semantics.
+- Preserve the existing labeled `Цена: 4 200 c.` fixture path while excluding unrelated numeric prefixes; assert its parsed price in the existing test.
 - Source: operator-reported production missing listings; reproduced using current Somon HTML. Release is isolated from unfinished local product changes.
 
 ## [2026-09-01] Initial setup
