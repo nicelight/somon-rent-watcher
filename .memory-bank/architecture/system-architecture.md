@@ -129,3 +129,24 @@ The mapped code already implements the accepted one-process/package/storage shap
 - [Current coverage](../testing/current-coverage.md)
 - [Local development](../guides/local-development.md)
 - [AlmaLinux operations](../runbooks/almalinux-9-operations.md)
+
+## Keyword monitoring design proposal
+
+Принятая [возможность](../prd.md#accepted-decisions) добавляется в существующие
+Go-процесс, SQLite и Telegram UI; аренда сохраняет свои фильтры и историю.
+
+- `internal/app` управляет поисками, scheduler, кандидатами и историей.
+- `internal/somon` получает выдачу; `internal/filter` проверяет условия поиска.
+- `internal/store` хранит поиски и историю; `internal/telegram` управляет ими и доставляет.
+
+Один scheduler последовательно обходит аренду и включённые поиски с общими интервалом,
+HTTP delay, detail cap и backoff. Начало обхода меняется по кругу, чтобы один поиск
+не забирал бюджет постоянно; ручной запуск сохраняет single-flight.
+
+Поток: выдача → история конкретного поиска → фильтр → details → Telegram → запись.
+Общий `seen_ads(ad_id)` остаётся арендным; независимые поиски используют
+[добавочные записи](../states/runtime-lifecycle.md#keyword-monitoring-state-proposal).
+Строгий бюджет, штатный matching и отсутствие повторов после снижения цены приняты.
+Source flow: подтверждённый category/city path + `q`/`ordering=relevance` → primary
+results → локальная цена. «Все категории» — полноценный native scope. FT-005 готова
+к tasking; HTML fixtures относятся к проверке реализации.

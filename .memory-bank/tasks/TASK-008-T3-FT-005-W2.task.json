@@ -1,0 +1,105 @@
+{
+  "id": "TASK-008-T3-FT-005-W2",
+  "title": "Create configure and enable durable keyword searches",
+  "status": "planned",
+  "wave": "W2",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-010",
+    "REQ-014",
+    "REQ-002"
+  ],
+  "depends_on": [
+    "TASK-006-T2-FT-005-W1",
+    "TASK-007-T2-FT-005-W1"
+  ],
+  "touched_files": [
+    "internal/model/keyword_search.go",
+    "internal/app/keyword_search.go",
+    "internal/app/keyword_search_test.go",
+    "internal/telegram/keyword_search.go",
+    "internal/telegram/keyword_search_test.go",
+    "internal/telegram/bot.go",
+    "internal/telegram/render.go",
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/store/keyword_search_test.go",
+    "internal/store/sqlite_cgo.go"
+  ],
+  "tier": "T3",
+  "gates": [
+    {
+      "name": "Focused Docker package tests",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/telegram ./internal/app ./internal/store'",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/tasks/plans/IMPL-FT-005.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Let authorized administrators manage multiple saved searches while preserving existing runtime/rental state.",
+  "success_outcome": "New search flow saves validated independent settings, shows summary and enables the selected stable ID; callbacks/input are isolated and append-only; additive schema and reopen preserve rental rows.",
+  "anti_goals": [
+    "Do not implement keyword polling/delivery/history decisions or deletion; those belong to later cards.",
+    "Do not refactor existing rental callback/manual-scan routes or claim unfinished FT-002 proof.",
+    "No destructive schema alteration, shared authorization policy change or production acceptance."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "commit, push, deployment, production runtime and production DB",
+      "real Telegram messages, secrets or allowlist/target-chat policy changes",
+      "new dependencies, workers or infrastructure",
+      "FT-001..004 outcomes/task records/statuses/approvals; unrelated rental UI or fallback changes",
+      "direct SQLite writes outside Persistence Adapter; business orchestration in transport/composition"
+    ],
+    "stop_conditions": [
+      "An unresolved material product/contract/state/ownership branch is discovered.",
+      "Required scope changes task identity/tier/dependency/owned claims or affects production.",
+      "Honest compiling behavioral RED or preserved initial GREEN cannot be obtained for an owned claim; syntax/setup failure is not RED."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-001",
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-007",
+    ".memory-bank/prd.md#keyword-monitoring-proposal--2026-10-06",
+    ".memory-bank/epics/EP-002-keyword-monitoring.md"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/requirements.md#accepted-keyword-monitoring-delta",
+    ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal",
+    ".memory-bank/contracts/boundary-map.md#modules",
+    ".memory-bank/contracts/boundary-map.md#dependency-graph",
+    ".memory-bank/contracts/boundary-map.md#keyword-monitoring-contract-proposal",
+    ".memory-bank/contracts/boundary-map.md#keyword-search-boundary-shapes",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/contracts/boundary-map.md#telegram-application-boundary",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract",
+    ".memory-bank/contracts/boundary-map.md#shared-data-contract",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-monitoring-state-proposal",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-persistence-and-mutation-rules"
+  ],
+  "constraints": [
+    "Capability owner: Polling Application (internal/app), owns create/update/enable and revision. Telegram Adapter owns authorized routes/render/input; Persistence owns additive tables/transactions; Shared Data stays passive. Cross only registered Telegram/persistence/shared boundaries.",
+    "Reuse existing Go/CGO clients, scheduler, SQLite and test harness; expected paths are advisory.",
+    "Dependencies own their proof; current regression checks do not adopt their claims.",
+    "Use only local httptest endpoints and t.TempDir DB; network-disabled Docker gate uses existing builder image."
+  ],
+  "invariants": [
+    "Rental data/behavior retain their existing owners; independent search IDs/history never use rental seen_ads as exclusion.",
+    "Admin allowlist, target-chat policy, callback acknowledgement and append-only output are preserved in new routes."
+  ],
+  "verification_targets": [
+    "FT-005-AC-001 (REQ-010/014/002): existing Bot.processUpdate harness plus real App/temp SQLite: authorized private/target-group creation of two searches, phrase/All/category/city/bounds, summary then enable, address one edit and preserve city on category change. Invalid phrase/catalog/negative/inverted price input leaves DB unchanged. Capture callback acknowledgement before fresh message, zero editMessageText on new routes.",
+    "FT-005-AC-001 harm proof: nonadmin/wrong chat and pending input crossing two admins/chats/search IDs cannot mutate rows or leak a pending action into rental input. Start with seeded rental rows/new empty searches, apply updates, compare exact rows and Bot API methods; no real token/account. Baseline unsupported create callback gives observable no created search (RED), not missing API compilation; preserved auth rejection is initial GREEN.",
+    "FT-005-AC-007 (REQ-014): seed existing settings/seen_ads/state/telegram_offset through store methods, capture values and rental harness delivery trace, close/reopen DB; compare same snapshot after additive initialization and two search writes. FT-005-AC-007 RED_NOT_APPLICABLE: compatibility preservation already holds in the baseline; observing its absence would require an artificial destructive regression; alternative proof: preserve initial GREEN and compare the same protected snapshot/trace after additive initialization and two search writes. Review imports/runtime wiring: same process/SQLite/scheduler/client/group/allowlist; no new dependency/worker. Reuse existing rental/price tests as integration-delta regression.",
+    "Runtime storage: existing DB_PATH default ./somonwatch.db, production /var/lib/somonwatch/somonwatch.db; probes replace it with t.TempDir()/search.db. Initialization is transactional/repeatable; stable IDs never reused, update increments revision, app/store read/write integration persists across reopen. Safe rerun gets a fresh DB/server and close/removes temporary resources."
+  ],
+  "evidence_required": [
+    "FT-005-AC-001 — RED: valid create route currently creates no durable search. GREEN: two addressable searches persist across reopen, summary/enable and targeted edits work, invalid/cross-admin/chat/search inputs leave protected rows unchanged, callbacks acknowledged and new output uses no edits. Decisive comparison: IDs/settings/enabled/revision, row snapshots and ordered API method trace; preserve initial-GREEN rejection cases. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md.",
+    "FT-005-AC-007 RED_NOT_APPLICABLE: compatibility preservation already holds in the baseline; observing its absence would require an artificial destructive regression; alternative proof: initial GREEN — seeded rental settings/seen/state/offset and current rental trace survive baseline reopen. GREEN after change: identical protected snapshot/trace after additive tables and search writes; same process/dependency/client ownership. Decisive comparison: exact stored values and captured rental ad IDs plus Reviewer code/import assessment against REQ-014. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md."
+  ]
+}

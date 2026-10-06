@@ -1,7 +1,7 @@
 ---
 description: Accepted requirements and traceability for the current Somon Rent Watcher delta.
 status: active
-last_updated: 2026-09-09
+last_updated: 2026-10-06
 source_of_truth:
   - .memory-bank/prd.md
 ---
@@ -41,7 +41,7 @@ settings and seen semantics. Source: [accepted follow-up](prd.md#accepted-produc
 
 ### REQ-006 — KISS maintainability (PRD NFR-001)
 
-Reuse current settings, storage, scheduler, clients, and limits with no new dependency, database schema, configuration option, worker, or compatibility layer. Pass/fail changes when the delta introduces one of those concepts or duplicates an existing owner. Verification: code/spec review and project-native build gate.
+For FT-001/FT-002, reuse current settings, storage, scheduler, clients, and limits with no new dependency, database schema, configuration option, worker, or compatibility layer. Pass/fail changes when that rental delta introduces one of those concepts or duplicates an existing owner. Verification: code/spec review and project-native build gate.
 
 ### REQ-007 — Filtering and delivery reliability (PRD NFR-002)
 
@@ -55,14 +55,67 @@ Only Somon Rent Watcher may change during deployment; unrelated workload/service
 
 - Separate shown-history or backfill of existing `seen` IDs.
 - Configurable fallback count/percentage and client-specific Telegram handling.
-- Broader scraper, storage, product-profile, or production-infrastructure changes.
+- Broader scraper, storage, product-profile, or production-infrastructure changes beyond the accepted independent keyword searches.
+
+## Accepted keyword-monitoring delta
+
+Источник всех REQ-010…014: [принятая дельта PRD](prd.md#keyword-monitoring-proposal--2026-10-06).
+REQ-004/REQ-006 сохраняют арендный scope; новая история самостоятельна. REQ-002
+сохраняет append-only UI, REQ-008 — production isolation; deployment не входит в этот этап.
+
+### REQ-010 — Управление независимыми поисками
+
+Администратор создаёт несколько сохраняемых поисков: обязательное слово/фраза,
+«Все категории» либо выбранная реальная категория Somon, собственная география и необязательные целые цены от/до
+в сомони ≥ 0, от ≤ до. Создание проходит через сводку и включение; настройки адресуют
+конкретный поиск. Удаление доступно в списке и настройках, удаляет выбранный поиск
+с его историей, сохраняет остальные и аренду; старое меню не восстанавливает удалённый ID.
+
+### REQ-011 — Штатный scoped search и строгая цена
+
+Слово/фраза сопоставляется поиском Somon в выбранных категории и географии;
+категория необязательна («Все категории»), её смена сохраняет город.
+рекомендации других регионов не подходят. Обрабатывается доступная публичная выдача,
+без полного crawler/archive и без замены scoped search глобальной первой страницей
+с local city filter. Обе ценовые границы включены; rental fallback и квартирные фильтры
+не применяются. При любой заданной границе нужна известная цена в сомони;
+неизвестная/договорная цена исключается, конвертация валют отсутствует.
+
+### REQ-012 — Первые совпадения и независимая история доставки
+
+При включении доставляются доступные существующие совпадения, затем новые.
+Уведомление содержит название поиска, товар/предложение, цену, город, фото и ссылку.
+История независима для каждого поиска: доставленный ID не повторяется после restart,
+правки условий или снижения цены, но может подходить другому поиску. Изменение условий
+позволяет переоценить ранее отклонённые ID, сохраняя историю доставки.
+
+### REQ-013 — Надёжность нового мониторинга
+
+Ошибочная выдача не продвигает историю; пустая выдача успешна только при подтверждении
+source empty marker. История доставки фиксируется после Telegram success; ошибка/неоднозначность
+доставки и исчерпание лимита сохраняют retry. Общие HTTP delay, detail cap, backoff и single-flight
+не обходятся; stale evaluation после правки не закрепляет отказ для новых условий, а удалённый
+поиск не начинает новую доставку. Уже отправленный Telegram запрос отозвать нельзя; сбой после
+отправки до записи истории сохраняет существующую неоднозначность повтора.
+Pass/fail меняется при source/Telegram error, cap exhaustion, 403/429, restart и конкурентной
+правке/удалении. Verification: воспроизводимые проверки lifecycle и захваченных запросов.
+
+### REQ-014 — Минимальная интеграция и сохранность аренды
+
+Новая возможность переиспользует существующие Go-процесс, SQLite, scheduler, clients,
+Telegram-группу и admin allowlist; без новой dependency, worker или инфраструктуры.
+Допускается только принятое добавочное хранение поисков/истории. Rental settings,
+`seen_ads`, state, Telegram offset и существующее rental поведение сохраняются без повторной
+рассылки. Авторизация, append-only UI и pending input по admin/chat/search остаются изолированными.
+Pass/fail меняется при повторном открытии SQLite, работе двух поисков с одним ID, чужом callback,
+пересечении input или новой runtime ownership. Verification: review и проверки на временной БД/Telegram harness.
 
 ## Requirements Traceability Matrix
 
 | Requirement | Epic | Feature | Acceptance / proof route | Lifecycle |
 |---|---|---|---|---|
 | REQ-001 | EP-001 | FT-001, FT-002 | FT-001-AC-001, FT-001-AC-004, FT-002-AC-003 | planned |
-| REQ-002 | EP-001 | FT-002 | FT-002-AC-001, FT-002-AC-002, FT-002-AC-003 | planned |
+| REQ-002 | EP-001, EP-002 | FT-002, FT-005 | FT-002-AC-001, FT-002-AC-002, FT-002-AC-003; FT-005-AC-001 | planned |
 | REQ-003 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
 | REQ-004 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-003, FT-001-AC-004 | planned |
 | REQ-005 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done) | planned |
@@ -70,3 +123,8 @@ Only Somon Rent Watcher may change during deployment; unrelated workload/service
 | REQ-007 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
 | REQ-008 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done) | planned |
 | REQ-009 | EP-001 | FT-004 | FT-004-AC-001; TASK-005-T3-FT-004-W1 | done |
+| REQ-010 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002 — Telegram/store lifecycle checks | planned |
+| REQ-011 | EP-002 | FT-005 | FT-005-AC-003, FT-005-AC-004 — scoped HTML fixtures and price checks | planned |
+| REQ-012 | EP-002 | FT-005 | FT-005-AC-005 — delivery/history checks across restart and edits | planned |
+| REQ-013 | EP-002 | FT-005 | FT-005-AC-002, FT-005-AC-003, FT-005-AC-006 — failure/concurrency checks | planned |
+| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007 — authorization, state-preservation and owner review | planned |

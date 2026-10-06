@@ -81,3 +81,55 @@ This map comes from imports/calls in the current source tree. It is not an accep
 - Live compatibility with the current Somon DOM/RSC payload and Telegram account/chat configuration is not proven by repository reads; run `somonwatch doctor` on the intended host.
 - The current published Somon rules/robots state is external and time-sensitive; re-check before sustained production use.
 - No accepted versioning/compatibility policy exists yet for internal packages, SQLite schema or stored settings JSON; current code has no explicit migration framework.
+
+## Keyword search source observations
+
+Публичные страницы проверены 2026-10-06:
+[Все объявления](https://somon.tj/search/) — реальный путь общего поиска;
+[Мебель Душанбе](https://somon.tj/vse-dlya-doma/mebel/dushanbe/) — раздел с городом.
+[Мебель](https://somon.tj/vse-dlya-doma/mebel/) показывает город и цену от/до;
+[Услуги](https://somon.tj/biznes-i-uslugi/) и [Отдам даром](https://somon.tj/otdam-darom/)
+— отдельные разделы. Универсальный sale/service/rent не подтверждён.
+
+[Потери и находки Дангара](https://somon.tj/odezhda-i-obuv/poteri-i-nahodki/dangara/):
+H1 «Потери и находки Дангара 0», далее «Объявления из других регионов» и карточки.
+[Столы Восе](https://somon.tj/vse-dlya-doma/mebel/ofisnaya-mebel/stolyi/vose/):
+одна локальная карточка, затем тот же заголовок и рекомендации других регионов.
+Поэтому наличие карточек само по себе не подтверждает локальные совпадения.
+
+Оператор прислал URL штатной формы:
+[поиск «стол»](https://somon.tj/search/?q=%D1%81%D1%82%D0%BE%D0%BB).
+Подтверждён keyword contract: `/search/`, URL-encoded query `q`.
+Цена проверяется локально, поэтому price query parameters не требуются для дизайна.
+Прямой GET ранее вернул 403; это не отменяет подтверждённый пользователем URL.
+
+Оператор подтвердил штатные ссылки с совместным scope + keyword:
+[Все категории, Душанбе](https://somon.tj/search/dushanbe/?q=%D1%81%D1%82%D0%BE%D0%BB&ordering=relevance),
+[Столы и стулья, Душанбе](https://somon.tj/vse-dlya-doma/mebel/mebel-dlya-kuhni/stolyi-stulya/dushanbe/?ordering=relevance&q=%D1%81%D1%82%D0%BE%D0%BB),
+[Мебель, вся страна](https://somon.tj/vse-dlya-doma/mebel/?q=%D1%81%D1%82%D0%BE%D0%BB).
+Подтверждены category/city path scope, `q` и `ordering=relevance`; source blocker закрыт.
+Raw HTML/fixtures непустой и нулевой выдачи — execution parser proof; параметры date sort
+или иные query fields не подтверждены и не добавляются.
+
+### Keyword source implementation routing
+
+`internal/somon/keyword_search.go` реализует source-owned `KeywordCategories`,
+`KeywordCities`, `KeywordSearchURL`, `FetchKeywordSearch` и `ParseKeywordSearch`.
+Стабильные keys: `all`, `furniture`, `tables_chairs`, `services`;
+`country`, `dushanbe`, `vose`, `dangara`. Native paths соответствуют контракту;
+смена category не заменяет city. `internal/model/keyword_search.go` содержит
+пассивный `KeywordSearch`; `Card` дополнен `Currency`/`City` без rental-правил.
+
+Keyword parser использует видимый primary DOM до заголовка других регионов/городов.
+H1 со счётчиком `0` подтверждает пустую выдачу; карточки при таком счётчике дают ошибку.
+RSC-only выдача считается неподтверждённой: её крупнейший массив не доказывает scope
+и может содержать рекомендации. Rental parser/client не изменены.
+Цена не получает валюту TJS без явного source подтверждения; отсутствующие city/photo
+остаются пустыми. Known initial-catalog city names читаются из видимых строк карточки.
+
+Локальные fixtures `testdata/keyword-search-primary-{small,empty}.html` —
+репрезентативный sanitized HTML по документированным наблюдениям H1/region heading
+и существующим card/RSC patterns, не live captures. Они не доказывают актуальную
+полную DOM-совместимость Somon. Execution evidence TASK-006 хранится в
+[протоколе](../../.protocols/TASK-006-T2-FT-005-W1/handoff.md);
+independent `/verify` ещё требуется, production не изменялся.

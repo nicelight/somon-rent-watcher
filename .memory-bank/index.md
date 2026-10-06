@@ -8,6 +8,8 @@ last_verified: 2026-09-02
 
 ## Product and requirements
 
+- [Keyword monitoring proposal](prd.md#keyword-monitoring-proposal--2026-10-06): принятые независимые поиски, подтверждённые scoped URLs и минимальный дизайн; FT-005 task plan готов к свежему review.
+
 - [.memory-bank/analysis/product-brief.md](analysis/product-brief.md): accepted concise product input.
 - [.memory-bank/prd.md](prd.md): clarified, Constitution-checked product requirements.
 - [.memory-bank/product.md](product.md): product identity, value, primary flow, constraints, and non-goals.
@@ -17,12 +19,15 @@ last_verified: 2026-09-02
 - [.memory-bank/features/FT-002-append-only-telegram-ui.md](features/FT-002-append-only-telegram-ui.md): client-visible append-only bot administration.
 - [.memory-bank/features/FT-003-isolated-production-release.md](features/FT-003-isolated-production-release.md): ordered state-preserving production delivery.
 - [.memory-bank/features/FT-004-price-extraction-hotfix.md](features/FT-004-price-extraction-hotfix.md): completed price parser correction and isolated production hotfix.
+- [.memory-bank/epics/EP-002-keyword-monitoring.md](epics/EP-002-keyword-monitoring.md): принятая новая возможность независимых поисков, REQ-010…014.
+- [.memory-bank/features/FT-005-keyword-monitoring.md](features/FT-005-keyword-monitoring.md): создание, настройка, удаление и доставка keyword-поисков; native scope подтверждён, следующая граница — task-plan review.
+- [.memory-bank/tasks/plans/IMPL-FT-005.md](tasks/plans/IMPL-FT-005.md): пять задач FT-005 с exact AC proof, owners, зависимостями и Docker gates.
 
 ## Brownfield current-state baseline
 
 - [.memory-bank/product.md](product.md): accepted product scope with links to current-state evidence.
 - [.memory-bank/architecture/system-architecture.md](architecture/system-architecture.md): C4 context/runtime/component map, entrypoints, data flow and writers.
-- [.memory-bank/contracts/current-integrations.md](contracts/current-integrations.md): observed external contracts and internal dependency evidence; non-authoritative for target design.
+- [.memory-bank/contracts/current-integrations.md](contracts/current-integrations.md): observed external contracts and internal dependency evidence; non-authoritative for target design. Keyword source API/catalog/fixture limits: [implementation routing](contracts/current-integrations.md#keyword-source-implementation-routing).
 - [.memory-bank/states/runtime-lifecycle.md](states/runtime-lifecycle.md): current polling, delivery, recovery and persisted-state lifecycle.
 - [.memory-bank/runbooks/almalinux-9-operations.md](runbooks/almalinux-9-operations.md): routing to the production operations procedure.
 - [.memory-bank/runbooks/docker-local-operations.md](runbooks/docker-local-operations.md): local Kubuntu Docker Compose build, runtime and state routing.

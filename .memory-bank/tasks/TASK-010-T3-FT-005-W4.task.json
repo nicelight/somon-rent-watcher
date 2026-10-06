@@ -1,0 +1,103 @@
+{
+  "id": "TASK-010-T3-FT-005-W4",
+  "title": "Delete searches from both menus and reject stale work",
+  "status": "planned",
+  "wave": "W4",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-010",
+    "REQ-013",
+    "REQ-014"
+  ],
+  "depends_on": [
+    "TASK-008-T3-FT-005-W2",
+    "TASK-009-T2-FT-005-W3"
+  ],
+  "touched_files": [
+    "internal/app/keyword_search.go",
+    "internal/app/keyword_search_test.go",
+    "internal/telegram/keyword_search.go",
+    "internal/telegram/keyword_search_test.go",
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/store/keyword_search_test.go"
+  ],
+  "tier": "T3",
+  "gates": [
+    {
+      "name": "Focused Docker package tests",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/app ./internal/store ./internal/telegram'",
+      "required": true
+    },
+    {
+      "name": "Native Docker build gate",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c './scripts/build.sh'",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/tasks/plans/IMPL-FT-005.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Remove only the selected search and history, preventing stale menus/evaluation from reviving or sending it.",
+  "success_outcome": "Both delete routes atomically remove one monitor/history; other searches/rental rows survive; stale callbacks and future delivery/evaluation cannot resurrect an ID or commit outdated rejection.",
+  "anti_goals": [
+    "Do not change production/runtime/real data or authorization policy.",
+    "Do not adopt dependency-owned creation/source/budget/delivery ACs; use them only as prerequisites/regression."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "commit, push, deployment, production runtime and production DB",
+      "real Telegram messages, secrets or allowlist/target-chat policy changes",
+      "new dependencies, workers or infrastructure",
+      "FT-001..004 outcomes/task records/statuses/approvals; unrelated rental UI or fallback changes",
+      "direct SQLite writes outside Persistence Adapter; business orchestration in transport/composition"
+    ],
+    "stop_conditions": [
+      "An unresolved material product/contract/state/ownership branch is discovered.",
+      "Required scope changes task identity/tier/dependency/owned claims or affects production.",
+      "Honest compiling behavioral RED or preserved initial GREEN cannot be obtained for an owned claim; syntax/setup failure is not RED."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-002",
+    ".memory-bank/prd.md#keyword-monitoring-proposal--2026-10-06",
+    ".memory-bank/epics/EP-002-keyword-monitoring.md"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/requirements.md#accepted-keyword-monitoring-delta",
+    ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal",
+    ".memory-bank/contracts/boundary-map.md#modules",
+    ".memory-bank/contracts/boundary-map.md#dependency-graph",
+    ".memory-bank/contracts/boundary-map.md#keyword-monitoring-contract-proposal",
+    ".memory-bank/contracts/boundary-map.md#keyword-search-boundary-shapes",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/contracts/boundary-map.md#telegram-application-boundary",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract",
+    ".memory-bank/contracts/boundary-map.md#polling-orchestration-contract",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-monitoring-state-proposal",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-persistence-and-mutation-rules"
+  ],
+  "constraints": [
+    "Capability owner: Polling Application (internal/app) owns delete/send-start coordination; Telegram authorizes both routes and renders fresh current UI; Persistence owns atomic deletion, no direct transport DB writes.",
+    "Reuse existing Go/CGO clients, scheduler, SQLite and test harness; expected paths are advisory.",
+    "Dependencies own their proof; current regression checks do not adopt their claims.",
+    "Use only local httptest endpoints and t.TempDir DB; network-disabled Docker gate uses existing builder image."
+  ],
+  "invariants": [
+    "Rental data/behavior retain their existing owners; independent search IDs/history never use rental seen_ads as exclusion.",
+    "Admin allowlist, target-chat policy, callback acknowledgement and append-only output are preserved in new routes."
+  ],
+  "verification_targets": [
+    "FT-005-AC-002 (REQ-010/013/014) harm proof: seed two searches, distinct histories and rental settings/seen/state/offset in temporary DB; exercise delete from list and settings in separate fresh runs. Compare selected absence, preserved other/rental values and old callback missing-result; create next monitor and verify ID is not reused. Unauthorized/wrong-chat delete cannot change snapshots. Reopen proves deletion durable; transaction-failure probe proves rollback preserves monitor/history together.",
+    "FT-005-AC-002: controlled source/detail-before-send barrier; delete target then release stale poll and verify zero new send starts/history resurrection. Edit conditions instead and verify stale rejection does not suppress new-revision reevaluation. Separate already-started-send barrier proves no false revocation claim: request may complete, but history write never recreates deleted monitor. Observe API request order and affected row versions; use accepted authorized disposable state only.",
+    "Preimplementation RED after dependencies complete: existing new menus/operations leave search/history present for the delete action; same action must remove them after implementation. Obtain behavioral RED for stale-delete schedule and preserve already-GREEN revision protection. All probes run with fake user IDs/httptest/t.TempDir()/search.db; rerun begins from identical fresh seed, cancel goroutines and close DB/server for cleanup. No human operational checkpoint or real production deletion.",
+    "Final native scripts/build.sh Docker gate covers all current code; existing rental/price checks support deletion integration-delta regression. Functional /verify plus per-task /red-verify required; FT-005 feature semantic verification follows all task closure."
+  ],
+  "evidence_required": [
+    "FT-005-AC-002 — RED: delete action currently leaves selected monitor/history present and stale work remains able to deliver it. GREEN: both routes remove exactly selected rows atomically; unauthorized/stale actions and interrupted transaction preserve protected rows, no reused ID/resurrection; delete-before-send prevents new request while already-started send retains accepted ambiguity; stale edit/reject cannot suppress fresh evaluation. Decisive comparison: DB snapshots across reopen/rollback and barrier-ordered Telegram request trace for each subcase. Preserve already-GREEN revision/auth constraints. Artifact: .tasks/TASK-010-T3-FT-005-W4/TASK-010-T3-FT-005-W4-acceptance-evidence.md."
+  ]
+}

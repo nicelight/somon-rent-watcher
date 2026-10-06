@@ -11,6 +11,11 @@ source_of_truth:
 
 # Invariants
 
+Правила exact/fallback, единой истории и запрет новой schema ниже относятся к
+арендной дельте FT-001/FT-002. Для принятой новой возможности действует
+[отдельная история поисков](states/runtime-lifecycle.md#keyword-monitoring-state-proposal);
+авторизация, append-only UI, backoff и изоляция production остаются общими.
+
 ## Accepted MUST
 
 - Exact candidates MUST be evaluated before fallback, and any exact match MUST suppress fallback for that poll.

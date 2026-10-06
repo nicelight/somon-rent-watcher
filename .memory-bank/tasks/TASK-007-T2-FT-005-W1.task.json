@@ -1,0 +1,83 @@
+{
+  "id": "TASK-007-T2-FT-005-W1",
+  "title": "Apply independent strict keyword price eligibility",
+  "status": "in_progress",
+  "wave": "W1",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-011"
+  ],
+  "depends_on": [],
+  "touched_files": [
+    "internal/filter/keyword_search.go",
+    "internal/filter/keyword_search_test.go"
+  ],
+  "tier": "T2",
+  "gates": [
+    {
+      "name": "Focused Docker package tests",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/filter'",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/tasks/plans/IMPL-FT-005.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Make optional keyword bounds strict without apartment criteria or fallback.",
+  "success_outcome": "Absent/one/two inclusive bounds use confirmed somoni price; unknown/negotiable/other currency fail whenever any bound is set, and housing fields never restrict a commodity.",
+  "anti_goals": [
+    "Do not implement native matching/parser, saved-search UI/storage, scheduler, delivery or deletion.",
+    "Do not alter rental Settings/CardMatches/AdMatches behavior to add keyword rules."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "commit, push, deployment, production runtime and production DB",
+      "real Telegram messages, secrets or allowlist/target-chat policy changes",
+      "new dependencies, workers or infrastructure",
+      "FT-001..004 outcomes/task records/statuses/approvals; unrelated rental UI or fallback changes",
+      "direct SQLite writes outside Persistence Adapter; business orchestration in transport/composition"
+    ],
+    "stop_conditions": [
+      "An unresolved material product/contract/state/ownership branch is discovered.",
+      "Required scope changes task identity/tier/dependency/owned claims or affects production.",
+      "Honest compiling behavioral RED or preserved initial GREEN cannot be obtained for an owned claim; syntax/setup failure is not RED."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-004",
+    ".memory-bank/prd.md#keyword-monitoring-proposal--2026-10-06",
+    ".memory-bank/epics/EP-002-keyword-monitoring.md"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/requirements.md#accepted-keyword-monitoring-delta",
+    ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal",
+    ".memory-bank/contracts/boundary-map.md#modules",
+    ".memory-bank/contracts/boundary-map.md#dependency-graph",
+    ".memory-bank/contracts/boundary-map.md#keyword-monitoring-contract-proposal",
+    ".memory-bank/contracts/boundary-map.md#keyword-search-boundary-shapes",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/contracts/boundary-map.md#filtering-contract",
+    ".memory-bank/contracts/boundary-map.md#shared-data-contract"
+  ],
+  "constraints": [
+    "Primary owner: Filtering (internal/filter); consumes passive monetary/card values through Shared Data. Pure predicate and bounds validation; no source/UI/store calls.",
+    "Reuse existing Go/CGO clients, scheduler, SQLite and test harness; expected paths are advisory.",
+    "Dependencies own their proof; current regression checks do not adopt their claims.",
+    "Use only local httptest endpoints and t.TempDir DB; network-disabled Docker gate uses existing builder image."
+  ],
+  "invariants": [
+    "Rental data/behavior retain their existing owners; independent search IDs/history never use rental seen_ads as exclusion.",
+    "Admin allowlist, target-chat policy, callback acknowledgement and append-only output are preserved in new routes."
+  ],
+  "verification_targets": [
+    "FT-005-AC-004 (REQ-011): table-driven bounds absent/min/max/both including zero, 99/100/200/201 for 100–200, missing/negotiable/other currency and commodity without apartment/seller fields. Bounds are nonnegative integers, min<=max; local matching does not reinterpret native phrase.",
+    "FT-005-AC-004: use compiling existing filter entrypoints before implementation: unknown-price CardMatches with a bound and commodity AdMatches demonstrate missing strictness/housing coupling. Compare equivalent input vectors with the keyword predicate after implementation, preserving initial GREEN for correct inclusive boundaries. In-memory values only; recreate values per test, no cleanup state."
+  ],
+  "evidence_required": [
+    "FT-005-AC-004 — RED: current card predicate admits missing price under bounds and/or apartment predicate rejects an otherwise eligible commodity. GREEN: exact expected boolean per bounds/known-TJS vector, no housing restriction/fallback. Decisive comparison: the same commodity/missing-price inputs and inclusive boundary matrix; preserve correct baseline subcases. Artifact: .tasks/TASK-007-T2-FT-005-W1/TASK-007-T2-FT-005-W1-acceptance-evidence.md."
+  ]
+}

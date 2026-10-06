@@ -4,6 +4,35 @@ status: active
 ---
 # Changelog
 
+## [2026-10-06] Keyword scoped source implementation
+
+- TASK-006: отдельный native category/city + q/relevance source и начальный каталог;
+  keyword parser отделяет primary DOM от region recommendations и подтверждённого нуля.
+- Пассивные search/price-currency/city поля добавлены в Shared Data; rental parser,
+  price fixtures и остальные owners сохранены. Новых dependencies/runtime нет.
+- Compiling baseline RED показал RSC recommendation leakage; эквивалентный GREEN,
+  focused Docker tests и vet прошли. Fixtures репрезентативные, не live captures.
+- [WHY/WHERE и границы доказательства](contracts/current-integrations.md#keyword-source-implementation-routing).
+  TASK-006 остаётся in_progress до independent `/verify` и решения владельца.
+
+## [2026-10-06] Keyword search task plan
+
+- [IMPL-FT-005](tasks/plans/IMPL-FT-005.md): пять задач TASK-006…010; source/price,
+  создание/настройка, мониторинг и удаление. AC-001…007 закреплены за владельцами proof.
+- Уточнены существующие canonical boundary/state owners: payloads, revision,
+  runtime DB path, условная запись истории и адресное атомарное удаление.
+- Planning Revision 1, Foundation `not_required`, прежние task identities/status/approval
+  сохранены. Fresh `/review-tasks-plan FT-005` следующий; реализация и deployment не выполнялись.
+
+## [2026-10-06] Keyword monitoring design proposal
+
+- [Проект поиска](prd.md#keyword-monitoring-proposal--2026-10-06): правила, архитектура, история и открытые вопросы. По просьбе оператора убраны повторы и избыточные детали.
+- Приняты несколько поисков помимо аренды, сначала существующие объявления, география каждого поиска и удаление из списка/настроек. Соответствующие вопросы закрыты.
+- Минимальный дизайн сохраняет owners/scheduler и изолирует историю поисков от аренды; необоснованные baseline/schema-version/framework/rollback детали убраны. Прежний запрет schema/profiles ограничен арендным upgrade.
+- Оператор подтвердил строгий бюджет, исключение договорной цены при лимите, штатный matching Somon и отсутствие повторов при снижении цены.
+- URL штатной формы подтвердил `/search/?q=…`; semantic design готов к новой decomposition. Native category/city scope mapping подтверждён следующими URL оператора; «Все категории» поддерживается, смена категории сохраняет город. HTML fixtures относятся к execution proof.
+- EP-002/FT-005 product review APPROVE сохранён; FT-005 SDD design complete, следующий свежий `/feature-to-tasks FT-005`. Impact bounded только FT-005; revision 1 → 1, Foundation/старые задачи/approvals и production не менялись.
+
 ## [2026-09-09] Price extraction hotfix
 
 - Corrected category/detail DOM price extraction and added regressions for adjacent photo counts and house numbers.

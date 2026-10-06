@@ -154,3 +154,54 @@ There is no explicit schema version or migration table in the current repository
 - [internal/filter/settings.go](../../internal/filter/settings.go): settings serialization and validation.
 - [internal/app/app_test.go](../../internal/app/app_test.go): baseline/one-time delivery and paused no-backfill integration tests.
 - [internal/store/sqlite_test.go](../../internal/store/sqlite_test.go): state/settings/seen roundtrip.
+
+## Keyword monitoring state proposal
+
+[Принятые правила](../prd.md#accepted-decisions): независимые поиски, первый опрос
+с доставкой существующих совпадений и удаление выбранного поиска из двух меню.
+
+Минимальное хранение — две добавочные таблицы в существующей SQLite:
+`search_monitors` (ID, настройки, enabled, revision) и `search_ad_state`
+(ключ monitor ID + ad ID, evaluated revision, delivered flag). Rental settings, `seen_ads`,
+state и Telegram offset сохраняются. Категория («Все» по умолчанию) и география
+хранятся отдельно; смена категории не сбрасывает город. Создание таблиц транзакционное и повторяемое;
+отдельный migration framework или общий schema-version не нужны.
+
+- Глобальные rental seen ID не исключают совпадения нового поиска.
+- Тихого baseline нового поиска нет; лимит/временная ошибка оставляют retry.
+- История доставки записывается после Telegram success; сбой между отправкой
+  и записью допускает существующую неоднозначность повторной доставки.
+- Revision связывает оценку с актуальными условиями при одновременной работе
+  scheduler/UI; устаревшая оценка не становится отказом для новых условий.
+- Удаление атомарно убирает поиск и его историю, не затрагивая остальные данные.
+
+Доставленный ID всегда пропускается в этом поиске, включая restart и снижение цены.
+Отказ хранится для текущей revision; изменение условий позволяет переоценить отказ,
+сохраняя доставленные ID. Ошибка выдачи не продвигает историю; 403/429 запускает
+общий backoff. Подтверждённая пустая выдача является успешным опросом.
+Проверка на временной БД: повторное открытие, сохранность аренды, два поиска с одним ID,
+первый опрос, delivery/restart, конкурентная правка/удаление и сбой транзакции.
+
+### Keyword persistence and mutation rules
+
+Runtime path — существующий `DB_PATH` (`./somonwatch.db` по умолчанию;
+production `/var/lib/somonwatch/somonwatch.db`). Пробы используют только новый
+`t.TempDir()` database, никогда рабочий файл. `search_monitors` хранит стабильный
+никогда не переиспользуемый ID, search settings, enabled, monotonic revision;
+`search_ad_state` хранит monitor ID/ad ID, evaluated revision и delivered flag.
+Принятые поля search settings определены в
+[boundary shapes](../contracts/boundary-map.md#keyword-search-boundary-shapes).
+
+Условия меняются атомарно с увеличением revision. Enable/disable хранится отдельно
+от арендной паузы. Reject write MUST учитывать ожидаемую revision; stale write
+MUST NOT подавить оценку новых условий. Delivered flag MUST сохраняться после
+правки и MUST записываться только после success, если monitor ещё существует.
+Отсутствующий ID не создаётся условной записью истории или старым callback.
+Удаление поиска/его истории — одна транзакция; отказ транзакции сохраняет оба.
+Application согласует mutation и начало send, проверяя existence/enabled/revision
+перед новой отправкой; уже начатый запрос сохраняет принятую неоднозначность.
+
+Проверка: seeded rental settings/seen/state/offset + два поиска; закрыть/открыть
+БД, сопоставить значения и адресные изменения. Для stale work использовать
+управляемые httptest barriers, повторять с новой временной БД; cleanup — close
+DB/server и удаление test directory. SQLite остаётся единственным writer adapter.

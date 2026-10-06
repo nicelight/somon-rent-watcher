@@ -8,6 +8,8 @@ type Card struct {
 	URL            string
 	Title          string
 	Price          *int
+	Currency       string
+	City           string
 	Rooms          *int
 	Floor          *int
 	Promoted       bool

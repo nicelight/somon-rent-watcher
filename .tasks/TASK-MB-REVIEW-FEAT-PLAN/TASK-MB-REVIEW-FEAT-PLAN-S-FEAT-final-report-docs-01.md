@@ -1,29 +1,28 @@
-# Feature plan review
+# Проверка декомпозиции keyword-поисков
 
 VERDICT: APPROVE
 
 ## Evidence
 
-- Reviewed Constitution, Product Brief, clarified PRD, product, requirements/RTM, EP-001, FT-001..FT-003, spec index and backbone after one repair cycle.
-- Two independent Codex Luna xhigh focuses covered acceptance/authorization/RTM and release/runtime/scope.
-- `mb-lint` passed for 50 files.
-- FT-001 explicitly covers rejected-seen and failed-delivery-unseen transitions, exact suppression, bounds/order, cap and backoff.
-- FT-002 explicitly covers authorized private/target chat, unauthorized/wrong-chat rejection, cross-admin/chat input isolation, new messages, and zero edits.
-- FT-003 explicitly covers local gate → GitHub → preflight → production git sync → target build/doctor → scoped runtime update → post-deploy health/logs and host isolation.
-- REQ links match the RTM; REQ-006..008 explicitly crosswalk PRD NFR-001..003; unsupported rollback scope is absent.
+- Проверены Constitution, Brief/analysis, принятая дельта PRD, product, REQ-010…014/RTM, EP-002, FT-005, spec index/backbone и связанные keyword-контракты, lifecycle, architecture и invariants. FT-001…004 проверены только на противоречия.
+- [REQ/RTM](../../.memory-bank/requirements.md#accepted-keyword-monitoring-delta), [EP-002](../../.memory-bank/epics/EP-002-keyword-monitoring.md) и [FT-005-AC-001…007](../../.memory-bank/features/FT-005-keyword-monitoring.md#acceptance-criteria) связаны с принятой дельтой. AC уникальны и имеют observable criteria и verification methods.
+- Закрыты создание/настройка/оба удаления, авторизация, строгая цена, scoped matching, первый результат, независимость истории, restart/правка/price drop, stale evaluation, ошибки/лимиты/retry и сохранность аренды. REQ-013/014 задают наблюдаемые условия и методы проверки надёжности/минимальной интеграции. Общий REQ-002 и существующий FT-002-AC-001 сохраняют callback acknowledgement и zero edits.
+- Один bounded boundary probe не обнаружил скрытого самостоятельного продуктового результата: управление поиском и доставка образуют принятый цикл одного мониторинга. Foundation `not_required`, Planning Revision 1 и прежние approvals/очереди сохраняются.
+- Semantic pack применён: независимый GPT-6.1 Sol xhigh co-review по traceability/Constitution вернул отсутствие findings. Второй co-review по acceptance дважды не запустился из-за thread limit; по правилу pack проверка продолжена, этот focus проверен владельцем verdict.
+- `node .memory-bank/scripts/mb-lint.mjs`: passed, 57 files. Предыдущий EP-001 APPROVE сохранён без изменения в [archive/EP-001](archive/EP-001/TASK-MB-REVIEW-FEAT-PLAN-S-FEAT-final-report-docs-01.md).
 
 ## Blocking findings
 
-None.
+Нет.
 
 ## Non-blocking notes
 
-None material. Additional duplicated RTM columns or repeated brownfield state lists would not improve this gate and would work against KISS.
+[Native category/city + q](../../.memory-bank/contracts/current-integrations.md#keyword-search-source-observations) остаётся `needed_before_tasks` для source-dependent handoff/исполнения. Это честно выделенная evidence dependency; независимое storage/UI planning разрешено. Raw HTML fixtures относятся к execution proof.
 
 ## Unresolved operator questions
 
-None.
+Продуктовых вопросов нет. Требуется подтверждённая штатная filtered URL для указанной source dependency.
 
 ## Owning repair route
 
-Repair not required. Next owner: `/spec-design`.
+Repair не требуется. Следующий владелец: свежий `/feature-to-tasks FT-005` в пределах принятого bounded redesign и сохранённого source evidence gate.

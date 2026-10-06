@@ -1,0 +1,102 @@
+{
+  "id": "TASK-009-T2-FT-005-W3",
+  "title": "Deliver keyword matches through shared scheduler and independent history",
+  "status": "planned",
+  "wave": "W3",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-012",
+    "REQ-013",
+    "REQ-014"
+  ],
+  "depends_on": [
+    "TASK-006-T2-FT-005-W1",
+    "TASK-007-T2-FT-005-W1",
+    "TASK-008-T3-FT-005-W2"
+  ],
+  "touched_files": [
+    "internal/app/keyword_search.go",
+    "internal/app/keyword_search_test.go",
+    "internal/app/app.go",
+    "internal/telegram/keyword_search.go",
+    "internal/telegram/render.go",
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/store/keyword_search_test.go"
+  ],
+  "tier": "T2",
+  "gates": [
+    {
+      "name": "Focused Docker package tests",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/app ./internal/store ./internal/telegram'",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/tasks/plans/IMPL-FT-005.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Deliver first/current matches once per search without weakening shared polling limits and retry.",
+  "success_outcome": "Enabled searches deliver existing then new primary matches with named notifications and independent durable delivered/rejected history; errors/cap preserve retry and shared sequential backoff/single-flight.",
+  "anti_goals": [
+    "Do not implement delete routes or adopt TASK-010 stale-delete proof.",
+    "Do not alter search management authorization, rental first-seen/fallback policy, source matching/catalog or pure price predicate."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "commit, push, deployment, production runtime and production DB",
+      "real Telegram messages, secrets or allowlist/target-chat policy changes",
+      "new dependencies, workers or infrastructure",
+      "FT-001..004 outcomes/task records/statuses/approvals; unrelated rental UI or fallback changes",
+      "direct SQLite writes outside Persistence Adapter; business orchestration in transport/composition"
+    ],
+    "stop_conditions": [
+      "An unresolved material product/contract/state/ownership branch is discovered.",
+      "Required scope changes task identity/tier/dependency/owned claims or affects production.",
+      "Honest compiling behavioral RED or preserved initial GREEN cannot be obtained for an owned claim; syntax/setup failure is not RED."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-005",
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-006",
+    ".memory-bank/prd.md#keyword-monitoring-proposal--2026-10-06",
+    ".memory-bank/epics/EP-002-keyword-monitoring.md"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/requirements.md#accepted-keyword-monitoring-delta",
+    ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal",
+    ".memory-bank/contracts/boundary-map.md#modules",
+    ".memory-bank/contracts/boundary-map.md#dependency-graph",
+    ".memory-bank/contracts/boundary-map.md#keyword-monitoring-contract-proposal",
+    ".memory-bank/contracts/boundary-map.md#keyword-search-boundary-shapes",
+    ".memory-bank/testing/strategy.md#risk-based-checks",
+    ".memory-bank/contracts/boundary-map.md#polling-orchestration-contract",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract",
+    ".memory-bank/contracts/boundary-map.md#telegram-application-boundary",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-monitoring-state-proposal",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-persistence-and-mutation-rules"
+  ],
+  "constraints": [
+    "Primary owner: Polling Application (internal/app); uses Somon/Filtering/Telegram/Persistence via accepted boundaries. Store only records app decisions; Telegram only renders/delivers; no auth decisions change.",
+    "Reuse existing Go/CGO clients, scheduler, SQLite and test harness; expected paths are advisory.",
+    "Dependencies own their proof; current regression checks do not adopt their claims.",
+    "Use only local httptest endpoints and t.TempDir DB; network-disabled Docker gate uses existing builder image."
+  ],
+  "invariants": [
+    "Rental data/behavior retain their existing owners; independent search IDs/history never use rental seen_ads as exclusion.",
+    "Admin allowlist, target-chat policy, callback acknowledgement and append-only output are preserved in new routes."
+  ],
+  "verification_targets": [
+    "FT-005-AC-005 (REQ-012): temp-SQLite App+httptest source/Telegram: seed rental-seen same ad, enable two saved searches, poll first/next, reopen/restart, drop price, edit budget and reevaluate prior reject. Capture search phrase/title/price/city/photo/link and delivered IDs per search. First delivery must occur despite rental baseline/seen; delivered remains skipped across edits, each search receives same ID independently.",
+    "FT-005-AC-006 (REQ-013): controlled source parse/error and Telegram failure/ambiguity, cap=1 across rental+two searches, typed 403/429, repeated manual trigger. Observe request order/in-flight maximum=1, total details<=cap, shared HTTP delay/backoff and round-robin starting search; only successful delivery records delivered. Deferred/failed IDs retry after next allowed poll; source failure leaves search history unchanged. Send-success/store-write failure retains accepted possible-repeat ambiguity, no exactly-once claim.",
+    "Owned preimplementation RED: after creation dependencies are done, create/enable searches through real app operations and run existing scheduler, capturing no keyword delivery/history; same scenario after change proves GREEN. For failure/cap subcases trigger their real source/Telegram failures in the same harness, not artificial compilation failure; preserve baseline already-correct shared limits. Concurrent budget edit must make stale rejection conditional on revision; deletion/race proof remains TASK-010.",
+    "Use t.TempDir()/search.db via cfg.DBPath; seed records, close/reopen for restart, use httptest barriers and short controlled intervals rather than production. Rerun recreates DB/server; cancel scheduler context, close server/DB and remove temporary directory on cleanup."
+  ],
+  "evidence_required": [
+    "FT-005-AC-005 — RED: enabled persisted searches produce no keyword notification/history through current polling. GREEN: per-search first/new ID trace and correct payload, one delivery across restart/edit/price drop, independent second-search delivery and re-evaluation of rejected IDs. Decisive comparison: captured per-search ad IDs plus durable delivered/evaluated-revision rows before/after reopen. Artifact: .tasks/TASK-009-T2-FT-005-W3/TASK-009-T2-FT-005-W3-acceptance-evidence.md.",
+    "FT-005-AC-006 — RED: enabled search failure/cap fixtures have no keyword retry lifecycle because searches are absent from polling. GREEN: failed/deferred IDs retry, success alone records delivered, source errors preserve rows and shared sequential delay/cap/backoff/single-flight hold; ambiguity-after-send remains allowed. Decisive comparison: failure→next-poll request trace, exact row deltas, observed total detail/in-flight counts and backoff state, with each subcase distinguished. Preserve initial-GREEN shared transport/scheduler constraints. Artifact: .tasks/TASK-009-T2-FT-005-W3/TASK-009-T2-FT-005-W3-acceptance-evidence.md."
+  ]
+}

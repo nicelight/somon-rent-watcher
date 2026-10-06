@@ -95,3 +95,67 @@ Shared Data contains passive structures and no I/O, orchestration, mutable singl
 - Add an edge only with an exact contract heading and accepted need.
 - Preserve one writer for each mutable invariant; a shared SQLite file does not grant shared write authority.
 - Keep feature/task-specific details in feature/task artifacts and do not duplicate a feature subgraph here.
+
+## Keyword monitoring contract proposal
+
+Дельта к [PRD](../prd.md#keyword-monitoring-proposal--2026-10-06); ранее принятые
+контракты аренды сохраняются.
+
+- Приложение владеет созданием, настройкой и удалением поиска по стабильному ID.
+  Обе кнопки удаления вызывают одну операцию; остальные поиски и аренда сохраняются.
+- Somon adapter принимает фразу, категорию и географию; цена проверяется локально.
+  Результат — primary cards в выбранном scope, подтверждённая пустая выдача либо ошибка.
+  URL: allowlisted category base («Все категории» = `/search/`) + выбранный city
+  path segment либо вся страна; `q` кодируется через `net/url`,
+  `ordering=relevance` — подтверждённый порядок. [Source evidence](current-integrations.md#keyword-search-source-observations)
+  подтверждает совместный scope; global page + local city filter его не заменяет.
+  Начальный catalog: `/search/`, `/vse-dlya-doma/mebel/`,
+  `/vse-dlya-doma/mebel/mebel-dlya-kuhni/stolyi-stulya/`, `/biznes-i-uslugi/`;
+  city: вся страна либо `dushanbe`, `vose`, `dangara`. Произвольный URL не принимается.
+  Primary results отделяются от рекомендаций других регионов: на реальных страницах
+  заголовок «Объявления из других регионов» есть даже при нуле локальных результатов.
+  Ноль карточек допустим только с подтверждённым empty marker; иначе это parse error.
+- Штатный Somon matching определяет слово/фразу; локальный фильтр строго проверяет
+  цену от/до в сомони без fallback и исключает неизвестную/договорную цену при границе.
+  Квартирные фильтры и sanity-пороги нельзя применять к товарной выдаче.
+  Неизвестная цена не превращается в ноль; источник определяет доступные поля.
+- Telegram сохраняет авторизацию и append-only UI; callbacks и pending input
+  адресуют конкретный поиск. Категория/город выбираются читаемыми кнопками из
+  [начального catalog](../prd.md#monitoring-rules); смена категории сохраняет город.
+  Удалённый ID не создаётся заново из старого меню.
+- До доставки приложение проверяет существование/актуальность поиска; уже
+  отправленный Telegram запрос отозвать нельзя. SQLite пишет только store.
+
+Проверки: независимость двух поисков с одним ad ID, первый запуск, оба места удаления,
+restart, неизменность аренды, авторизация, общий cap/backoff и ошибки доставки.
+Фикстуры проверяют пустую/малую локальную выдачу с чужими рекомендациями;
+существующие rental/price fixtures остаются regression proof.
+
+### Keyword search boundary shapes
+
+Новый search payload содержит стабильный ID, phrase, category key, city key,
+необязательные integer price min/max, enabled и revision. Phrase после trim MUST
+быть непустой; значения catalog MUST быть allowlisted. Название уведомления — phrase.
+Search создаётся выключенным; включение следует после сводки. Search values не
+используют apartment `Settings`; отсутствие границы отличается от нулевой границы.
+
+Somon принимает phrase/category/city, возвращает primary cards с ID, URL, title,
+известной ценой/валютой, city и доступным image URL; details добавляют описание.
+Пассивные поля MUST сохранять отсутствие цены/города/фото без выдумывания данных.
+Price для строгого фильтра считается известной только при подтверждённых сомони;
+неизвестная валюта MUST NOT превращаться в сомони. Без price bounds цена не
+ограничивает eligibility. Matching phrase MUST NOT подменяться локальным substring.
+Filter принимает только search bounds и доступные monetary values, без I/O и
+квартирных правил. Catalog/source owner — Somon Adapter; passive payloads — Shared Data.
+
+Telegram передаёт операции list/create/read/update/enable/delete приложению.
+Приложение MUST сохранять ID/revision и проверять актуальность; transport MUST NOT
+писать SQLite. Pending state задаёт admin/chat/search/action; адресованный input
+MUST NOT изменять другой search или арендные settings. Категория и city независимы.
+Отсутствующий ID возвращает missing result и свежий список, без upsert/resurrection.
+Эта feature добавляет собственные callback routes; переделка rental callbacks,
+manual-scan UX и выполнение незавершённых FT-002 claims в неё не входят.
+
+Verification targets: FT-005-AC-001…006; temporary SQLite и существующие
+httptest Telegram/Somon harness. Payload symbols/методы выбираются исполнителем
+в указанных owners; изменение существующих consumers должно оставаться совместимым.

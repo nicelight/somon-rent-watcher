@@ -47,11 +47,11 @@ last_updated: 2026-09-04
 | module_boundaries | authoritative | [.memory-bank/contracts/boundary-map.md#modules](contracts/boundary-map.md#modules) | Existing functional packages and exact allowed edges/contracts are accepted. |
 | user_scenarios | authoritative | [.memory-bank/prd.md#ux--interaction-flow](prd.md#ux--interaction-flow) | Polling, group delivery and administrator flows are sufficient; no separate scenario artifact required. |
 | constraints | authoritative | [.memory-bank/invariants.md](invariants.md) | Accepted MUST/NEVER and compatibility guardrails. |
-| non_goals | authoritative | [.memory-bank/prd.md#non-goals](prd.md#non-goals) | No storage/config/dependency/client-detection or unrelated infrastructure expansion. |
-| domain_model | authoritative | [.memory-bank/prd.md#data--domain-model](prd.md#data--domain-model) | Existing Card/Ad/Settings/seen model plus ephemeral poll candidate classes is sufficient. |
+| non_goals | authoritative | [.memory-bank/prd.md#keyword-monitoring-proposal--2026-10-06](prd.md#keyword-monitoring-proposal--2026-10-06) | Rental upgrade exclusions remain scoped; new saved searches permit necessary storage, without a crawler or unrelated infrastructure. |
+| domain_model | authoritative | [.memory-bank/states/runtime-lifecycle.md#keyword-monitoring-state-proposal](states/runtime-lifecycle.md#keyword-monitoring-state-proposal) | Existing rental model remains; new search settings and per-search evaluation/delivery history are independent. |
 | data_flow | authoritative | [.memory-bank/architecture/system-architecture.md#main-target-data-flow](architecture/system-architecture.md#main-target-data-flow) | Exact-before-fallback and append-only callback flows have one orchestration owner each. |
-| storage | authoritative | [.memory-bank/states/runtime-lifecycle.md#persisted-current-state](states/runtime-lifecycle.md#persisted-current-state) | Existing schema/write ownership is preserved; no migration. |
-| api_contracts | authoritative | [.memory-bank/contracts/boundary-map.md#external-boundary-rules](contracts/boundary-map.md#external-boundary-rules) | Existing Somon/Telegram outbound contracts are retained and callback UI becomes append-only. |
+| storage | authoritative | [.memory-bank/states/runtime-lifecycle.md#keyword-monitoring-state-proposal](states/runtime-lifecycle.md#keyword-monitoring-state-proposal) | Two additive search tables; rental settings/seen/state and sole store write ownership are preserved. |
+| api_contracts | authoritative | [.memory-bank/contracts/boundary-map.md#keyword-monitoring-contract-proposal](contracts/boundary-map.md#keyword-monitoring-contract-proposal) | Native category/city paths, q and relevance ordering confirmed; existing rental/Telegram contracts retained. |
 | event_message_contracts | not_applicable | [.memory-bank/architecture/system-architecture.md#accepted-shape](architecture/system-architecture.md#accepted-shape) | No event bus, queue or asynchronous message envelope exists or is accepted. |
 | agent_io_contracts | not_applicable | [.memory-bank/product.md#non-goals](product.md#non-goals) | Runtime contains no AI agent/tool protocol boundary. |
 | security_safety | authoritative | [.memory-bank/invariants.md#accepted-never](invariants.md#accepted-never) | Secrets, block handling and shared-host isolation remain bounded. |
@@ -79,3 +79,24 @@ last_updated: 2026-09-04
   - event_message_contracts: not_applicable - no event bus, queue or message-envelope boundary exists in the accepted one-process design.
   - agent_io_contracts: not_applicable - the product runtime has no AI agent/tool protocol surface.
 - Notes: Existing architecture, boundary, lifecycle, invariant, testing and runbook owners form the minimum production-sensitive scaffold. Foundation is not required because the executable/test/storage/runtime baseline is already proven.
+
+## Accepted keyword-monitoring redesign
+
+[Приняты](prd.md#accepted-decisions) независимые поиски помимо аренды, существующие
+совпадения на старте, своя география, два места удаления, строгий бюджет, штатный
+matching и отсутствие повторов при снижении цены. Дизайн переиспользует owners/scheduler
+и добавляет независимую историю в SQLite; keyword wire contract `/search/?q=…` подтверждён.
+
+Impact: `bounded` — только FT-005 keyword monitoring и её отдельный task plan.
+FT-001/FT-002 сохраняют rental filter/fallback и append-only semantics; FT-003 release
+вне текущего scope; completed FT-004 и price fixtures сохраняются. Ни одна существующая
+задача не требует reconciliation marker. Planning Revision: 1 → 1; Foundation не затронут.
+
+Product decomposition EP-002/FT-005/REQ-010…014 reviewed `APPROVE`.
+Native source binding закрыт: [контракт](contracts/boundary-map.md#keyword-monitoring-contract-proposal)
+и [пользовательские URL](contracts/current-integrations.md#keyword-search-source-observations).
+«Все категории» поддерживается без обязательной категории; category change сохраняет city.
+FT-005 SDD design complete; raw HTML fixtures — execution proof, design blockers нет.
+FT-005 task plan создан: [IMPL-FT-005](tasks/plans/IMPL-FT-005.md).
+Следующий шаг: отдельный свежий Reviewer `/review-tasks-plan FT-005`.
+Старая очередь и approvals сохранены; Planning Revision остаётся 1.
