@@ -127,7 +127,7 @@ func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
 		return nil
 	}
 	text := strings.TrimSpace(msg.Text)
-	if text == "" {
+	if text == "" && !strings.HasPrefix(b.getPending(msg.From.ID, msg.Chat.ID), "ks:") {
 		return nil
 	}
 
@@ -140,6 +140,8 @@ func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
 		switch strings.ToLower(command) {
 		case "/start", "/filter":
 			return b.sendMainMenu(ctx, msg.Chat.ID)
+		case "/searches":
+			return b.sendKeywordList(ctx, msg.Chat.ID)
 		case "/status":
 			return b.sendStatus(ctx, msg.Chat.ID)
 		case "/cancel":
@@ -151,7 +153,11 @@ func (b *Bot) processMessage(ctx context.Context, msg *Message) error {
 		}
 	}
 
-	switch b.getPending(msg.From.ID, msg.Chat.ID) {
+	pending := b.getPending(msg.From.ID, msg.Chat.ID)
+	if strings.HasPrefix(pending, "ks:") {
+		return b.applyKeywordInput(ctx, msg.From.ID, msg.Chat.ID, text, pending)
+	}
+	switch pending {
 	case "price":
 		return b.applyPriceInput(ctx, msg.From.ID, msg.Chat.ID, text)
 	case "negative":
@@ -172,6 +178,14 @@ func (b *Bot) processCallback(ctx context.Context, query *CallbackQuery) error {
 			_ = b.client.AnswerCallbackQuery(ctx, query.ID, "Недоступно", false)
 		}
 		return nil
+	}
+
+	if strings.HasPrefix(query.Data, "ks:") {
+		return b.processKeywordCallback(ctx, query)
+	}
+	// Navigating to rental controls cancels only this admin/chat search input.
+	if strings.HasPrefix(b.getPending(query.From.ID, query.Message.Chat.ID), "ks:") {
+		b.setPending(query.From.ID, query.Message.Chat.ID, "")
 	}
 
 	chatID := query.Message.Chat.ID

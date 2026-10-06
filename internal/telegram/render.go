@@ -168,6 +168,7 @@ func mainKeyboardWithScanState(s filter.Settings, scanning bool) *InlineKeyboard
 		{{Text: "Цена", CallbackData: "i:price"}, {Text: "Комнаты", CallbackData: "m:rooms"}},
 		{{Text: "Этаж", CallbackData: "m:floors"}, {Text: "Автор", CallbackData: "m:author"}},
 		{{Text: "Минус-слова", CallbackData: "i:negative"}, {Text: "Тип", CallbackData: "m:type"}},
+		{{Text: "Мои поиски", CallbackData: "ks:list"}},
 	}}
 }
 

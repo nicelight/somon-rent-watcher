@@ -1,0 +1,51 @@
+{
+  "task": "TASK-008-T3-FT-005-W2",
+  "attempt": 1,
+  "production_and_test_files": [
+    "internal/app/app.go",
+    "internal/app/keyword_search.go",
+    "internal/app/keyword_search_test.go",
+    "internal/store/sqlite_cgo.go",
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/store/keyword_search_test.go",
+    "internal/telegram/bot.go",
+    "internal/telegram/render.go",
+    "internal/telegram/keyword_search.go",
+    "internal/telegram/keyword_search_harness_test.go",
+    "internal/telegram/keyword_search_integration_test.go"
+  ],
+  "changed_existing_relative_to_attempt_snapshot": [
+    "internal/telegram/render.go",
+    "internal/telegram/bot.go",
+    "internal/app/app.go",
+    "internal/store/sqlite_cgo.go"
+  ],
+  "new_relative_to_attempt_snapshot": [
+    "internal/telegram/keyword_search_harness_test.go",
+    "internal/telegram/keyword_search.go",
+    "internal/telegram/keyword_search_integration_test.go",
+    "internal/app/keyword_search_test.go",
+    "internal/app/keyword_search.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_test.go"
+  ],
+  "current_sha256": {
+    "internal/app/app.go": "c91e6277fe4fcf7350ccf2a427e91c2582447a2135c8ba0e498105e9317fe2e4",
+    "internal/app/keyword_search.go": "e39d4a896732a0e82e523eac350ceac5f2e9b82dc2f579090b4a86d76433ec2d",
+    "internal/app/keyword_search_test.go": "0ba85d345825ef911eb712e4324b16f37118474a7f834d337d6e49a5ca6ad9ad",
+    "internal/store/sqlite_cgo.go": "334a31c2de6a35aa4c7f5b317222feb6c231a5c766c0a93e1bd2f41c1cc50ec7",
+    "internal/store/keyword_search_cgo.go": "41c8d661e5ec6ef22414ce87941f241395970ca3d67e02744f1677c0b41513fa",
+    "internal/store/keyword_search_nocgo.go": "6b9e8b165f009c267aa4f1d81edcdbd5e19c1b57a4e17564a5f0463bd6418e7a",
+    "internal/store/keyword_search_test.go": "5eb05b4de16fa24bd02c0e7ef897ffa63d0e5c794cbba72a5a53ca5e8ab2f1ac",
+    "internal/telegram/bot.go": "ef0e0d3af764105935d102c3f37d2cec06adb5c04fa7f81c91a15c12e14b8b49",
+    "internal/telegram/render.go": "1ec9ba4b4bcb25576d4ace7c6cd00978462013dce4f632a81da4ff0dd7aa9f93",
+    "internal/telegram/keyword_search.go": "644c76df3f3ec7253c0e75755ec77591dd54da21c8c0f7c10fc2b45d51c0694d",
+    "internal/telegram/keyword_search_harness_test.go": "ec557c99936386f0ee694bc07f1a94280fbd707ac48fa241f9ab94f0a1d9a92b",
+    "internal/telegram/keyword_search_integration_test.go": "f878bfadd9a7b09f04f63bc5d89992fb26fead7da4d8d86558576a6b142da903"
+  },
+  "unrelated_input_preserved": true,
+  "go_mod_unchanged": true,
+  "forbidden_scope_touched": false
+}

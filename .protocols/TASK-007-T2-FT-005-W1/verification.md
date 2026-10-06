@@ -1,71 +1,33 @@
----
-description: Template for .protocols/TASK-NNN-TN-FT-NNN-WN/verification.md (acceptance criteria + evidence).
-status: active
----
 # Verification — TASK-007-T2-FT-005-W1
 
 ## What was verified
-- Task outcome: ...
-- Feature: ...
-- Task-scoped REQ IDs / acceptance criteria: ...
-- Execution handoff/evidence: ...
+Свежая независимая проверка FT-005-AC-004 / ценовой части REQ-011 завершена. Executor claim path остаётся supporting evidence.
 
 ## Verification basis
-- Direct task-linked canonical SDD specs and applicable contract types: ...
-- Task purpose / success outcome / anti-goals: ...
-- Verification targets / constraints / invariants: ...
-- Task-scoped AC / REQ basis: ...
-- Required task/spec checks: ...
-- Executor RED/GREEN path: <claim mapping plus evidence locators, accepted not-applicable reason, or legacy not required>
+- Task-owned FT005-AC004 / REQ011; direct task-linked canonical Filtering/shared-data/keyword shapes and architecture/testing constraints.
+- Handoff.md and progress.md attempt 1; acceptance-evidence artifact records honest RED/GREEN.
 
 ## Task-scoped checklist
-> Include only outcomes and AC/REQ behavior mapped to this task.
-
-- [ ] FT-001-AC-001 / REQ-001: ...
-  - Method: (test / manual / log inspection / api call)
-  - Commands:
-    - `...`
-  - Evidence:
-    - `.tasks/TASK-007-T2-FT-005-W1/...`
+- [x] FT-005-AC-004: independently prove absent/one/two inclusive bounds, zero, unknown/negotiable/unconfirmed/foreign currency and no apartment/seller/phrase reinterpretation.
+- [x] Bounds validate nonnegative integers and min<=max.
 
 ## Regression / non-goals
-- [ ] Confirmed non-goals unaffected (if applicable)
-- [ ] Confirmed advisory `touched_files` deviations remain necessary for the same outcome
-- [ ] Confirmed hard allowed/forbidden scope (if applicable)
-- [ ] Confirmed applicable Architecture/Component/API/Event/Data spec rules
+- [x] Confirm rental APIs unchanged and relevant package regression passes.
+- [x] Confirm pure functions and allowed/forbidden semantic boundaries.
 
 ## Quality gates evidence
-- lint/typecheck: ...
-- unit tests: ...
-- integration/e2e: ...
+Focused Docker package tests, go vet, gofmt-check и git diff --check прошли. Репозиторий смонтирован read-only; команды/exit code/вывод: `.tasks/TASK-007-T2-FT-005-W1/verifier-gates-command.json` и `verifier-gates.log`. Point-of-use task/index/protocol preflight прошёл.
 
 ## Reused execute evidence
-- receipt locator:
-- supported claim(s):
-- current-state / freshness basis:
-
-## Repeated checks
-- check:
-- why reuse was denied or repetition was necessary:
-- evidence:
+Ни один execute receipt не переиспользован как gate; дешёвые required checks повторены. Attempt 1 RED/GREEN/initial GREEN inspected independently: 19 behavioral RED / 36 initial GREEN, затем claim-equivalent GREEN; source/logs/hashes проверены, setup failure исключён. Locator: progress.md и `.tasks/TASK-007-T2-FT-005-W1/TASK-007-T2-FT-005-W1-acceptance-evidence.md`.
 
 ## New targeted probes
-- verifier-owned probe:
-- claim mapping:
-- evidence:
-
-Executor GREEN is supporting evidence only. Record fresh verifier-owned proof
-for the same mapped claims.
+Verifier-owned external-package probe исполнился в одноразовой копии внутри network-disabled Docker: 56 monetary vectors, 11 validation cases, шесть commodity outcomes; invalid bounds дополнительно не дают matching. Все exact expectations совпали. Source/artifacts: `.tasks/TASK-007-T2-FT-005-W1/verifier_outcome_probe_test.go`, `verifier-outcome-command.json`, `verifier-outcome-probe.log`, `verifier-input-state.json`. Полная claim-to-evidence mapping: `verifier-acceptance-evidence.md`.
 
 ## Verdict
-Replace the placeholder with one exact standalone marker:
-VERDICT: <PASS|FAIL|NEEDS-CLARIFICATION>
+VERDICT: PASS
+
+Все task-owned AC004 правила, required gate и архитектурный путь доказаны. Rental source hashes совпали; I/O, fallback, локальный phrase matching и расширение scope отсутствуют. Finding-adjudication pack применён; две попытки fresh co-review GPT-6.1-sol/xhigh (user override) отклонены по agent thread limit, продолжено по fallback; собственного material finding нет. Внешний user commit и executor-owned temporary-file deletion сохранены без git mutation.
 
 ## Handoff
-- Recommended owner/action: ...
-- Tier escalation or planning repair: none | ...
-- BUG/follow-up recommendation for scheduler/owner: none | ...
-- Task lifecycle changed by verifier: no | T0/T1 explicit-owner closure
-
-## Notes
-- ...
+Task closure-eligible для explicit /root owner; verifier оставил lifecycle in_progress. Далее owner решает closure и W1 sync. TASK-006/source, UI/poll/history/deletion claims не присвоены; FT-005 feature completion ещё требует feature-level red-verify после всех задач.

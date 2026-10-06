@@ -90,3 +90,18 @@ Tasks are initially `planned`. Fresh `/review-tasks-plan FT-005` precedes the
 applicable `/mb-doctor --strict` and sequential execution. Existing FT-001…004 cards,
 identities, lifecycle and approvals are unchanged; unfinished TASK-001 is not a
 dependency. New feature owns its append-only menus, preserving existing rental UI.
+
+## Execution boundary
+
+W1 TASK-006/007 done after independent functional PASS. Their public source/filter
+contracts are available to TASK008. W2–W4 remain outstanding; final feature semantic
+verification is due after all outcomes. Authoritative status/evidence are in task cards.
+
+## W2 execution handoff
+
+TASK-008 реализовал сохраняемое создание/настройку/enable нескольких поисков через
+существующие Telegram menu/App/SQLite boundaries. RED unsupported create route,
+initial auth/rental GREEN и текущие management/harm/preservation proof доступны
+[в handoff](../../../.protocols/TASK-008-T3-FT-005-W2/handoff.md).
+Lifecycle остаётся in_progress до independent `/verify`, T3 `/red-verify` и решения
+manual owner `/root`. Poll/delivery/history/deletion scope следующих cards сохранён.

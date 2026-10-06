@@ -50,3 +50,24 @@ Top-level GENERAL `/root` now owns the standalone workflow/final lifecycle decis
 for TASK-007-T2-FT-005-W1 (no dependencies; promoted ready). Next:
 `/exe TASK-007-T2-FT-005-W1`, then separate `/verify`. No parallel execution.
 Wave W1 sync follows closure of TASK007; previous scope restrictions remain.
+
+### TASK007 closure / W1 boundary
+
+Explicit standalone owner `/root` closes TASK-007-T2-FT-005-W1 as done after
+independent functional PASS in verification.md and indexed task.verify.
+Both W1 tasks are done; source and strict price outcomes are functionally verified.
+No per-task T2 semantic gate is required; feature semantic verification remains due.
+`/root` performs W1 mb-sync and owns subsequent lint/strict doctor before TASK008.
+
+### W1 sync / TASK008 selection
+
+W1 mb-sync reconciled REQ011 as implemented (functional PASS; feature semantic gate
+pending), feature evidence, implementation plan and changelog. Feature/epic remain
+planned because three implementation outcomes are outstanding. Sync-local links and
+state re-read; caller /root ran mb-lint PASS and strict doctor PASS (only ready-candidate
+warning for TASK008). Optional advisory /tech-debt FT-005 may follow feature completion.
+
+Top-level GENERAL /root explicitly owns standalone execution/final lifecycle for
+TASK-008-T3-FT-005-W2, promotes it ready because TASK006/007 are done, and selects
+only this task. Next: fresh /exe, separate /verify, separate /red-verify, then owner
+closure and W2 sync. Existing local user changes preserved; no commit/deployment.

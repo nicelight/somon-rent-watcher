@@ -159,3 +159,33 @@ manual-scan UX и выполнение незавершённых FT-002 claims 
 Verification targets: FT-005-AC-001…006; temporary SQLite и существующие
 httptest Telegram/Somon harness. Payload symbols/методы выбираются исполнителем
 в указанных owners; изменение существующих consumers должно оставаться совместимым.
+
+### Keyword price implementation routing
+
+`internal/filter/keyword_search.go` владеет независимой проверкой optional integer
+bounds и строгим monetary predicate. Отсутствие bounds допускает любую цену;
+любая граница требует подтверждённых `TJS`. Нулевые и равные границы допустимы.
+Rental `Settings`, `CardMatches` и `AdMatches` сохраняют прежнюю семантику.
+
+TASK-007 доказывает только FT-005-AC-004; source proof остаётся TASK-006,
+интеграция в UI/store/scheduler — последующим tasks.
+[Execution handoff](../../.protocols/TASK-007-T2-FT-005-W1/handoff.md):
+claim-linked RED/GREEN и локальные Docker gates, independent `/verify` впереди.
+
+### Keyword management implementation routing
+
+`internal/app/keyword_search.go` владеет проверкой данных, созданием выключенного
+поиска и адресной mutation/revision. `internal/store/keyword_search_cgo.go` хранит
+поиски в добавочной `search_monitors`; SQLite initialization остаётся
+транзакционной/повторяемой, ID использует AUTOINCREMENT, update — expected revision.
+
+`internal/telegram/keyword_search.go` предоставляет список, сводку и настройку
+через существующие main menu и `/searches`; новый callback подтверждается до
+append-only output. Pending input использует прежний admin/chat key, добавляя
+search ID/action/revision; смена адресного меню отменяет прежний ввод этого контекста.
+Rental Backend остаётся совместимым; optional KeywordBackend реализован App.
+
+TASK-008 доказывает только AC001/AC007 management/integration delta. Polling,
+delivery/history и deletion остаются следующим tasks.
+[Execution handoff](../../.protocols/TASK-008-T3-FT-005-W2/handoff.md):
+локальные доказательства и маршрут независимых `/verify` и T3 `/red-verify`.

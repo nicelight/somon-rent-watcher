@@ -4,6 +4,26 @@ status: active
 ---
 # Changelog
 
+## [2026-10-06] Wave 1 / Keyword source and strict price
+
+- TASK-006 и TASK-007 закрыты explicit owner после отдельных independent functional PASS.
+- REQ-011 implemented; FT-005/EP-002 остаются planned до завершения остальных результатов.
+  Feature-level semantic verification ещё предстоит.
+- Источник и строгая цена готовы для UI/storage интеграции TASK-008; production не менялся.
+- Evidence: [source](../.protocols/TASK-006-T2-FT-005-W1/verification.md),
+  [price](../.protocols/TASK-007-T2-FT-005-W1/verification.md).
+
+## [2026-10-06] Strict keyword price eligibility
+
+- TASK-007: pure inclusive keyword price predicate и independent nonnegative bounds validation;
+  при любой границе неизвестная/договорная/неподтверждённая или другая валюта исключается.
+- Ноль отличается от отсутствующей границы; без bounds цена не ограничивает поиск.
+  Квартирные/авторские criteria, phrase matching и rental fallback не участвуют.
+- Compiling baseline RED и claim-equivalent GREEN сохранены; focused Docker filter tests,
+  vet и formatting прошли. Existing rental implementation/tests неизменны.
+- [WHY/WHERE](contracts/boundary-map.md#keyword-price-implementation-routing): границы и handoff.
+  TASK-007 остаётся in_progress до independent `/verify` и решения /root.
+
 ## [2026-10-06] Keyword scoped source implementation
 
 - TASK-006: отдельный native category/city + q/relevance source и начальный каталог;
@@ -101,3 +121,15 @@ status: active
 - Created a fresh paused 60-card baseline with zero service restarts and no current-ad delivery.
 - Confirmed existing containers, listening sockets, firewall configuration and SELinux behavior were unchanged.
 - Kept the local Compose container stopped to prevent competing Telegram long polling with the same bot token.
+
+
+## 2026-10-06 — TASK-008 keyword search management execution
+
+- Создание выключенных поисков, адресные настройки/city-preserving category,
+  summary/enable и pending admin/chat/search/revision через существующий Telegram UI.
+- Добавочная транзакционная `search_monitors`, стабильные ID и атомарная revision;
+  App владеет validation/mutations, store — SQLite, Telegram — authorized append-only routes.
+- Compiling baseline create RED; auth/rental initial GREEN; real App/temp SQLite
+  management/harm tests и точное сравнение legacy rental rows после writes/reopen.
+- [Execution evidence](../.protocols/TASK-008-T3-FT-005-W2/handoff.md):
+  independent `/verify` и T3 `/red-verify` впереди; task in_progress, closure `/root`.

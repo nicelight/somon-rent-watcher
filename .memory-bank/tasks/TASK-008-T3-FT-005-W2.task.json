@@ -1,7 +1,7 @@
 {
   "id": "TASK-008-T3-FT-005-W2",
   "title": "Create configure and enable durable keyword searches",
-  "status": "planned",
+  "status": "in_progress",
   "wave": "W2",
   "feature": "FT-005",
   "reqs": [
@@ -99,7 +99,7 @@
     "Runtime storage: existing DB_PATH default ./somonwatch.db, production /var/lib/somonwatch/somonwatch.db; probes replace it with t.TempDir()/search.db. Initialization is transactional/repeatable; stable IDs never reused, update increments revision, app/store read/write integration persists across reopen. Safe rerun gets a fresh DB/server and close/removes temporary resources."
   ],
   "evidence_required": [
-    "FT-005-AC-001 — RED: valid create route currently creates no durable search. GREEN: two addressable searches persist across reopen, summary/enable and targeted edits work, invalid/cross-admin/chat/search inputs leave protected rows unchanged, callbacks acknowledged and new output uses no edits. Decisive comparison: IDs/settings/enabled/revision, row snapshots and ordered API method trace; preserve initial-GREEN rejection cases. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md.",
-    "FT-005-AC-007 RED_NOT_APPLICABLE: compatibility preservation already holds in the baseline; observing its absence would require an artificial destructive regression; alternative proof: initial GREEN — seeded rental settings/seen/state/offset and current rental trace survive baseline reopen. GREEN after change: identical protected snapshot/trace after additive tables and search writes; same process/dependency/client ownership. Decisive comparison: exact stored values and captured rental ad IDs plus Reviewer code/import assessment against REQ-014. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md."
+    "FT-005-AC-001 \u2014 RED: valid create route currently creates no durable search. GREEN: two addressable searches persist across reopen, summary/enable and targeted edits work, invalid/cross-admin/chat/search inputs leave protected rows unchanged, callbacks acknowledged and new output uses no edits. Decisive comparison: IDs/settings/enabled/revision, row snapshots and ordered API method trace; preserve initial-GREEN rejection cases. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md.",
+    "FT-005-AC-007 RED_NOT_APPLICABLE: compatibility preservation already holds in the baseline; observing its absence would require an artificial destructive regression; alternative proof: initial GREEN \u2014 seeded rental settings/seen/state/offset and current rental trace survive baseline reopen. GREEN after change: identical protected snapshot/trace after additive tables and search writes; same process/dependency/client ownership. Decisive comparison: exact stored values and captured rental ad IDs plus Reviewer code/import assessment against REQ-014. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md."
   ]
 }

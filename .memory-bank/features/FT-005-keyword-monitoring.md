@@ -85,7 +85,7 @@ restart/revision/dedup, retry/backoff/cap и сохранность аренды
 
 Первоначальный `/spec-design` завершён: Planning Revision 1, Foundation `not_required`.
 Bounded redesign сохраняет revision; feature design complete. Product decomposition
-reviewed `APPROVE`; task plan создан, следующий этап — свежий `/review-tasks-plan FT-005`.
+reviewed `APPROVE`; task-plan review `APPROVE` для Planning Revision 1.
 
 - [Architecture](../architecture/system-architecture.md#keyword-monitoring-design-proposal): существующие owners и общий scheduler.
 - [Contracts](../contracts/boundary-map.md#keyword-monitoring-contract-proposal): source/filter/UI semantics.
@@ -102,5 +102,17 @@ Source blocker закрыт; raw HTML fixtures — execution proof. FT-001…004
 [IMPL-FT-005](../tasks/plans/IMPL-FT-005.md): пять независимо проверяемых результатов,
 полное покрытие AC-001…007 и локальные Docker gates.
 Source/price W1 → creation W2 → monitoring W3 → deletion W4;
-authoritative records — [task index](../tasks/index.json). Все новые cards `planned`;
+authoritative records — [task index](../tasks/index.json). W1 source/price закрыты после independent functional PASS;
+W2 creation реализован и ожидает independent `/verify` + per-task `/red-verify`;
+W3 monitoring и W4 deletion ещё не реализованы; feature lifecycle остаётся planned;
 старые identities/status/approvals и Planning Revision 1 сохранены.
+
+## Implementation evidence
+
+- Source AC-003: [TASK006 verification](../../.protocols/TASK-006-T2-FT-005-W1/verification.md).
+- Price AC-004: [TASK007 verification](../../.protocols/TASK-007-T2-FT-005-W1/verification.md).
+- REQ-011 implemented with independent functional PASS; feature-level semantic gate
+  remains pending until all five outcomes are complete. Other requirements remain planned.
+
+- Management AC-001 / rental preservation AC-007: [TASK008 execution handoff](../../.protocols/TASK-008-T3-FT-005-W2/handoff.md),
+  pending independent functional/semantic verification; task remains in_progress.

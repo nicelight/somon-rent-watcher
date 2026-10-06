@@ -57,6 +57,8 @@ type App struct {
 	bot    *telegram.Bot
 	logger *slog.Logger
 
+	keywordMu sync.Mutex
+
 	statusMu sync.RWMutex
 	status   model.RuntimeStatus
 

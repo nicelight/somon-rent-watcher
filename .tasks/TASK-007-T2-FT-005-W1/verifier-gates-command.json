@@ -1,0 +1,21 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "-v",
+    "/home/serg/Projects/somon-rent-watcher:/src:ro",
+    "-w",
+    "/src",
+    "somon-price-hotfix-builder:latest",
+    "sh",
+    "-c",
+    "CGO_ENABLED=1 go test -count=1 ./internal/filter && CGO_ENABLED=1 go vet ./internal/filter && test -z \"$(gofmt -l internal/filter/keyword_search.go internal/filter/keyword_search_test.go)\""
+  ],
+  "cwd": "/home/serg/Projects/somon-rent-watcher",
+  "exit_code": 0,
+  "completed_at": "2026-10-06T18:04:16.034955+00:00",
+  "evidence": "verifier-gates.log"
+}

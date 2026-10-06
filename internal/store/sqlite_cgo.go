@@ -79,6 +79,8 @@ PRAGMA foreign_keys=ON;
 PRAGMA busy_timeout=5000;
 PRAGMA wal_autocheckpoint=1000;
 
+BEGIN IMMEDIATE;
+
 CREATE TABLE IF NOT EXISTS seen_ads (
     ad_id INTEGER PRIMARY KEY,
     first_seen_at TEXT NOT NULL
@@ -93,8 +95,23 @@ CREATE TABLE IF NOT EXISTS state (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS search_monitors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phrase TEXT NOT NULL CHECK(length(trim(phrase)) > 0),
+    category_key TEXT NOT NULL,
+    city_key TEXT NOT NULL,
+    price_min INTEGER CHECK(price_min >= 0),
+    price_max INTEGER CHECK(price_max >= 0),
+    enabled INTEGER NOT NULL CHECK(enabled IN (0, 1)),
+    revision INTEGER NOT NULL CHECK(revision > 0),
+    CHECK(price_min IS NULL OR price_max IS NULL OR price_min <= price_max)
+);
+
+COMMIT;
 `
 	if err := db.execLocked(schema); err != nil {
+		_ = db.execLocked("ROLLBACK")
 		return fmt.Errorf("initialize SQLite: %w", err)
 	}
 	return nil

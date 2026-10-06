@@ -1,0 +1,13 @@
+{
+  "completed_at": "2026-10-06T18:05:30.171314+00:00",
+  "builder": "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+  "source_sha256": {
+    "go.mod": "0dc3a202fff8fba8f6461b0d9bb09a591d5db719d8b023a45675752ca8152e73",
+    "internal/filter/keyword_search.go": "c8774e8b5a127bd8f5c78b10afb970fa30d56aea3a719fa3362a86b8f1050f04",
+    "internal/filter/keyword_search_test.go": "2fe3f33c970857195abe6e80ecd744b2294ea1941ea6ec6526d67a1b541fe88e",
+    "internal/filter/settings.go": "a0d8649517d97c2c5d6e57e745eedf5f5f983da17cc36f8792278c3a39e1c312",
+    "internal/filter/settings_test.go": "8f354d286b8688015ebe911d9e334bc15609b0bcc1db321b32bdd78feeec95ae",
+    "internal/model/ad.go": "9161ba985e55ad546557f64fce62426663ba88cea6ee0adcf0f7597c46635bad",
+    "internal/model/keyword_search.go": "fdbcf5909fa7934db7ed59589d815b2e226673f7f3e319f0a1f07c04c55cb77b"
+  }
+}
