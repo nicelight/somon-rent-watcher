@@ -1,0 +1,5 @@
+{
+  "internal/somon/parser.go": "68a68ed80952d6344024dcd9b45f8c0a2a955d518ea123c3499d6482321dfea9",
+  "internal/somon/parser_test.go": "2f42cbefdabc34cda6e564d8e378f2f771451102dff5c5cce8d51ddf082cbbcd",
+  "internal/app/keyword_polling_test.go": "cd28d7aa9c7d4bd2d71f479a2d77910db0c1ebf2a71a79e643b74ecce99d4ea0"
+}

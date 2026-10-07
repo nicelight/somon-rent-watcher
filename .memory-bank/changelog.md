@@ -4,6 +4,11 @@ status: active
 ---
 # Changelog
 
+## [2026-10-07] Wave 5 — два finding FT-005 исправлены
+- TASK011: detail body подтверждается независимо от fallback; visible blocked body сообщает backoff, foreign body оставляет retry; sparse/hidden-modal cases сохранены.
+- TASK012: production polling читает состояния только текущих IDs; full diagnostic API совместим, вся история сохраняется.
+- Отдельные independent functional PASS, свежий feature semantic-pass, final native build и non-CGO compile PASS. Feature/epic verified, historical tasks/evidence сохранены.
+
 ## [2026-10-07] Wave 4 — FT-005 verified
 - TASK010 done after independent functional PASS and separate T3 semantic-pass: both delete routes, atomic rollback, protected rows and stale work.
 - Separate feature semantic-pass covers all AC001…007; owner closes FT005/EP002 and REQ010…014 as verified.

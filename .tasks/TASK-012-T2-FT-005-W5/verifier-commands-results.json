@@ -1,0 +1,64 @@
+[
+  {
+    "name": "focused-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher/.tasks/TASK-012-T2-FT-005-W5/disposable-verifier-9s00jjt5:/src",
+      "-w",
+      "/src",
+      "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+      "sh",
+      "-c",
+      "CGO_ENABLED=1 go test -count=1 ./internal/somon ./internal/app ./internal/store"
+    ],
+    "exit_code": 0,
+    "completed_at": "2026-10-07T07:18:33.221752+00:00",
+    "evidence": "verifier-focused-gate.log"
+  },
+  {
+    "name": "native-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher/.tasks/TASK-012-T2-FT-005-W5/disposable-verifier-9s00jjt5:/src",
+      "-w",
+      "/src",
+      "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+      "bash",
+      "scripts/build.sh"
+    ],
+    "exit_code": 0,
+    "completed_at": "2026-10-07T07:19:03.976624+00:00",
+    "evidence": "verifier-native-gate.log"
+  },
+  {
+    "name": "outcome",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher/.tasks/TASK-012-T2-FT-005-W5/disposable-verifier-9s00jjt5:/src",
+      "-w",
+      "/src",
+      "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+      "sh",
+      "-c",
+      "gofmt -w internal/store/verifier_history_probe_test.go internal/app/verifier_polling_history_probe_test.go && CGO_ENABLED=1 go test -count=1 -v -run \"^TestVerifierCurrentFeed\" ./internal/store ./internal/app"
+    ],
+    "exit_code": 0,
+    "completed_at": "2026-10-07T07:19:10.555712+00:00",
+    "evidence": "verifier-outcome.log"
+  }
+]

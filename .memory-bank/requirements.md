@@ -61,7 +61,7 @@ Only Somon Rent Watcher may change during deployment; unrelated workload/service
 
 Источник всех REQ-010…014: [принятая дельта PRD](prd.md#keyword-monitoring-proposal--2026-10-06).
 REQ-004/REQ-006 сохраняют арендный scope; новая история самостоятельна. REQ-002
-сохраняет append-only UI, REQ-008 — production isolation; deployment не входит в этот этап.
+сохраняет append-only UI, REQ-008 — production isolation; первоначальная разработка была локальной; production acceptance AC010 разрешена оператором 2026-10-07.
 
 ### REQ-010 — Управление независимыми поисками
 
@@ -118,13 +118,13 @@ Pass/fail меняется при повторном открытии SQLite, р
 | REQ-002 | EP-001, EP-002 | FT-002, FT-005 | FT-002-AC-001, FT-002-AC-002, FT-002-AC-003; FT-005-AC-001 | planned |
 | REQ-003 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
 | REQ-004 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-003, FT-001-AC-004 | planned |
-| REQ-005 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done) | planned |
+| REQ-005 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done); FT-005-AC-010 | planned |
 | REQ-006 | EP-001 | FT-001, FT-002 | FT-001-AC-005, FT-002-AC-004 | planned |
 | REQ-007 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
-| REQ-008 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done) | planned |
+| REQ-008 | EP-001, EP-002 | FT-003, FT-004, FT-005 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done); FT-005-AC-010 | planned |
 | REQ-009 | EP-001 | FT-004 | FT-004-AC-001; TASK-005-T3-FT-004-W1 | done |
 | REQ-010 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002 — Telegram/store lifecycle checks | verified |
 | REQ-011 | EP-002 | FT-005 | FT-005-AC-003, FT-005-AC-004 — TASK006/007 functional PASS; FT005 semantic-pass | verified |
 | REQ-012 | EP-002 | FT-005 | FT-005-AC-005 — TASK009 functional PASS; FT005 semantic-pass | verified |
-| REQ-013 | EP-002 | FT-005 | FT-005-AC-002, FT-005-AC-003, FT-005-AC-006 — failure/concurrency checks | verified |
-| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007 — authorization, state-preservation and owner review | verified |
+| REQ-013 | EP-002 | FT-005 | FT-005-AC-002, FT-005-AC-003, FT-005-AC-006, FT-005-AC-008 — failure/concurrency/detail-validation checks | verified |
+| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007, FT-005-AC-008, FT-005-AC-009 — authorization, preservation, validation and bounded lookup; FT-005-AC-010 production preservation | active |

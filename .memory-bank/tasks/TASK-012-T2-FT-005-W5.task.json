@@ -1,0 +1,78 @@
+{
+  "id": "TASK-012-T2-FT-005-W5",
+  "title": "Read keyword history only for current feed IDs",
+  "status": "done",
+  "wave": "W5",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-012",
+    "REQ-014"
+  ],
+  "depends_on": [
+    "TASK-009-T2-FT-005-W3"
+  ],
+  "touched_files": [
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/store/keyword_search_test.go",
+    "internal/app/keyword_polling.go"
+  ],
+  "tier": "T2",
+  "gates": [
+    {
+      "name": "Focused Docker tests",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/somon ./internal/app ./internal/store'",
+      "required": true
+    }
+  ],
+  "verify": [
+    "Independent /verify TASK-012-T2-FT-005-W5: PASS for FT-005-AC-009. Fresh verifier Store and App probes proved bounded selected-ID/monitor reads, nil+empty no DB access, exact historic delivered/revision preservation through edit/reopen, production polling current-rejection reevaluation and restart dedup. Fresh required focused somon/app/store and final combined-source scripts/build.sh passed. Source hashes match executor handoff and remained unchanged. Evidence: .protocols/TASK-012-T2-FT-005-W5/verification.md; .tasks/TASK-012-T2-FT-005-W5/verifier-acceptance-evidence.md, verifier-outcome.log, verifier-commands-results.json, verifier-source-state.json. Lifecycle unchanged; root owns T2 closure. Best-effort one co-review launch unavailable due agent thread limit."
+  ],
+  "docs": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/testing/current-coverage.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Read keyword history only for current feed IDs",
+  "success_outcome": "RED: current production lookup returns historical IDs outside requested current feed; GREEN: bounded lookup returns only selected current IDs, empty list returns empty, other monitor/history preserved across reopen; caller uses bounded query.",
+  "anti_goals": [
+    "No production/deployment/real Telegram/Git mutation, no history cleanup/schema/new dependencies.",
+    "Do not change historic task identities/statuses/evidence or unrelated rental semantics."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "production runtime/DB, live Telegram, commit/push/deploy",
+      "new workers/dependencies/schema, business orchestration outside App, SQLite writes outside Store"
+    ],
+    "stop_conditions": [
+      "Material accepted behavior/ownership branch cannot be settled from accepted scope."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-009"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/architecture/system-architecture.md#accepted-shape",
+    ".memory-bank/contracts/boundary-map.md#modules",
+    ".memory-bank/contracts/boundary-map.md#dependency-graph",
+    ".memory-bank/contracts/boundary-map.md#current-feed-history-lookup",
+    ".memory-bank/contracts/boundary-map.md#polling-orchestration-contract",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-persistence-and-mutation-rules"
+  ],
+  "constraints": [
+    "Reuse existing Go/CGO, parser/SQLite adapters and local httptest/tempDB harness; full read diagnostic API consumers remain compatible.",
+    "Somon owns parsing, App owns retry/backoff/current-ID orchestration, Store owns SQL; accepted graph unchanged."
+  ],
+  "invariants": [
+    "Preserve delivered dedup and revision/history across restart and edits; no deletion of history.",
+    "403/429 or typed blocked body use existing backoff, no bypass."
+  ],
+  "verification_targets": [
+    "FT-005-AC-009 — RED: current production lookup returns historical IDs outside requested current feed; GREEN: bounded lookup returns only selected current IDs, empty list returns empty, other monitor/history preserved across reopen; caller uses bounded query. Probe in disposable network-none Docker with local httptest/t.TempDir; source fixtures remain representative, no live claim. Initial production baseline compiles; existing correct rental tests remain regression."
+  ],
+  "evidence_required": [
+    "FT-005-AC-009 — RED: current production lookup returns historical IDs outside requested current feed; GREEN: bounded lookup returns only selected current IDs, empty list returns empty, other monitor/history preserved across reopen; caller uses bounded query. Decisive comparison: parser/error/captured-delivery/history and SQLite row selection; artifact .tasks/TASK-012-T2-FT-005-W5/acceptance-evidence.md."
+  ]
+}

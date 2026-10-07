@@ -216,3 +216,31 @@ func TestAgeAndRecoveryURLHelpers(t *testing.T) {
 }
 
 func intPtr(v int) *int { return &v }
+
+func TestParseDetailRejectsUnconfirmedBodyWithFallback(t *testing.T) {
+	card := model.Card{ID: 123, URL: "https://somon.tj/adv/123_table/", Title: "Стол", Price: intPtr(150), Currency: "TJS"}
+	for _, body := range []string{
+		`<html><body>unrelated page</body></html>`,
+		`<html><body><h1>Access denied</h1></body></html>`,
+		`<html><body><h1>Объявление недоступно</h1></body></html>`,
+	} {
+		if _, err := ParseDetail(card.URL, []byte(body), card); err == nil {
+			t.Errorf("foreign detail accepted: %s", body)
+		}
+	}
+	_, err := ParseDetail(card.URL, []byte(`<html><body>Access denied</body></html>`), card)
+	var blocked *BlockedPageError
+	if !errors.As(err, &blocked) {
+		t.Errorf("blocked fallback body should be typed blocked, got %v", err)
+	}
+}
+func TestParseDetailSparseBodyPreservesFallbackAndHiddenModal(t *testing.T) {
+	card := model.Card{ID: 123, URL: "https://somon.tj/adv/123_table/", Title: "Стол", Price: intPtr(150), Currency: "TJS"}
+	for _, modal := range []string{`<div hidden>Access denied</div>`, `<div style="display: none">Access denied</div>`, `<div class="hidden">Access denied</div>`} {
+		body := []byte(`<html><body>` + modal + `<h1>Стол деревянный</h1><h2>Описание</h2><p>Мебель</p></body></html>`)
+		ad, err := ParseDetail(card.URL, body, card)
+		if err != nil || ad.ID != 123 || ad.Price == nil || *ad.Price != 150 || ad.Title != "Стол деревянный" {
+			t.Fatalf("valid sparse body lost fallback: %+v %v", ad, err)
+		}
+	}
+}

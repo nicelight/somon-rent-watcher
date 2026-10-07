@@ -1,0 +1,77 @@
+{
+  "id": "TASK-011-T2-FT-005-W5",
+  "title": "Reject foreign and blocked detail bodies while preserving valid fallback",
+  "status": "done",
+  "wave": "W5",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-013",
+    "REQ-014"
+  ],
+  "depends_on": [
+    "TASK-009-T2-FT-005-W3"
+  ],
+  "touched_files": [
+    "internal/somon/parser.go",
+    "internal/somon/parser_test.go",
+    "internal/app/keyword_polling_test.go"
+  ],
+  "tier": "T2",
+  "gates": [
+    {
+      "name": "Focused Docker tests",
+      "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/somon ./internal/app ./internal/store'",
+      "required": true
+    }
+  ],
+  "verify": [
+    "VERDICT: PASS — независимая проверка FT-005-AC-008: foreign/HTTP200 visible-block rejected; sparse/hidden-modal fallback preserved; failed detail sends=0/history=0, reopen valid retry delivered once; shared blocked backoff stops later monitor/manual. Fresh verifier probe and focused somon/app/store gate PASS. Evidence: .protocols/TASK-011-T2-FT-005-W5/verification.md; .tasks/TASK-011-T2-FT-005-W5/verifier-probe.log; .tasks/TASK-011-T2-FT-005-W5/verifier-focused-gate-complete.log. T2 closure owner root; lifecycle unchanged."
+  ],
+  "docs": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/testing/current-coverage.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Reject foreign and blocked detail bodies while preserving valid fallback",
+  "success_outcome": "RED: populated fallback accepts foreign/blocked body and keyword detail-parse failure sends/records; GREEN: body rejected, no delivery/history, next valid poll retries; valid sparse detail and hidden modal remain accepted.",
+  "anti_goals": [
+    "No production/deployment/real Telegram/Git mutation, no history cleanup/schema/new dependencies.",
+    "Do not change historic task identities/statuses/evidence or unrelated rental semantics."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "production runtime/DB, live Telegram, commit/push/deploy",
+      "new workers/dependencies/schema, business orchestration outside App, SQLite writes outside Store"
+    ],
+    "stop_conditions": [
+      "Material accepted behavior/ownership branch cannot be settled from accepted scope."
+    ]
+  },
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-008"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/architecture/system-architecture.md#accepted-shape",
+    ".memory-bank/contracts/boundary-map.md#modules",
+    ".memory-bank/contracts/boundary-map.md#dependency-graph",
+    ".memory-bank/contracts/boundary-map.md#detail-response-validation",
+    ".memory-bank/contracts/boundary-map.md#polling-orchestration-contract",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-persistence-and-mutation-rules"
+  ],
+  "constraints": [
+    "Reuse existing Go/CGO, parser/SQLite adapters and local httptest/tempDB harness; full read diagnostic API consumers remain compatible.",
+    "Somon owns parsing, App owns retry/backoff/current-ID orchestration, Store owns SQL; accepted graph unchanged."
+  ],
+  "invariants": [
+    "Preserve delivered dedup and revision/history across restart and edits; no deletion of history.",
+    "403/429 or typed blocked body use existing backoff, no bypass."
+  ],
+  "verification_targets": [
+    "FT-005-AC-008 — RED: populated fallback accepts foreign/blocked body and keyword detail-parse failure sends/records; GREEN: body rejected, no delivery/history, next valid poll retries; valid sparse detail and hidden modal remain accepted. Probe in disposable network-none Docker with local httptest/t.TempDir; source fixtures remain representative, no live claim. Initial production baseline compiles; existing correct rental tests remain regression."
+  ],
+  "evidence_required": [
+    "FT-005-AC-008 — RED: populated fallback accepts foreign/blocked body and keyword detail-parse failure sends/records; GREEN: body rejected, no delivery/history, next valid poll retries; valid sparse detail and hidden modal remain accepted. Decisive comparison: parser/error/captured-delivery/history and SQLite row selection; artifact .tasks/TASK-011-T2-FT-005-W5/acceptance-evidence.md."
+  ]
+}

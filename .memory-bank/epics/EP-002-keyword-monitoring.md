@@ -30,7 +30,7 @@ source_of_truth:
 
 ## Acceptance criteria
 
-Все FT-005-AC-001…007 подтверждены объявленными методами; прежние rental settings,
+Все FT-005-AC-001…009 подтверждены объявленными методами; прежние rental settings,
 история и поведение сохраняются. Product scope и native scope wire mapping закрыты.
 
 ## Planning dependency

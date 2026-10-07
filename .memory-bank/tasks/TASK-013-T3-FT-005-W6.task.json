@@ -1,0 +1,85 @@
+{
+  "id": "TASK-013-T3-FT-005-W6",
+  "title": "Production acceptance: deploy all current code to existing watcher",
+  "status": "in_progress",
+  "wave": "W6",
+  "feature": "FT-005",
+  "reqs": [
+    "REQ-008",
+    "REQ-014"
+  ],
+  "depends_on": [
+    "TASK-006-T2-FT-005-W1",
+    "TASK-007-T2-FT-005-W1",
+    "TASK-008-T3-FT-005-W2",
+    "TASK-009-T2-FT-005-W3",
+    "TASK-010-T3-FT-005-W4",
+    "TASK-011-T2-FT-005-W5",
+    "TASK-012-T2-FT-005-W5"
+  ],
+  "touched_files": [
+    ".memory-bank/runbooks/almalinux-9-operations.md",
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/testing/current-coverage.md",
+    ".memory-bank/changelog.md"
+  ],
+  "tier": "T3",
+  "gates": [
+    {
+      "name": "native-build-local-and-target",
+      "command": "./scripts/build.sh",
+      "required": true
+    }
+  ],
+  "verify": [],
+  "docs": [
+    ".memory-bank/runbooks/almalinux-9-operations.md",
+    ".memory-bank/features/FT-005-keyword-monitoring.md",
+    ".memory-bank/testing/current-coverage.md",
+    ".memory-bank/changelog.md"
+  ],
+  "purpose": "Publish and install the entire operator-authorized current source in the existing production watcher, without adopting historical unfinished task claims.",
+  "success_outcome": "Exact published commit installed/running healthy, staged and live doctor pass, old data/env and unrelated host state preserved; no automatic keyword monitor enabled.",
+  "anti_goals": [
+    "No new product implementation or old task closure.",
+    "No unrelated services/firewall/routes/SELinux changes, no DB replacement/reset/manual migration or real delivery probes."
+  ],
+  "source_artifacts": [
+    ".memory-bank/features/FT-005-keyword-monitoring.md#FT-005-AC-010",
+    ".protocols/FT-005/clarification.md"
+  ],
+  "normative_inputs": [
+    ".memory-bank/constitution.md",
+    ".memory-bank/runbooks/almalinux-9-operations.md#accepted-ft-005-release-procedure",
+    ".memory-bank/runbooks/almalinux-9-operations.md#accepted-ft-003-release-procedure",
+    ".memory-bank/runbooks/almalinux-9-operations.md#ft-003-release-proof",
+    ".memory-bank/states/runtime-lifecycle.md#keyword-persistence-and-mutation-rules",
+    ".memory-bank/contracts/boundary-map.md#persistence-contract"
+  ],
+  "constraints": [
+    "Operator explicitly authorized all fresh source on 2026-10-07, including rental fallback.",
+    "Reuse existing isolated systemd upgrade; exact commit FF only; staged doctor SQLite clone; preserve every existing table and file identity."
+  ],
+  "invariants": [
+    "No secret/token/env content output; backups root-only on host.",
+    "Only watcher checkout/build/backup/install/service may change; automatic additive Store schema init accepted, no reset."
+  ],
+  "runtime_context": {
+    "forbidden_scope": [
+      "Unrelated host services/containers/firewall/routes/SELinux policy",
+      "Production data deletion/replacement/reset/manual migration, env edits, real notification probes",
+      "Old task identities/statuses/evidence mutation"
+    ],
+    "stop_conditions": [
+      "Ambiguous unhealthy runtime, dirty/diverged checkout or commit mismatch",
+      "Failed native build/staged doctor or materially changed host identity",
+      "Unaccepted material product/storage/ownership branch"
+    ]
+  },
+  "verification_targets": [
+    "FT-005-AC-010 \u2014 read-only installed version baseline RED (old commit); equivalent exact published/target/running commit GREEN. State-loss/isolation RED_NOT_APPLICABLE: inducing loss or host harm is unsafe; alternative proof: backup plus stable stopped/post-start table data, settings/env/DB identity and unrelated host fingerprint comparison. Staged doctor on disposable SQLite clone; cleanup, exact FF rerun and rollback scoped to watcher."
+  ],
+  "evidence_required": [
+    "FT-005-AC-010 \u2014 ordered redacted receipts .tasks/TASK-013-T3-FT-005-W6/release.log and preflight/postflight JSON: RED: installed old commit differs from accepted release; GREEN: published/target/running exact accepted commit; state-loss/isolation RED_NOT_APPLICABLE: inducing production harm is unsafe; alternative proof: stable stopped/post-start preserved-state and unrelated fingerprints, native local/target gates, checksum/linkage, staged/live doctor, healthy single unit/process NRestarts=0, preserved all old seen/settings/state/offset and env/DB identity; unrelated fingerprints equal; backup path and cleanup."
+  ]
+}

@@ -46,6 +46,7 @@ type keywordPollingHarness struct {
 	rentalNew                                     bool
 	trace                                         []keywordTrace
 	captions, photos, buttons                     []string
+	detailBlocked                                 bool
 	detailHook                                    func()
 	sendHook                                      func()
 	detailPrice                                   int
@@ -88,6 +89,7 @@ func newKeywordPollingHarness(t *testing.T, cap int) *keywordPollingHarness {
 		ids := append([]int64(nil), h.ids...)
 		price, status, broken := h.price, h.sourceStatus, h.sourceBroken
 		detailStatus, detailBroken := h.detailStatus, h.detailBroken
+		detailBlocked := h.detailBlocked
 		rentalNew := h.rentalNew
 		hook := h.detailHook
 		detailPrice := h.detailPrice
@@ -109,6 +111,10 @@ func newKeywordPollingHarness(t *testing.T, cap int) *keywordPollingHarness {
 			}
 			if detailStatus != 0 {
 				w.WriteHeader(detailStatus)
+				return
+			}
+			if detailBlocked {
+				fmt.Fprint(w, "<html><body>Access denied</body></html>")
 				return
 			}
 			if detailBroken {
@@ -354,7 +360,7 @@ func TestKeywordPollingSharedCapRotationAndDelay(t *testing.T) {
 }
 
 func TestKeywordPollingFailuresRetryWithoutHistory(t *testing.T) {
-	for _, failure := range []string{"source-status", "source-parse", "detail-status", "telegram-error", "telegram-ambiguous"} {
+	for _, failure := range []string{"source-status", "source-parse", "detail-status", "detail-parse", "telegram-error", "telegram-ambiguous"} {
 		t.Run(failure, func(t *testing.T) {
 			h := newKeywordPollingHarness(t, 2)
 			s := h.search("стол", nil)
@@ -366,6 +372,8 @@ func TestKeywordPollingFailuresRetryWithoutHistory(t *testing.T) {
 				h.sourceBroken = true
 			case "detail-status":
 				h.detailStatus = 500
+			case "detail-parse":
+				h.detailBroken = true
 			case "telegram-error":
 				h.telegramStatus = 500
 			case "telegram-ambiguous":
@@ -400,13 +408,16 @@ func TestKeywordPollingFailuresRetryWithoutHistory(t *testing.T) {
 }
 
 func TestKeywordPollingSharedBlockedBackoffAndSingleFlight(t *testing.T) {
-	for _, code := range []int{403, 429} {
+	for _, code := range []int{403, 429, 0} {
 		t.Run(fmt.Sprint(code), func(t *testing.T) {
 			h := newKeywordPollingHarness(t, 2)
 			s := h.search("стол", nil)
 			h.search("стул", nil)
 			h.mu.Lock()
 			h.sourceStatus = code
+			if code == 0 {
+				h.detailBlocked = true
+			}
 			h.mu.Unlock()
 			ctx, cancel := context.WithCancel(context.Background())
 			done := make(chan error, 1)
@@ -416,7 +427,7 @@ func TestKeywordPollingSharedBlockedBackoffAndSingleFlight(t *testing.T) {
 			for {
 				status := h.a.RuntimeStatus()
 				if status.BackoffUntil.After(time.Now()) {
-					if !strings.Contains(status.Mode, fmt.Sprint(code)) {
+					if code != 0 && !strings.Contains(status.Mode, fmt.Sprint(code)) {
 						t.Fatal(status)
 					}
 					break
@@ -437,7 +448,11 @@ func TestKeywordPollingSharedBlockedBackoffAndSingleFlight(t *testing.T) {
 			h.mu.Lock()
 			trace := append([]keywordTrace(nil), h.trace...)
 			h.mu.Unlock()
-			if len(trace) != 2 {
+			want := 2
+			if code == 0 {
+				want = 3
+			}
+			if len(trace) != want {
 				t.Fatal("block did not stop remaining searches", trace)
 			}
 			t.Logf("AC006 HTTP%d shared backoff, manual rejected, trace=%+v", code, trace)

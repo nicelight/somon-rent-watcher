@@ -8,7 +8,7 @@ last_verified: 2026-09-02
 
 ## Product and requirements
 
-- [Keyword monitoring proposal](prd.md#keyword-monitoring-proposal--2026-10-06): принятые независимые поиски, подтверждённые scoped URLs и минимальный дизайн; FT-005 task plan готов к свежему review.
+- [Keyword monitoring proposal](prd.md#keyword-monitoring-proposal--2026-10-06): принятые независимые поиски, подтверждённые scoped URLs и минимальный дизайн; FT-005 реализована и проверена, включая detail validation и bounded history lookup.
 
 - [.memory-bank/analysis/product-brief.md](analysis/product-brief.md): accepted concise product input.
 - [.memory-bank/prd.md](prd.md): clarified, Constitution-checked product requirements.
@@ -20,8 +20,8 @@ last_verified: 2026-09-02
 - [.memory-bank/features/FT-003-isolated-production-release.md](features/FT-003-isolated-production-release.md): ordered state-preserving production delivery.
 - [.memory-bank/features/FT-004-price-extraction-hotfix.md](features/FT-004-price-extraction-hotfix.md): completed price parser correction and isolated production hotfix.
 - [.memory-bank/epics/EP-002-keyword-monitoring.md](epics/EP-002-keyword-monitoring.md): принятая новая возможность независимых поисков, REQ-010…014.
-- [.memory-bank/features/FT-005-keyword-monitoring.md](features/FT-005-keyword-monitoring.md): создание, настройка, удаление и доставка keyword-поисков; native scope подтверждён, следующая граница — task-plan review.
-- [.memory-bank/tasks/plans/IMPL-FT-005.md](tasks/plans/IMPL-FT-005.md): пять задач FT-005 с exact AC proof, owners, зависимостями и Docker gates.
+- [.memory-bank/features/FT-005-keyword-monitoring.md](features/FT-005-keyword-monitoring.md): создание, настройка, удаление и доставка keyword-поисков; native scope подтверждён; AC001…009 verified.
+- [.memory-bank/tasks/plans/IMPL-FT-005.md](tasks/plans/IMPL-FT-005.md): семь выполненных задач FT-005 с AC proof, owners и Docker gates.
 
 ## Brownfield current-state baseline
 

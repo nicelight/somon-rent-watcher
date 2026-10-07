@@ -10,6 +10,7 @@ import "C"
 import (
 	"errors"
 	"github.com/nicelight/somon-rent-watcher/internal/model"
+	"strings"
 )
 
 const keywordSearchColumns = `id, phrase, category_key, city_key, price_min, price_max, enabled, revision`
@@ -149,15 +150,38 @@ func (db *DB) UpdateKeywordSearch(s model.KeywordSearch) (model.KeywordSearch, b
 }
 
 func (db *DB) KeywordAdStates(monitorID int64) (map[int64]model.KeywordAdState, error) {
+	return db.keywordAdStates(monitorID, nil)
+}
+
+// KeywordAdStatesForIDs bounds polling reads to the current feed. It does not
+// prune delivered or rejected history; the full diagnostic reader stays compatible.
+func (db *DB) KeywordAdStatesForIDs(monitorID int64, ids []int64) (map[int64]model.KeywordAdState, error) {
+	if len(ids) == 0 {
+		return map[int64]model.KeywordAdState{}, nil
+	}
+	return db.keywordAdStates(monitorID, ids)
+}
+
+func (db *DB) keywordAdStates(monitorID int64, ids []int64) (map[int64]model.KeywordAdState, error) {
+
 	db.mu.Lock()
 	defer db.mu.Unlock()
-	stmt, err := db.prepareLocked(`SELECT ad_id,evaluated_revision,delivered FROM search_ad_state WHERE monitor_id=?`)
+	query := `SELECT ad_id,evaluated_revision,delivered FROM search_ad_state WHERE monitor_id=?`
+	if len(ids) > 0 {
+		query += ` AND ad_id IN (` + strings.TrimSuffix(strings.Repeat("?,", len(ids)), ",") + `)`
+	}
+	stmt, err := db.prepareLocked(query)
 	if err != nil {
 		return nil, err
 	}
 	defer C.sqlite3_finalize(stmt)
 	if rc := C.sqlite3_bind_int64(stmt, 1, C.sqlite3_int64(monitorID)); rc != C.SQLITE_OK {
 		return nil, db.sqliteErr(rc)
+	}
+	for i, id := range ids {
+		if rc := C.sqlite3_bind_int64(stmt, C.int(i+2), C.sqlite3_int64(id)); rc != C.SQLITE_OK {
+			return nil, db.sqliteErr(rc)
+		}
 	}
 	states := make(map[int64]model.KeywordAdState)
 	for {

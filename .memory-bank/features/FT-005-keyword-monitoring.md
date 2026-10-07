@@ -2,7 +2,7 @@
 description: Создание, настройка и мониторинг независимых поисков Somon в Telegram без повторов доставленных объявлений.
 status: active
 last_updated: 2026-10-07
-lifecycle: verified
+lifecycle: implemented
 spec_design_status: complete
 spec_design_links:
   - ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal"
@@ -74,6 +74,24 @@ source_of_truth:
 - Observable criterion: повторное открытие с добавочным хранением сохраняет rental settings, `seen_ads`, state, Telegram offset и существующее rental поведение без повторной рассылки. Поиски используют прежние Go-процесс, SQLite, scheduler, clients, группу и allowlist; новая dependency, worker или инфраструктура не добавляется.
 - Verification method: temporary-SQLite проверка сохранности и независимости данных, существующие rental/price regression checks и review затронутых owners.
 
+### FT-005-AC-008 — Подтверждение detail-страницы
+
+- REQ: REQ-013, REQ-014
+- Observable criterion: detail body с посторонним HTML либо видимым blocked marker не становится успешным объявлением из fallback-карточки. Валидная sparse detail-страница сохраняет fallback отдельных полей. Ошибка detail оставляет retry без отправки и history; HTTP200 blocked body сохраняет общий backoff.
+- Verification method: parser fixtures с полной fallback-карточкой, blocked/foreign body и sparse valid body; local polling harness с ошибкой detail и последующим успешным retry.
+
+### FT-005-AC-009 — Чтение состояний текущей выдачи
+
+- REQ: REQ-012, REQ-014
+- Observable criterion: polling читает persisted states только для IDs текущей выдачи выбранного monitor, включая пустую выдачу; накопленные доставленные/отклонённые rows других IDs и поисков сохраняются. Restart/edit dedup и revision reevaluation сохраняют прежний результат.
+- Verification method: temporary SQLite с текущими и историческими IDs двух поисков, пустой ID list и повторным открытием; inspect production caller и query, существующие polling integration checks.
+
+### FT-005-AC-010 — Production acceptance всей свежей версии
+
+- REQ: REQ-008, REQ-014
+- Observable criterion: вся текущая версия, включая keyword-поиски, оба исправления и существующий rental fallback до +50%, опубликована и установлена как один точный commit в существующий somonwatch.service. Сервис здоров; прежние settings, seen_ads, state и Telegram offset сохранены, env и unrelated workloads не изменены. Новые поиски не включаются автоматически. Допускается только additive initialization search_monitors/search_ad_state штатным Store initializer.
+- Verification method: exact local/remote/target/running commit и checksum; local/target native gates; staged service-user doctor на disposable SQLite clone; backup, stopped-state и postflight сравнение всех прежних данных/DB identity, host fingerprints, health/logs и свежий independent verifier.
+
 ## Acceptance closure
 
 Edge/failure outcomes включены прямо в FT-005-AC-001…007: невалидный ввод/авторизация,
@@ -96,7 +114,7 @@ reviewed `APPROVE`; task-plan review `APPROVE` для Planning Revision 1.
 Native category/city + `q`/`ordering=relevance` подтверждён
 [source evidence](../contracts/current-integrations.md#keyword-search-source-observations).
 Source blocker закрыт; raw HTML fixtures — execution proof. FT-001…004 и их
-очереди/approval сохранены. Этот этап не включает публикацию или deployment.
+очереди/approval сохранены. Первоначальный этап был локальным; deployment всей свежей версии разрешён оператором 2026-10-07.
 
 ## Task plan
 
@@ -134,13 +152,31 @@ independent functional PASS и per-task semantic-pass. Feature lifecycle verifie
 
 ## Semantic Verification
 
-Независимый feature review проверил полный цикл AC-001…007 / REQ-010…014 по
-фактическим source owners, пяти functional PASS и отдельным T3 semantic gates
-TASK008/010. Native scope/strict price/UI и shared scheduler/history/revision/delete
-согласованы; current source hashes совпадают с финальной independent verification.
-Проверка ограничена локальными fixtures/httptest/temporary SQLite evidence.
+Свежий независимый feature review 2026-10-07 подтвердил AC-001…009 / REQ-010…014
+после обоих разрешённых исправлений. Проверены detail body → retry/shared backoff
+и current-feed SQL lookup → history/restart/revision; исходные AC-001…007 сохраняют
+проверенные source/UI/scheduler/delete outcomes. Все семь задач имеют independent
+functional PASS; T3 TASK008/010 также имеют per-task semantic-pass. Все 51 source
+hashes совпадают с финальным TASK012 snapshot; fresh focused/native build PASS
+относится к этой combined реализации. Evidence — local fixtures/httptest/temp SQLite.
 
 SEMANTIC_VERDICT: semantic-pass
 
 [FT-005 semantic report](../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md):
-сквозное покрытие, доказательства и передача `/root` для финального lifecycle/sync/gates.
+два фокуса, inspected outcome evidence и передача `/root` для финального lifecycle/sync/gates.
+
+## Authorized debt repair
+
+Оператор 2026-10-07 поручил исправить оба finding из
+[PAPERCUTS report](../../PAPERCUTS/TECHDEBTS/FT-005 __ 10-07-2026 08.15.md).
+Два независимых результата AC008/009 дополняют исходные AC001…007; старые done
+tasks и evidence сохранены. TASK011/012 done после отдельных independent functional
+PASS; fresh feature semantic-pass подтверждает оба исправления вместе с прежними
+outcomes. Final native/non-CGO builds PASS, источник и URL-поиск и history schema не изменены.
+
+- [TASK011 validation/retry](../../.protocols/TASK-011-T2-FT-005-W5/verification.md).
+- [TASK012 bounded history lookup](../../.protocols/TASK-012-T2-FT-005-W5/verification.md).
+
+## Authorized production release
+
+Оператор 2026-10-07: «все что есть свежего в коде - выкладывай». Это снимает вопрос rollout scope: публикуется всё текущее дерево, включая rental fallback. TASK013 — единственный новый final production acceptance W6, зависит от всех done TASK006…012. Старые TASK001…005 и их статусы/claims не присваиваются. AC007 относится к сохранению текущего локального rental поведения; расширение относительно старого server binary явно разрешено. Release contract: [AlmaLinux](../runbooks/almalinux-9-operations.md#accepted-ft-005-release-procedure). Planning Revision 1 сохранён.

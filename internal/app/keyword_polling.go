@@ -71,7 +71,11 @@ func (a *App) pollKeywordSearch(ctx context.Context, s model.KeywordSearch, rema
 	if err != nil {
 		return stats, 0, err
 	}
-	history, err := a.store.KeywordAdStates(s.ID)
+	ids := make([]int64, len(cards))
+	for i, card := range cards {
+		ids[i] = card.ID
+	}
+	history, err := a.store.KeywordAdStatesForIDs(s.ID, ids)
 	if err != nil {
 		return stats, len(cards), err
 	}

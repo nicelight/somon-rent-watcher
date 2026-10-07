@@ -325,13 +325,21 @@ func ParseDetail(pageURL string, body []byte, fallback model.Card) (model.Ad, er
 	if err != nil {
 		return model.Ad{}, fmt.Errorf("parse detail HTML: %w", err)
 	}
+	root = visibleDetailDOM(root, nil)
+	if reason := blockedReason(root); reason != "" {
+		return model.Ad{}, &BlockedPageError{URL: pageURL, Reason: reason}
+	}
 	ad := model.Ad{Card: fallback}
 	ad.URL = pageURL
 	if id := adIDFromURL(pageURL); id > 0 {
 		ad.ID = id
 	}
 
-	if advert := findBestAdvertMap(decodeRSCChunks(body), ad.ID); advert != nil {
+	advert := findBestAdvertMap(decodeRSCChunks(body), ad.ID)
+	if advert == nil && !hasVisibleDetail(root) {
+		return model.Ad{}, fmt.Errorf("detail page lacks body evidence of an advertisement")
+	}
+	if advert != nil {
 		mergeDetailRSC(&ad, pageURL, advert)
 	}
 	mergeVisibleDetail(&ad, pageURL, root)
@@ -343,6 +351,42 @@ func ParseDetail(pageURL string, body []byte, fallback model.Card) (model.Ad, er
 		return model.Ad{}, fmt.Errorf("detail page lacks mandatory ID/title")
 	}
 	return ad, nil
+}
+
+// Hidden modal/template text must not identify a visible detail response.
+func visibleDetailDOM(n, parent *htmlx.Node) *htmlx.Node {
+	if _, hidden := n.Attr["hidden"]; hidden || strings.EqualFold(n.GetAttr("aria-hidden"), "true") {
+		return nil
+	}
+	style := strings.ToLower(strings.ReplaceAll(n.GetAttr("style"), " ", ""))
+	if strings.Contains(style, "display:none") || strings.Contains(style, "visibility:hidden") {
+		return nil
+	}
+	for _, class := range strings.Fields(n.GetAttr("class")) {
+		if class == "hidden" {
+			return nil
+		}
+	}
+	out := &htmlx.Node{Tag: n.Tag, TextData: n.TextData, Attr: n.Attr, Parent: parent}
+	for _, child := range n.Children {
+		if visible := visibleDetailDOM(child, out); visible != nil {
+			out.Children = append(out.Children, visible)
+		}
+	}
+	return out
+}
+
+func hasVisibleDetail(root *htmlx.Node) bool {
+	h1 := htmlx.FindFirst(root, func(n *htmlx.Node) bool { return n.Tag == "h1" && htmlx.Text(n) != "" })
+	if h1 == nil {
+		return false
+	}
+	if domPrice(root) != nil || idTextRE.MatchString(htmlx.TextLines(root)) {
+		return true
+	}
+	return htmlx.FindFirst(root, func(n *htmlx.Node) bool {
+		return (n.Tag == "h2" || n.Tag == "h3") && strings.EqualFold(strings.TrimSpace(htmlx.Text(n)), "Описание")
+	}) != nil
 }
 
 func mergeDetailRSC(ad *model.Ad, pageURL string, advert map[string]any) {

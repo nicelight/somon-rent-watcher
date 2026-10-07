@@ -71,3 +71,16 @@ FT-005-AC-002 переиспользует existing application mutation lock и
   [FT005 semantic-pass](../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md) закрывает весь цикл.
 - Final local native scripts/build.sh PASS (2026-10-07): formatting/all tests/vet/CGO/SQLite linkage;
   keyword integration/harm probes также прошли race detector. Live keyword DOM/production этим не проверены.
+
+## Keyword debt repair verification
+
+- [TASK011 independent PASS](../../.protocols/TASK-011-T2-FT-005-W5/verification.md):
+  HTTP200 foreign/visible blocked detail rejection, sparse fallback/hidden modal
+  preservation, no false delivery/history, valid retry and shared backoff.
+- [TASK012 independent PASS](../../.protocols/TASK-012-T2-FT-005-W5/verification.md):
+  current-ID/monitor bounded reads, empty no-query, exact persisted history across
+  edit/reopen and production polling dedup/revision reevaluation.
+- [Fresh feature semantic-pass](../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md)
+  covers AC001…009. Final native scripts/build.sh PASS on unchanged combined source;
+  non-CGO compile PASS. One existing server-arrival delay test failed then passed
+  unchanged rerun and fresh independent gate; logs retained in TASK012.

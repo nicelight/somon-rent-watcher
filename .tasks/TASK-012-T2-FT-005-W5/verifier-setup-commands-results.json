@@ -1,0 +1,64 @@
+[
+  {
+    "name": "focused-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/tmp/somon-task012-verifier-cqubo9bp:/src",
+      "-w",
+      "/src",
+      "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+      "sh",
+      "-c",
+      "CGO_ENABLED=1 go test -count=1 ./internal/somon ./internal/app ./internal/store"
+    ],
+    "exit_code": 125,
+    "completed_at": "2026-10-07T07:18:14.444488+00:00",
+    "evidence": "verifier-focused-gate.log"
+  },
+  {
+    "name": "native-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/tmp/somon-task012-verifier-cqubo9bp:/src",
+      "-w",
+      "/src",
+      "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+      "bash",
+      "scripts/build.sh"
+    ],
+    "exit_code": 125,
+    "completed_at": "2026-10-07T07:18:14.699313+00:00",
+    "evidence": "verifier-native-gate.log"
+  },
+  {
+    "name": "outcome",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/tmp/somon-task012-verifier-cqubo9bp:/src",
+      "-w",
+      "/src",
+      "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+      "sh",
+      "-c",
+      "gofmt -w internal/store/verifier_history_probe_test.go internal/app/verifier_polling_history_probe_test.go && CGO_ENABLED=1 go test -count=1 -v -run \"^TestVerifierCurrentFeed\" ./internal/store ./internal/app"
+    ],
+    "exit_code": 125,
+    "completed_at": "2026-10-07T07:18:14.975999+00:00",
+    "evidence": "verifier-outcome.log"
+  }
+]

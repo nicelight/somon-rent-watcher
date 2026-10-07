@@ -108,3 +108,57 @@ func TestKeywordAdditiveInitializationPreservesExactRentalRows(t *testing.T) {
 	}
 	t.Log("GREEN AC007: legacy seeded settings/seen_ads first_seen_at/all state + telegram_offset exact bidirectional SQL EXCEPT equality after additive initialization/two search writes/update/reopen; stable IDs and atomic revision confirmed")
 }
+
+func TestKeywordHistoryCurrentFeedSelection(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "bounded.db")
+	db, err := Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	a, err := db.CreateKeywordSearch(model.KeywordSearch{Phrase: "стол", CategoryKey: "all", CityKey: "country", Revision: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := db.CreateKeywordSearch(model.KeywordSearch{Phrase: "стул", CategoryKey: "all", CityKey: "country", Revision: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []int64{10, 20, 30} {
+		if err = db.RecordKeywordAdState(a.ID, id, 1, id == 10); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err = db.RecordKeywordAdState(b.ID, 10, 1, false); err != nil {
+		t.Fatal(err)
+	}
+	got, err := db.KeywordAdStatesForIDs(a.ID, []int64{10, 10, 99})
+	if err != nil || len(got) != 1 || !got[10].Delivered {
+		t.Fatalf("current feed [10] must read only its selected state, got=%v err=%v", got, err)
+	}
+	empty, err := db.KeywordAdStatesForIDs(a.ID, nil)
+	if err != nil || len(empty) != 0 {
+		t.Fatal(empty, err)
+	}
+	all, err := db.KeywordAdStates(a.ID)
+	if err != nil || len(all) != 3 {
+		t.Fatal("full history damaged", all, err)
+	}
+	other, err := db.KeywordAdStatesForIDs(b.ID, []int64{10})
+	if err != nil || len(other) != 1 || other[10].Delivered {
+		t.Fatal("monitor isolation lost", other, err)
+	}
+	if err = db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	db, err = Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	persisted, err := db.KeywordAdStates(a.ID)
+	if err != nil || !reflect.DeepEqual(all, persisted) {
+		t.Fatal("history changed across reopen", persisted, err)
+	}
+
+}

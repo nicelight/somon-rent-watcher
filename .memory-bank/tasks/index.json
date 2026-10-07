@@ -40,6 +40,18 @@
     {
       "id": "TASK-010-T3-FT-005-W4",
       "file": "TASK-010-T3-FT-005-W4.task.json"
+    },
+    {
+      "id": "TASK-011-T2-FT-005-W5",
+      "file": "TASK-011-T2-FT-005-W5.task.json"
+    },
+    {
+      "id": "TASK-012-T2-FT-005-W5",
+      "file": "TASK-012-T2-FT-005-W5.task.json"
+    },
+    {
+      "id": "TASK-013-T3-FT-005-W6",
+      "file": "TASK-013-T3-FT-005-W6.task.json"
     }
   ]
 }

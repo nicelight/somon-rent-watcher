@@ -189,3 +189,23 @@ TASK-008 доказывает только AC001/AC007 management/integration de
 delivery/history и deletion остаются следующим tasks.
 [Execution handoff](../../.protocols/TASK-008-T3-FT-005-W2/handoff.md):
 локальные доказательства и маршрут независимых `/verify` и T3 `/red-verify`.
+
+### Detail response validation
+
+Somon Adapter MUST подтверждать detail из body, а не из fallback ID/title: visible
+blocked body возвращает typed blocked error независимо от заполненных fallback fields;
+посторонний body возвращает parse error. Валидный sparse body может сохранять
+fallback отсутствующих отдельных полей. DOM detail подтверждается собственным
+непустым заголовком объявления и detail-признаком (цена, описание либо visible ad ID);
+структурированный advert подтверждается совпадающим ID. Скрытый blocked modal
+не делает valid body ошибкой. App оставляет retry; typed blocked error использует
+существующий общий backoff. Verification: FT-005-AC-008 parser и polling fixtures.
+
+### Current feed history lookup
+
+Polling Application MUST передавать IDs текущих cards в bounded lookup Persistence
+Adapter. Результат содержит только состояния выбранного monitor и переданных IDs;
+пустой список возвращает пустой результат без полного чтения. Записи истории не
+удаляются. Existing full lookup может сохраняться для diagnostic/tests consumers;
+production polling его не вызывает. Verification: FT-005-AC-009 temporary SQLite,
+reopen и inspect caller/query; schema/identity/revision/delivery rules не меняются.

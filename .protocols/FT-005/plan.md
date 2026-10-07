@@ -138,3 +138,37 @@ mb-lint PASS (58 files); strict mb-doctor PASS (0 errors, 0 warnings). All five
 tasks done; functional, T3 and feature semantic gates complete. No required local
 work remains. Optional advisory /tech-debt FT-005 is not a completion gate.
 No deployment, production mutation or agent commit performed.
+
+## Authorized debt repair boundaries — 2026-10-07
+
+User explicitly requested fixing both reported findings. Unmerged outcomes are
+(1) reliable detail-body validation/retry, Somon Adapter owning shared parser and
+(2) bounded current-feed history lookup, App owning orchestration/Store owning query.
+No merge: each is independently implementable and testable. Accepted two-finding
+request supplies boundary acceptance; no further product interview required.
+Existing node/edge owners retained, Planning Revision1 unchanged; no Foundation.
+TASK011 T2 W5 depends009; TASK012 T2 W5 depends009. Execute sequentially, no production.
+Fresh task-plan review required before execution. Historical tasks untouched.
+
+Root explicit standalone owner selects TASK011 after fresh APPROVE revision1 and strict doctor PASS. /exe TASK011 start; independent /verify then closure. TASK012 remains planned, no parallel execution.
+
+Root closes TASK011 done after independent functional PASS AC008; selects and owns standalone TASK012 workflow/closure. TASK012 executes sequentially now; W5 sync follows both closures/feature semantic gate.
+
+Root closes TASK012 done after independent functional PASS AC009 and final combined-source native build PASS. Both W5 repairs done, feature-level fresh semantic review before finalsync; statuses remain owner-authoritative.
+
+## W5 owner completion decision
+
+Root accepts fresh feature semantic-pass after done TASK011/012 independent functional
+PASS. Feature/EP002/REQ010..014 remain verified for the repaired implementation; old
+task closures untouched. Final W5 mb-sync reconciles docs/evidence; root owns lint and
+strict doctor. Final native build passed independently on unchanged combined source,
+non-CGO build also PASS. No deployment/production/Git mutation performed.
+
+W5 final sync complete. Changed routers/spec/feature/epic/RTM/coverage/changelog reread;
+caller mb-lint PASS58files and strict doctor PASS0errors0warnings; gitdiffcheckclean.
+Blank template progress labels mechanically filled from existing observations after
+first strict rejection (no proof/verdict change). Both fixes completed locally;
+optional advisory /tech-debt FT005 can be requested separately, no completion gate.
+
+## Accepted release boundary
+Operator authorized all fresh code 2026-10-07. One indivisible production acceptance outcome AC010: publish/build/install/check current exact release in existing service. TASK013 T3 W6 depends on done TASK006…012. No source implementation siblings or older queue adoption; proof remains in this task.

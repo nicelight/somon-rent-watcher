@@ -1,0 +1,6 @@
+{
+  "internal/app/keyword_polling.go": "0ec7719dee2964d4699281a5255905ef7db3866e4a0b4f06848501002d4b7670",
+  "internal/store/keyword_search_cgo.go": "14f5e91beb0db0d28b10c8205abe861996f9200aa0da75e8fc7bac87383034fb",
+  "internal/store/keyword_search_nocgo.go": "a8c57bdbce82b1f08098c0d69aa1866806a3fe67fb5ffc837ac6d65ff67da800",
+  "internal/store/keyword_search_test.go": "6a00f65cd284ccc3bb47c418e688bb8f41f19fdca3d3541694202f85ddc1bbf0"
+}
