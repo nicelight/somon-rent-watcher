@@ -1,0 +1,50 @@
+[
+  {
+    "name": "focused-package-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher:/src",
+      "-w",
+      "/src",
+      "somon-price-hotfix-builder:latest",
+      "sh",
+      "-c",
+      "CGO_ENABLED=1 go test -count=1 ./internal/app ./internal/store ./internal/telegram"
+    ],
+    "cwd": "/home/serg/Projects/somon-rent-watcher",
+    "exit_code": 0,
+    "completed_at": "2026-10-07T00:06:35.279809+05:00",
+    "input_snapshot": ".tasks/TASK-010-T3-FT-005-W4/focused-package-gate-input-state.json",
+    "evidence": ".tasks/TASK-010-T3-FT-005-W4/focused-package-gate.log",
+    "log_sha256": "9442086bf536c341aaa77832c4c3b1727d2284cc502c539f9cafe838ad800f8c"
+  },
+  {
+    "name": "native-build-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher:/src",
+      "-w",
+      "/src",
+      "somon-price-hotfix-builder:latest",
+      "sh",
+      "-c",
+      "./scripts/build.sh"
+    ],
+    "cwd": "/home/serg/Projects/somon-rent-watcher",
+    "exit_code": 0,
+    "completed_at": "2026-10-07T00:06:54.674681+05:00",
+    "input_snapshot": ".tasks/TASK-010-T3-FT-005-W4/native-build-gate-input-state.json",
+    "evidence": ".tasks/TASK-010-T3-FT-005-W4/native-build-gate.log",
+    "log_sha256": "36340dafd5bda3a73b3d9e9eb6bc0dc2d0940ba40598088cbd0b55888debe96c"
+  }
+]

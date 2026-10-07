@@ -4,6 +4,26 @@ status: active
 ---
 # Changelog
 
+## [2026-10-07] Wave 4 — FT-005 verified
+- TASK010 done after independent functional PASS and separate T3 semantic-pass: both delete routes, atomic rollback, protected rows and stale work.
+- Separate feature semantic-pass covers all AC001…007; owner closes FT005/EP002 and REQ010…014 as verified.
+- Final independent native build passed on unchanged source: all tests, formatting, vet, CGO and SQLite linkage. Source/integration probes remain local; no live deployment or agent commit.
+- Reconciled feature/epic/RTM/implementation plan and current coverage; old FT001…004 unchanged.
+
+## [2026-10-06] Wave 3 — FT-005 delivery and history
+- TASK009 done after independent functional PASS for AC005/006; fresh probes cover per-search history, retry, shared limits/backoff and revision guards.
+- REQ012 implemented; feature/epic remain planned pending TASK010 deletion and feature semantic verification.
+- Feature evidence and implementation plan reconciled; runtime source/architecture contracts unchanged.
+
+## [2026-10-06] Wave 2 / Saved search management
+
+- TASK008 закрыта explicit owner после независимых functional PASS и semantic-pass.
+- Создание, адресная настройка и включение поисков доступны в Telegram; добавочное
+  хранение сохраняет ID/revision и арендные данные. Конкурентные правки проверены.
+- REQ010/014 и FT005/EP002 остаются planned: мониторинг и удаление ещё предстоят.
+- Evidence: [functional](../.protocols/TASK-008-T3-FT-005-W2/verification.md),
+  [semantic](../.protocols/TASK-008-T3-FT-005-W2/red-verification.md).
+
 ## [2026-10-06] Wave 1 / Keyword source and strict price
 
 - TASK-006 и TASK-007 закрыты explicit owner после отдельных independent functional PASS.
@@ -133,3 +153,14 @@ status: active
   management/harm tests и точное сравнение legacy rental rows после writes/reopen.
 - [Execution evidence](../.protocols/TASK-008-T3-FT-005-W2/handoff.md):
   independent `/verify` и T3 `/red-verify` впереди; task in_progress, closure `/root`.
+
+## 2026-10-06 — TASK009 monitoring execution
+
+- Сохранённые поиски подключены к существующему последовательному scheduler с общим
+  detail cap, delay/backoff и меняющимся началом обхода; rental behavior сохранено.
+- Независимая SQLite история хранит delivered и evaluated revision; текущая revision
+  проверяется перед send, устаревший reject не подавляет новые условия. Уведомление
+  именует поиск и использует прежнюю Telegram transport/retry semantics.
+- [Execution evidence](../.protocols/TASK-009-T2-FT-005-W3/handoff.md): честный исходный
+  RED, текущий GREEN/race и required package gate. Task in_progress, independent
+  verification впереди; closure/production/deletion не выполнялись.

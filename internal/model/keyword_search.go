@@ -11,3 +11,9 @@ type KeywordSearch struct {
 	Enabled     bool
 	Revision    int64
 }
+
+// KeywordAdState keeps a search-local evaluation separate from rental seen IDs.
+type KeywordAdState struct {
+	EvaluatedRevision int64
+	Delivered         bool
+}

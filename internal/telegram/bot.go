@@ -512,7 +512,10 @@ func (b *Bot) sendToAdmins(ctx context.Context, text string) error {
 }
 
 func (b *Bot) SendAd(ctx context.Context, ad model.Ad) error {
-	caption := AdCaption(ad)
+	return b.sendAdCaption(ctx, ad, AdCaption(ad))
+}
+
+func (b *Bot) sendAdCaption(ctx context.Context, ad model.Ad, caption string) error {
 	keyboard := &InlineKeyboardMarkup{InlineKeyboard: [][]InlineKeyboardButton{{
 		{Text: "Открыть на Somon", URL: ad.URL},
 	}}}

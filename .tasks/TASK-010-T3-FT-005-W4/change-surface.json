@@ -1,0 +1,22 @@
+{
+  "initial_head": "7db6f00f64bfb698b6a9bdec138e69d870892811",
+  "final_head": "7db6f00f64bfb698b6a9bdec138e69d870892811",
+  "source_delta": [
+    "internal/app/keyword_delete_test.go",
+    "internal/app/keyword_search.go",
+    "internal/store/keyword_delete_test.go",
+    "internal/store/keyword_search_cgo.go",
+    "internal/store/keyword_search_nocgo.go",
+    "internal/telegram/keyword_delete_integration_test.go",
+    "internal/telegram/keyword_search.go"
+  ],
+  "durable_doc_delta": [
+    ".memory-bank/testing/current-coverage.md"
+  ],
+  "task_bookkeeping": [
+    ".memory-bank/tasks/TASK-010-T3-FT-005-W4.task.json",
+    ".protocols/TASK-010-T3-FT-005-W4",
+    ".tasks/TASK-010-T3-FT-005-W4"
+  ],
+  "forbidden_scope_touched": false
+}

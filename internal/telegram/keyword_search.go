@@ -21,6 +21,7 @@ type KeywordBackend interface {
 	CreateKeywordSearch(model.KeywordSearch) (model.KeywordSearch, error)
 	UpdateKeywordSearch(model.KeywordSearch) (model.KeywordSearch, bool, error)
 	SetKeywordSearchEnabled(int64, bool) (model.KeywordSearch, bool, error)
+	DeleteKeywordSearch(int64) (bool, error)
 }
 
 func (b *Bot) keywordBackend() (KeywordBackend, error) {
@@ -50,7 +51,7 @@ func (b *Bot) sendKeywordList(ctx context.Context, chatID int64) error {
 		if s.Enabled {
 			status = "▶"
 		}
-		rows = append(rows, []InlineKeyboardButton{{Text: status + " " + truncate(s.Phrase, 60), CallbackData: fmt.Sprintf("ks:view:%d", s.ID)}})
+		rows = append(rows, []InlineKeyboardButton{{Text: status + " " + truncate(s.Phrase, 60), CallbackData: fmt.Sprintf("ks:view:%d", s.ID)}, {Text: "Удалить", CallbackData: fmt.Sprintf("ks:delete:%d", s.ID)}})
 	}
 	rows = append(rows, []InlineKeyboardButton{{Text: "Новый поиск", CallbackData: "ks:new"}}, []InlineKeyboardButton{{Text: "Фильтр квартир", CallbackData: "ks:rental"}})
 	_, err = b.client.SendMessage(ctx, chatID, text, &InlineKeyboardMarkup{InlineKeyboard: rows})
@@ -89,7 +90,7 @@ func (b *Bot) sendKeywordSummary(ctx context.Context, chatID int64, s model.Keyw
 	button := func(label, action string) InlineKeyboardButton {
 		return InlineKeyboardButton{Text: label, CallbackData: fmt.Sprintf("ks:%s:%d", action, s.ID)}
 	}
-	rows := [][]InlineKeyboardButton{{button("Изменить фразу", "phrase")}, {button("Категория", "category"), button("География", "city")}, {button("Цена от / до", "price")}, {button(toggle, action)}, {{Text: "Мои поиски", CallbackData: "ks:list"}}}
+	rows := [][]InlineKeyboardButton{{button("Изменить фразу", "phrase")}, {button("Категория", "category"), button("География", "city")}, {button("Цена от / до", "price")}, {button(toggle, action)}, {button("Удалить поиск", "delete")}, {{Text: "Мои поиски", CallbackData: "ks:list"}}}
 	_, err := b.client.SendMessage(ctx, chatID, text, &InlineKeyboardMarkup{InlineKeyboard: rows})
 	return err
 }
@@ -197,6 +198,18 @@ func (b *Bot) applyKeywordCallback(ctx context.Context, q *CallbackQuery) error 
 			return err
 		case "enable", "disable":
 			s, found, err = backend.SetKeywordSearchEnabled(id, action == "enable")
+		case "delete":
+			found, err = backend.DeleteKeywordSearch(id)
+			if err != nil {
+				return err
+			}
+			if !found {
+				return b.keywordMissing(ctx, chatID)
+			}
+			if _, err = b.client.SendMessage(ctx, chatID, "Поиск удалён.", nil); err != nil {
+				return err
+			}
+			return b.sendKeywordList(ctx, chatID)
 		default:
 			return errors.New("неизвестная кнопка поиска")
 		}
@@ -272,4 +285,9 @@ func (b *Bot) applyKeywordInput(ctx context.Context, userID, chatID int64, text,
 		return b.keywordMissing(ctx, chatID)
 	}
 	return b.sendKeywordSummary(ctx, chatID, s)
+}
+
+// SendKeywordAd uses the same transport success/ambiguity policy as rental.
+func (b *Bot) SendKeywordAd(ctx context.Context, phrase string, ad model.Ad) error {
+	return b.sendAdCaption(ctx, ad, KeywordAdCaption(phrase, ad))
 }

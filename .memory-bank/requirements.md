@@ -123,8 +123,8 @@ Pass/fail меняется при повторном открытии SQLite, р
 | REQ-007 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
 | REQ-008 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done) | planned |
 | REQ-009 | EP-001 | FT-004 | FT-004-AC-001; TASK-005-T3-FT-004-W1 | done |
-| REQ-010 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002 — Telegram/store lifecycle checks | planned |
-| REQ-011 | EP-002 | FT-005 | FT-005-AC-003, FT-005-AC-004 — TASK-006/007 independent functional PASS; feature semantic gate pending | implemented |
-| REQ-012 | EP-002 | FT-005 | FT-005-AC-005 — delivery/history checks across restart and edits | planned |
-| REQ-013 | EP-002 | FT-005 | FT-005-AC-002, FT-005-AC-003, FT-005-AC-006 — failure/concurrency checks | planned |
-| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007 — authorization, state-preservation and owner review | planned |
+| REQ-010 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002 — Telegram/store lifecycle checks | verified |
+| REQ-011 | EP-002 | FT-005 | FT-005-AC-003, FT-005-AC-004 — TASK006/007 functional PASS; FT005 semantic-pass | verified |
+| REQ-012 | EP-002 | FT-005 | FT-005-AC-005 — TASK009 functional PASS; FT005 semantic-pass | verified |
+| REQ-013 | EP-002 | FT-005 | FT-005-AC-002, FT-005-AC-003, FT-005-AC-006 — failure/concurrency checks | verified |
+| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007 — authorization, state-preservation and owner review | verified |

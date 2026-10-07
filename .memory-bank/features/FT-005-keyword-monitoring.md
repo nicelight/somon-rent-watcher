@@ -1,7 +1,8 @@
 ---
 description: Создание, настройка и мониторинг независимых поисков Somon в Telegram без повторов доставленных объявлений.
-status: draft
-lifecycle: planned
+status: active
+last_updated: 2026-10-07
+lifecycle: verified
 spec_design_status: complete
 spec_design_links:
   - ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal"
@@ -103,16 +104,43 @@ Source blocker закрыт; raw HTML fixtures — execution proof. FT-001…004
 полное покрытие AC-001…007 и локальные Docker gates.
 Source/price W1 → creation W2 → monitoring W3 → deletion W4;
 authoritative records — [task index](../tasks/index.json). W1 source/price закрыты после independent functional PASS;
-W2 creation реализован и ожидает independent `/verify` + per-task `/red-verify`;
-W3 monitoring и W4 deletion ещё не реализованы; feature lifecycle остаётся planned;
+W2 creation закрыта после independent functional PASS и per-task semantic-pass;
+W3 monitoring закрыт после independent functional PASS; W4 deletion закрыт после
+independent functional PASS и per-task semantic-pass. Feature lifecycle verified
+после отдельного feature semantic-pass;
 старые identities/status/approvals и Planning Revision 1 сохранены.
 
 ## Implementation evidence
 
 - Source AC-003: [TASK006 verification](../../.protocols/TASK-006-T2-FT-005-W1/verification.md).
 - Price AC-004: [TASK007 verification](../../.protocols/TASK-007-T2-FT-005-W1/verification.md).
-- REQ-011 implemented with independent functional PASS; feature-level semantic gate
-  remains pending until all five outcomes are complete. Other requirements remain planned.
+- REQ-010…014 verified: все пять task outcomes подтверждены независимо,
+  T3 и feature-level semantic gates пройдены.
 
-- Management AC-001 / rental preservation AC-007: [TASK008 execution handoff](../../.protocols/TASK-008-T3-FT-005-W2/handoff.md),
-  pending independent functional/semantic verification; task remains in_progress.
+- Management AC-001 / rental preservation AC-007:
+  [TASK008 functional PASS](../../.protocols/TASK-008-T3-FT-005-W2/verification.md) и
+  [semantic-pass](../../.protocols/TASK-008-T3-FT-005-W2/red-verification.md).
+  Создание/правки/включение подтверждены.
+
+- Monitoring AC-005/AC-006: [TASK009 execution handoff](../../.protocols/TASK-009-T2-FT-005-W3/handoff.md).
+  Добавлены общий rotating scheduler и независимая история доставки/оценки revision;
+  локальные RED/GREEN и package/race gates дополнены
+  [independent functional PASS](../../.protocols/TASK-009-T2-FT-005-W3/verification.md).
+  TASK009 done.
+
+- Deletion AC-002: [TASK010 functional PASS](../../.protocols/TASK-010-T3-FT-005-W4/verification.md)
+  и [semantic-pass](../../.protocols/TASK-010-T3-FT-005-W4/red-verification.md).
+  Обе кнопки, атомарность и rollback, сохранность других данных и stale work проверены.
+
+## Semantic Verification
+
+Независимый feature review проверил полный цикл AC-001…007 / REQ-010…014 по
+фактическим source owners, пяти functional PASS и отдельным T3 semantic gates
+TASK008/010. Native scope/strict price/UI и shared scheduler/history/revision/delete
+согласованы; current source hashes совпадают с финальной independent verification.
+Проверка ограничена локальными fixtures/httptest/temporary SQLite evidence.
+
+SEMANTIC_VERDICT: semantic-pass
+
+[FT-005 semantic report](../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md):
+сквозное покрытие, доказательства и передача `/root` для финального lifecycle/sync/gates.

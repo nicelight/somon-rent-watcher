@@ -1,8 +1,8 @@
 ---
 description: Независимые keyword-поиски Somon с собственным бюджетом, географией и доставкой в существующую Telegram-группу.
 status: active
-lifecycle: planned
-last_updated: 2026-10-06
+lifecycle: verified
+last_updated: 2026-10-07
 source_of_truth:
   - .memory-bank/prd.md
   - .memory-bank/requirements.md
@@ -38,4 +38,6 @@ source_of_truth:
 [Source evidence](../contracts/current-integrations.md#keyword-search-source-observations):
 штатные category/city URLs с `q`/`ordering=relevance` подтверждены оператором.
 Product decomposition reviewed `APPROVE`; [task plan](../tasks/plans/IMPL-FT-005.md)
-создан. Следующий этап — свежий `/review-tasks-plan FT-005`.
+reviewed APPROVE для Planning Revision 1. TASK006…010 done, independent functional
+проверки и T3 gates пройдены; [feature semantic-pass](../features/FT-005-keyword-monitoring.md#semantic-verification)
+подтверждает локальную реализацию. Production deployment не входил в этот этап.

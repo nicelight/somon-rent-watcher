@@ -108,6 +108,14 @@ CREATE TABLE IF NOT EXISTS search_monitors (
     CHECK(price_min IS NULL OR price_max IS NULL OR price_min <= price_max)
 );
 
+CREATE TABLE IF NOT EXISTS search_ad_state (
+    monitor_id INTEGER NOT NULL REFERENCES search_monitors(id) ON DELETE CASCADE,
+    ad_id INTEGER NOT NULL,
+    evaluated_revision INTEGER NOT NULL CHECK(evaluated_revision > 0),
+    delivered INTEGER NOT NULL CHECK(delivered IN (0, 1)),
+    PRIMARY KEY(monitor_id, ad_id)
+);
+
 COMMIT;
 `
 	if err := db.execLocked(schema); err != nil {

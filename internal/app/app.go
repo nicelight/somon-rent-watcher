@@ -58,6 +58,7 @@ type App struct {
 	logger *slog.Logger
 
 	keywordMu sync.Mutex
+	pollStart int
 
 	statusMu sync.RWMutex
 	status   model.RuntimeStatus
@@ -245,6 +246,14 @@ func (a *App) pollLoop(ctx context.Context) error {
 		if err == nil {
 			if settings, loadErr := a.LoadSettings(); loadErr == nil && !settings.Enabled {
 				mode = "пауза; baseline обновляется"
+				if searches, searchErr := a.store.ListKeywordSearches(); searchErr == nil {
+					for _, search := range searches {
+						if search.Enabled {
+							mode = "норма"
+							break
+						}
+					}
+				}
 			}
 		}
 		if err != nil {
@@ -278,7 +287,7 @@ func (a *App) pollLoop(ctx context.Context) error {
 	}
 }
 
-func (a *App) pollOnce(ctx context.Context) error {
+func (a *App) pollRentalOnce(ctx context.Context, detailsRemaining *int) error {
 	now := time.Now().UTC()
 	cards, body, err := a.somon.FetchCategory(ctx, a.cfg.CategoryURL)
 	if err != nil {
@@ -364,7 +373,8 @@ func (a *App) pollOnce(ctx context.Context) error {
 		a.logger.Info("recovery sweep completed", "recovered_candidates", len(recovered))
 	}
 
-	stats, err := a.processNewCards(ctx, settings, cards, now)
+	stats, err := a.processNewCardsWithLimit(ctx, settings, cards, now, *detailsRemaining)
+	*detailsRemaining -= stats.DetailRequests
 	if err != nil {
 		return err
 	}
@@ -407,6 +417,10 @@ func (a *App) validateCategory(cards []model.Card) error {
 }
 
 func (a *App) processNewCards(ctx context.Context, settings filter.Settings, cards []model.Card, now time.Time) (processStats, error) {
+	return a.processNewCardsWithLimit(ctx, settings, cards, now, a.cfg.MaxDetailsPerPoll)
+}
+
+func (a *App) processNewCardsWithLimit(ctx context.Context, settings filter.Settings, cards []model.Card, now time.Time, detailLimit int) (processStats, error) {
 	cards = prioritizeOrdinary(cards)
 	ids := cardIDs(cards)
 	seen, err := a.store.SeenIDs(ids)
@@ -502,7 +516,7 @@ func (a *App) processNewCards(ctx context.Context, settings filter.Settings, car
 	exactFound := false
 	exactComplete := true
 	for _, card := range exactCards {
-		if stats.DetailRequests >= a.cfg.MaxDetailsPerPoll {
+		if stats.DetailRequests >= detailLimit {
 			exactComplete = false
 			a.logger.Warn("detail request cap reached during exact evaluation; remaining IDs stay unseen", "cap", a.cfg.MaxDetailsPerPoll)
 			break
@@ -538,7 +552,7 @@ func (a *App) processNewCards(ctx context.Context, settings filter.Settings, car
 	if settings.PriceMax != nil && !exactFound && exactComplete {
 		fallbackComplete := true
 		for _, card := range fallbackCards {
-			if stats.DetailRequests >= a.cfg.MaxDetailsPerPoll {
+			if stats.DetailRequests >= detailLimit {
 				fallbackComplete = false
 				a.logger.Warn("detail request cap reached during fallback evaluation; fallback suppressed", "cap", a.cfg.MaxDetailsPerPoll)
 				break

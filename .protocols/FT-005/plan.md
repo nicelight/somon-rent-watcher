@@ -71,3 +71,70 @@ Top-level GENERAL /root explicitly owns standalone execution/final lifecycle for
 TASK-008-T3-FT-005-W2, promotes it ready because TASK006/007 are done, and selects
 only this task. Next: fresh /exe, separate /verify, separate /red-verify, then owner
 closure and W2 sync. Existing local user changes preserved; no commit/deployment.
+
+### TASK008 closure / W2 sync
+
+Explicit /root owner closes TASK008 done after independent functional PASS and
+separate semantic-pass in its verification/red-verification protocols. All 12 source
+hashes match both reviews; external user HEAD changed to 7db6f00 without agent Git
+mutation. W2 complete. /root performs mb-sync and owns post-sync lint/strict doctor.
+REQ010/014 still planned because deletion/shared monitoring portions remain; FT005
+and EP002 still planned. No required feature-level semantic verdict yet.
+
+### W2 gates / TASK009 selection
+
+W2 sync reconciled feature/plan evidence and changelog; REQ/epic lifecycles unchanged
+as later claims remain. Sync-local state/links reread; caller lint PASS and strict
+doctor PASS (only TASK009 ready-candidate warning). Optional /tech-debt FT005 advisory
+remains deferred to feature boundary.
+
+Explicit top-level GENERAL /root owns standalone execution and final lifecycle for
+TASK-009-T2-FT-005-W3. Dependencies006007008 done; owner promotes009 ready and selects
+only009. Next fresh /exe009 then separate /verify009; no parallel tasks or production.
+
+### TASK009 closure / W3 boundary
+
+Explicit owner /root closes TASK009 done after independent functional PASS covering
+AC005/006 with fresh verifier probes. /root performs W3 mb-sync and owns subsequent
+lint/strict doctor before selecting TASK010. No task-level T2 semantic gate required;
+feature-level semantic gate remains due after all outcomes.
+
+### W3 gates / TASK010 selection
+
+W3 sync reconciled feature/plan/evidence, REQ012 implemented and changelog. Caller
+mb-lint PASS and strict doctor PASS; exact AC labels in verifier report were mechanically
+expanded after first strict rejection, with no proof/verdict change. Only ready-candidate
+warning remains. Optional /tech-debt FT005 deferred to feature completion.
+
+Explicit top-level GENERAL /root owns standalone execution and final lifecycle for
+TASK-010-T3-FT-005-W4; dependencies008009 done, owner promotes010 ready and selects
+only010. Next fresh /exe, separate /verify, separate per-task /red-verify, owner closure,
+then fresh feature-level /red-verify before final sync/gates. No production/commit.
+
+### TASK010 closure / feature semantic boundary
+
+Explicit owner /root closes TASK010 done after independent functional PASS and
+per-task semantic-pass recorded in its task.verify/protocols. All five FT005 task
+outcomes are done. Next fresh /red-verify --feature FT-005 before W4 final sync/gates;
+feature/epic final lifecycle decision remains pending that verdict.
+
+### Final feature decision — 2026-10-07
+
+Explicit standalone owner /root accepts feature semantic-pass in
+.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md and the matching feature marker.
+All five tasks are done with independent functional PASS; T3 tasks008010 also have
+per-task semantic-pass. Owner decides FT005 and its only epic EP002 lifecycle verified,
+REQ010..014 verified for this accepted local implementation scope. REQ002 and old
+FT001..004 remain unchanged. Final W4 mb-sync reconciles this decision; /root owns
+post-sync lint/strict doctor. Final native build already independently passed on
+unchanged sources; no additional code rerun necessary without new drift.
+
+### Final sync / completion
+
+W4 mb-sync reconciled owner decisions into FT005/EP002/REQ010..014 verified,
+implementation evidence/coverage and changelog. Changed document links resolve;
+canonical design revision1/registry/boundaries remain unchanged. Caller final
+mb-lint PASS (58 files); strict mb-doctor PASS (0 errors, 0 warnings). All five
+tasks done; functional, T3 and feature semantic gates complete. No required local
+work remains. Optional advisory /tech-debt FT-005 is not a completion gate.
+No deployment, production mutation or agent commit performed.

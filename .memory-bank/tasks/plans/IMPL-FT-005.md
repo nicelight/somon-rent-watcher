@@ -91,17 +91,22 @@ applicable `/mb-doctor --strict` and sequential execution. Existing FT-001…004
 identities, lifecycle and approvals are unchanged; unfinished TASK-001 is not a
 dependency. New feature owns its append-only menus, preserving existing rental UI.
 
-## Execution boundary
+## Execution completion
 
-W1 TASK-006/007 done after independent functional PASS. Their public source/filter
-contracts are available to TASK008. W2–W4 remain outstanding; final feature semantic
-verification is due after all outcomes. Authoritative status/evidence are in task cards.
+TASK006…010 done по решениям explicit standalone owner /root. Все пять результатов
+имеют independent functional PASS; T3 TASK008 и TASK010 имеют отдельный semantic-pass.
+[Feature semantic-pass](../../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md)
+подтверждает сквозной цикл AC001…007. Authoritative task status/evidence — в indexed cards.
 
-## W2 execution handoff
+- W1 source/price: [006 verification](../../../.protocols/TASK-006-T2-FT-005-W1/verification.md),
+  [007 verification](../../../.protocols/TASK-007-T2-FT-005-W1/verification.md).
+- W2 management/preservation: [008 verification](../../../.protocols/TASK-008-T3-FT-005-W2/verification.md),
+  [008 semantic review](../../../.protocols/TASK-008-T3-FT-005-W2/red-verification.md).
+- W3 polling/history: [009 verification](../../../.protocols/TASK-009-T2-FT-005-W3/verification.md).
+- W4 deletion: [010 verification](../../../.protocols/TASK-010-T3-FT-005-W4/verification.md),
+  [010 semantic review](../../../.protocols/TASK-010-T3-FT-005-W4/red-verification.md).
 
-TASK-008 реализовал сохраняемое создание/настройку/enable нескольких поисков через
-существующие Telegram menu/App/SQLite boundaries. RED unsupported create route,
-initial auth/rental GREEN и текущие management/harm/preservation proof доступны
-[в handoff](../../../.protocols/TASK-008-T3-FT-005-W2/handoff.md).
-Lifecycle остаётся in_progress до independent `/verify`, T3 `/red-verify` и решения
-manual owner `/root`. Poll/delivery/history/deletion scope следующих cards сохранён.
+Final native scripts/build.sh independently passed: all tests, formatting, vet,
+CGO build and SQLite linkage. Current source hashes match verified state.
+Only local isolated fixtures/httptest/temporary SQLite were used. No deployment,
+production data changes or agent commits; FT001…004 identities/status/approvals preserved.

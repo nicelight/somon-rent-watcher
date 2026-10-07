@@ -1,7 +1,7 @@
 {
   "id": "TASK-008-T3-FT-005-W2",
   "title": "Create configure and enable durable keyword searches",
-  "status": "in_progress",
+  "status": "done",
   "wave": "W2",
   "feature": "FT-005",
   "reqs": [
@@ -34,7 +34,10 @@
       "required": true
     }
   ],
-  "verify": [],
+  "verify": [
+    "2026-10-06 independent /verify: PASS. Fresh verifier-owned real App/Telegram/temp SQLite management and auth/pending/admin/chat/search/stale/invalid/address/reopen probes, exact legacy rental SQL preservation/stable identity and actual rental polling with zero repeat sends/details passed; required focused network-none Docker gate passed. Evidence: .protocols/TASK-008-T3-FT-005-W2/verification.md; .tasks/TASK-008-T3-FT-005-W2/verifier-probes.log; verifier-focused-gate.log; verifier-source-state.json. Co-review launch unavailable (thread limit, one attempt). T3 red-verify remains due; lifecycle unchanged, /root closure owner.",
+    "Independent /red-verify semantic-pass: .protocols/TASK-008-T3-FT-005-W2/red-verification.md; explicit /root closes done after functional PASS and semantic-pass."
+  ],
   "docs": [
     ".memory-bank/features/FT-005-keyword-monitoring.md",
     ".memory-bank/tasks/plans/IMPL-FT-005.md",
@@ -99,7 +102,7 @@
     "Runtime storage: existing DB_PATH default ./somonwatch.db, production /var/lib/somonwatch/somonwatch.db; probes replace it with t.TempDir()/search.db. Initialization is transactional/repeatable; stable IDs never reused, update increments revision, app/store read/write integration persists across reopen. Safe rerun gets a fresh DB/server and close/removes temporary resources."
   ],
   "evidence_required": [
-    "FT-005-AC-001 \u2014 RED: valid create route currently creates no durable search. GREEN: two addressable searches persist across reopen, summary/enable and targeted edits work, invalid/cross-admin/chat/search inputs leave protected rows unchanged, callbacks acknowledged and new output uses no edits. Decisive comparison: IDs/settings/enabled/revision, row snapshots and ordered API method trace; preserve initial-GREEN rejection cases. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md.",
-    "FT-005-AC-007 RED_NOT_APPLICABLE: compatibility preservation already holds in the baseline; observing its absence would require an artificial destructive regression; alternative proof: initial GREEN \u2014 seeded rental settings/seen/state/offset and current rental trace survive baseline reopen. GREEN after change: identical protected snapshot/trace after additive tables and search writes; same process/dependency/client ownership. Decisive comparison: exact stored values and captured rental ad IDs plus Reviewer code/import assessment against REQ-014. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md."
+    "FT-005-AC-001 — RED: valid create route currently creates no durable search. GREEN: two addressable searches persist across reopen, summary/enable and targeted edits work, invalid/cross-admin/chat/search inputs leave protected rows unchanged, callbacks acknowledged and new output uses no edits. Decisive comparison: IDs/settings/enabled/revision, row snapshots and ordered API method trace; preserve initial-GREEN rejection cases. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md.",
+    "FT-005-AC-007 RED_NOT_APPLICABLE: compatibility preservation already holds in the baseline; observing its absence would require an artificial destructive regression; alternative proof: initial GREEN — seeded rental settings/seen/state/offset and current rental trace survive baseline reopen. GREEN after change: identical protected snapshot/trace after additive tables and search writes; same process/dependency/client ownership. Decisive comparison: exact stored values and captured rental ad IDs plus Reviewer code/import assessment against REQ-014. Artifact: .tasks/TASK-008-T3-FT-005-W2/TASK-008-T3-FT-005-W2-acceptance-evidence.md."
   ]
 }

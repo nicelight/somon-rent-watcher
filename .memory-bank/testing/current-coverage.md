@@ -54,3 +54,20 @@ Historical native evidence remains in [docs/BUILD_VERIFICATION.md](../../docs/BU
 ## Needs verification
 
 - Current compliance posture based on time-sensitive external rules.
+
+
+## Keyword deletion execution coverage
+
+FT-005-AC-002 переиспользует existing application mutation lock и SQLite
+`ON DELETE CASCADE`: начатая отправка может завершиться перед удалением;
+удаление до начала отправки запрещает новый запрос. Схема/арендная история не меняются.
+
+- [Telegram deletion checks](../../internal/telegram/keyword_delete_integration_test.go): обе кнопки, auth/chat, stale callbacks/input, независимость данных, reopen и непереиспользуемый ID.
+- [Application deletion checks](../../internal/app/keyword_delete_test.go): local callback/detail barrier и уже начатый HTTP запрос; после удаления нет новой отправки или восстановления истории.
+- [SQLite deletion checks](../../internal/store/keyword_delete_test.go): сбой cascade с откатом всей операции и точное сравнение rental settings/seen timestamps/state/offset.
+- [TASK010 execution evidence](../../.protocols/TASK-010-T3-FT-005-W4/progress.md): compiling RED/GREEN, isolated harm/race checks и required gates.
+- [Independent functional PASS](../../.protocols/TASK-010-T3-FT-005-W4/verification.md) и
+  [T3 semantic-pass](../../.protocols/TASK-010-T3-FT-005-W4/red-verification.md) подтверждены;
+  [FT005 semantic-pass](../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md) закрывает весь цикл.
+- Final local native scripts/build.sh PASS (2026-10-07): formatting/all tests/vet/CGO/SQLite linkage;
+  keyword integration/harm probes также прошли race detector. Live keyword DOM/production этим не проверены.

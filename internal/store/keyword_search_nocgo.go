@@ -14,3 +14,7 @@ func (*DB) CreateKeywordSearch(model.KeywordSearch) (model.KeywordSearch, error)
 func (*DB) UpdateKeywordSearch(model.KeywordSearch) (model.KeywordSearch, bool, error) {
 	return model.KeywordSearch{}, false, errCGODisabled
 }
+
+func (*DB) KeywordAdStates(int64) (map[int64]model.KeywordAdState, error) { return nil, errCGODisabled }
+func (*DB) RecordKeywordAdState(int64, int64, int64, bool) error          { return errCGODisabled }
+func (*DB) DeleteKeywordSearch(int64) (bool, error)                       { return false, errCGODisabled }

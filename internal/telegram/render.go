@@ -362,3 +362,20 @@ func nonEmpty(value, fallback string) string {
 	}
 	return value
 }
+
+func KeywordAdCaption(phrase string, ad model.Ad) string {
+	price := "цена не указана"
+	if ad.Price != nil {
+		price = formatNumber(*ad.Price)
+		if ad.Currency == "TJS" {
+			price += " c."
+		} else if ad.Currency != "" {
+			price += " " + ad.Currency
+		}
+	}
+	lines := []string{"Поиск: <b>" + html.EscapeString(truncate(phrase, 180)) + "</b>", "<b>" + html.EscapeString(truncate(somon.NormalizeText(ad.Title), 180)) + " — " + html.EscapeString(price) + "</b>"}
+	if ad.City != "" {
+		lines = append(lines, html.EscapeString(ad.City))
+	}
+	return strings.Join(lines, "\n")
+}

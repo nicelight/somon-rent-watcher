@@ -147,3 +147,75 @@ func (db *DB) UpdateKeywordSearch(s model.KeywordSearch) (model.KeywordSearch, b
 	}
 	return s, true, nil
 }
+
+func (db *DB) KeywordAdStates(monitorID int64) (map[int64]model.KeywordAdState, error) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	stmt, err := db.prepareLocked(`SELECT ad_id,evaluated_revision,delivered FROM search_ad_state WHERE monitor_id=?`)
+	if err != nil {
+		return nil, err
+	}
+	defer C.sqlite3_finalize(stmt)
+	if rc := C.sqlite3_bind_int64(stmt, 1, C.sqlite3_int64(monitorID)); rc != C.SQLITE_OK {
+		return nil, db.sqliteErr(rc)
+	}
+	states := make(map[int64]model.KeywordAdState)
+	for {
+		rc := C.sqlite3_step(stmt)
+		switch rc {
+		case C.SQLITE_ROW:
+			states[int64(C.sqlite3_column_int64(stmt, 0))] = model.KeywordAdState{EvaluatedRevision: int64(C.sqlite3_column_int64(stmt, 1)), Delivered: C.sqlite3_column_int(stmt, 2) != 0}
+		case C.SQLITE_DONE:
+			return states, nil
+		default:
+			return nil, db.sqliteErr(rc)
+		}
+	}
+}
+
+// Rejections are conditional on the evaluated revision. Confirmed deliveries
+// survive edits, but neither path creates history for a missing monitor.
+func (db *DB) RecordKeywordAdState(monitorID, adID, revision int64, delivered bool) error {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	stmt, err := db.prepareLocked(`INSERT INTO search_ad_state(monitor_id,ad_id,evaluated_revision,delivered)
+ SELECT id,?, ?, ? FROM search_monitors WHERE id=? AND (?=1 OR revision=?)
+ ON CONFLICT(monitor_id,ad_id) DO UPDATE SET evaluated_revision=excluded.evaluated_revision, delivered=MAX(search_ad_state.delivered,excluded.delivered)
+ WHERE search_ad_state.delivered=0`)
+	if err != nil {
+		return err
+	}
+	defer C.sqlite3_finalize(stmt)
+	flag := int64(0)
+	if delivered {
+		flag = 1
+	}
+	for i, v := range []int64{adID, revision, flag, monitorID, flag, revision} {
+		if rc := C.sqlite3_bind_int64(stmt, C.int(i+1), C.sqlite3_int64(v)); rc != C.SQLITE_OK {
+			return db.sqliteErr(rc)
+		}
+	}
+	if rc := C.sqlite3_step(stmt); rc != C.SQLITE_DONE {
+		return db.sqliteErr(rc)
+	}
+	return nil
+}
+
+// SQLite executes this statement and the existing ON DELETE CASCADE within one
+// transaction. A failed history deletion rolls back the monitor deletion too.
+func (db *DB) DeleteKeywordSearch(id int64) (bool, error) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	stmt, err := db.prepareLocked(`DELETE FROM search_monitors WHERE id=?`)
+	if err != nil {
+		return false, err
+	}
+	defer C.sqlite3_finalize(stmt)
+	if rc := C.sqlite3_bind_int64(stmt, 1, C.sqlite3_int64(id)); rc != C.SQLITE_OK {
+		return false, db.sqliteErr(rc)
+	}
+	if rc := C.sqlite3_step(stmt); rc != C.SQLITE_DONE {
+		return false, db.sqliteErr(rc)
+	}
+	return C.sqlite3_changes(db.handle) != 0, nil
+}

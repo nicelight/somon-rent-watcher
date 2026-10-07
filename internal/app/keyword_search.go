@@ -68,3 +68,11 @@ func (a *App) SetKeywordSearchEnabled(id int64, enabled bool) (model.KeywordSear
 	s.Enabled = enabled
 	return a.store.UpdateKeywordSearch(s)
 }
+
+// Deletion shares the delivery lock. An already-started request can complete;
+// its history is then deleted together with the monitor before this returns.
+func (a *App) DeleteKeywordSearch(id int64) (bool, error) {
+	a.keywordMu.Lock()
+	defer a.keywordMu.Unlock()
+	return a.store.DeleteKeywordSearch(id)
+}

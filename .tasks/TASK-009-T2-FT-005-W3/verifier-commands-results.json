@@ -1,0 +1,27 @@
+{
+  "gates": {
+    "command": "sh .tasks/TASK-009-T2-FT-005-W3/verifier-probes.sh gates",
+    "cwd": "/home/serg/Projects/somon-rent-watcher",
+    "exit_code": 0,
+    "evidence": ".tasks/TASK-009-T2-FT-005-W3/verifier-gates.log",
+    "sha256": "bfc50af5f32610e12aa093a43092c0c91f917e46479a031af3ab9a28b0496dae",
+    "read_surface": "go.mod, internal/, cmd/, testdata/ read-only; injected verifier probe only in disposable copy",
+    "completed_at": "2026-10-06T18:57:07.262787+00:00"
+  },
+  "probes": {
+    "command": "sh .tasks/TASK-009-T2-FT-005-W3/verifier-probes.sh probes",
+    "cwd": "/home/serg/Projects/somon-rent-watcher",
+    "exit_code": 0,
+    "evidence": ".tasks/TASK-009-T2-FT-005-W3/verifier-probes.log",
+    "sha256": "c27e6167371e65f66d9ac621b9d8bdd0d559da3ce657c0c5526c9240fd5eb6a2",
+    "read_surface": "go.mod, internal/, cmd/, testdata/ read-only; injected verifier probe only in disposable copy",
+    "completed_at": "2026-10-06T18:57:07.262914+00:00"
+  },
+  "isolation": "docker --network none, /src and /evidence read-only, disposable mktemp copy, t.TempDir DB, httptest-only HTTP, source byte hash unchanged before/after; no Git mutation",
+  "image_id": "sha256:802934c231fbe4a359d09258bceccb57fda28128d72b78f390006e73250dbafa",
+  "artifacts": {
+    "verifier_polling_outcome_test.go": "0c0a5fd2a95acbd808a57f3857239e8039fdd4f32d6c1ea058e01c795ec54121",
+    "verifier-probes.sh": "522a2ab66e5c65dc8b1c83b92746d6f48716ec779a8fd26524f3b3858c54cc66",
+    "verifier-source-state.json": "3153f042ba2dfd295e20550409112bbf0ef4052f099cb44d2f33ee2b5e7a1e76"
+  }
+}

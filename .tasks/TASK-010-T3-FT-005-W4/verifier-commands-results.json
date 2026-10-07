@@ -1,0 +1,64 @@
+[
+  {
+    "command": [
+      "sh",
+      ".tasks/TASK-010-T3-FT-005-W4/verifier-probes.sh"
+    ],
+    "exit_code": 2,
+    "started_at": "2026-10-06T19:13:11.111837+00:00",
+    "completed_at": "2026-10-06T19:13:11.113062+00:00",
+    "evidence": "verifier shell setup failure (no behavioral evidence)"
+  },
+  {
+    "command": [
+      "sh",
+      ".tasks/TASK-010-T3-FT-005-W4/verifier-probes.sh"
+    ],
+    "exit_code": 0,
+    "started_at": "2026-10-06T19:13:20.393025+00:00",
+    "completed_at": "2026-10-06T19:13:50.298079+00:00",
+    "evidence": ".tasks/TASK-010-T3-FT-005-W4/verifier-outcomes.log"
+  },
+  {
+    "name": "verifier-focused-package-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher:/src:ro",
+      "-i",
+      "somon-price-hotfix-builder:latest",
+      "sh",
+      "-es"
+    ],
+    "stdin_script": "work=$(mktemp -d)\ntrap 'rm -rf \"$work\"' EXIT\ncp -a /src/internal /src/cmd /src/testdata /src/scripts /src/go.mod /src/VERSION \"$work/\"\ncd \"$work\"\nCGO_ENABLED=1 go test -count=1 ./internal/app ./internal/store ./internal/telegram\n",
+    "exit_code": 0,
+    "started_at": "2026-10-06T19:13:49.445395+00:00",
+    "completed_at": "2026-10-06T19:13:58.068934+00:00",
+    "evidence": ".tasks/TASK-010-T3-FT-005-W4/verifier-focused-package-gate.log"
+  },
+  {
+    "name": "verifier-native-build-gate",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-v",
+      "/home/serg/Projects/somon-rent-watcher:/src:ro",
+      "-i",
+      "somon-price-hotfix-builder:latest",
+      "sh",
+      "-es"
+    ],
+    "stdin_script": "work=$(mktemp -d)\ntrap 'rm -rf \"$work\"' EXIT\ncp -a /src/internal /src/cmd /src/testdata /src/scripts /src/go.mod /src/VERSION \"$work/\"\ncd \"$work\"\n./scripts/build.sh\n",
+    "exit_code": 0,
+    "started_at": "2026-10-06T19:13:58.069254+00:00",
+    "completed_at": "2026-10-06T19:14:22.850971+00:00",
+    "evidence": ".tasks/TASK-010-T3-FT-005-W4/verifier-native-build-gate.log"
+  }
+]

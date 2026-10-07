@@ -1,7 +1,7 @@
 {
   "id": "TASK-010-T3-FT-005-W4",
   "title": "Delete searches from both menus and reject stale work",
-  "status": "planned",
+  "status": "done",
   "wave": "W4",
   "feature": "FT-005",
   "reqs": [
@@ -35,7 +35,10 @@
       "required": true
     }
   ],
-  "verify": [],
+  "verify": [
+    "Independent /verify TASK-010-T3-FT-005-W4: PASS for FT-005-AC-002 only. Fresh verifier-owned race probes prove both actual delete buttons/auth/ack/fresh list, selected durable removal and other/rental preservation, stale callbacks/input/conditional writes/nonreused ID, final-child cascade rollback, detail-delete zero sends, revision2→3 reevaluation and accepted started-request completion without resurrection. Required focused package tests and scripts/build.sh repeated exit0; no source drift/receipt reuse. Evidence: .protocols/TASK-010-T3-FT-005-W4/verification.md; .tasks/TASK-010-T3-FT-005-W4/verifier-acceptance-evidence.md, verifier-outcomes.log, verifier-commands-results.json, verifier-source-state.json, verifier-final-source-state.json. One Sol xhigh co-review unavailable thread limit (no retry). Lifecycle in_progress unchanged; separate T3 red-verify due, /root closure owner.",
+    "Independent /red-verify TASK-010-T3-FT-005-W4: SEMANTIC_VERDICT: semantic-pass for FT-005-AC-002. Evidence: .protocols/TASK-010-T3-FT-005-W4/red-verification.md; .tasks/TASK-010-T3-FT-005-W4/TASK-010-T3-FT-005-W4-S-RED-VERIFY-final-report-docs-01.md. Explicit owner /root closes done after functional PASS plus semantic-pass; final feature gate remains due."
+  ],
   "docs": [
     ".memory-bank/features/FT-005-keyword-monitoring.md",
     ".memory-bank/tasks/plans/IMPL-FT-005.md",

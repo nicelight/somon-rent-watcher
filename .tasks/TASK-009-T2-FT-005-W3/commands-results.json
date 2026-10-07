@@ -1,0 +1,30 @@
+{
+  "baseline": {
+    "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 -v ./internal/app -run \"TestKeywordPollingBaseline|TestManualPollRequestIsCoalescedAndRejectedDuringBackoff|Test.*(DetailCap|Cap)\"'",
+    "exit_code": 0,
+    "artifact": "baseline.log",
+    "sha256": "c5a5ab31b07f846c8c94a82b0864c1439c040003d43d20b2eafdd027284606d6",
+    "basis": "initial source snapshot"
+  },
+  "package-gates": {
+    "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -count=1 ./internal/app ./internal/store ./internal/telegram'",
+    "exit_code": 0,
+    "artifact": "package-gates.log",
+    "sha256": "7aecc3cf7fd0a2ff5eef66829dc0c6cbfb4625bc498fb62d12205e9b88eb9010",
+    "basis": "final source snapshot"
+  },
+  "green": {
+    "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -race -count=1 -v ./internal/app -run TestKeywordPolling'",
+    "exit_code": 0,
+    "artifact": "green.log",
+    "sha256": "db8bc43e653a4fded222315572c98f24d5c75cd4d31fb5860ef35d8e1000516a",
+    "basis": "final source snapshot"
+  },
+  "race-build": {
+    "command": "docker run --rm --network none -v \"$PWD:/src\" -w /src somon-price-hotfix-builder:latest sh -c 'CGO_ENABLED=1 go test -race -count=1 ./internal/app ./internal/store ./internal/telegram; CGO_ENABLED=0 go build -o /tmp/somonwatch-nocgo ./cmd/somonwatch'",
+    "exit_code": 0,
+    "artifact": "race-build.log",
+    "sha256": "472e9e1b37cad9d1c963549f76616755330993ebd2e317e7e6aa65a92925fb33",
+    "basis": "supporting pre-final snapshot; only later delta removes keyword 404 terminal rejection"
+  }
+}

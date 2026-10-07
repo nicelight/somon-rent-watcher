@@ -38,3 +38,8 @@ No unresolved blocker/material branch. No live compatibility/production acceptan
 
 ## Follow-ups
 Fresh `/verify TASK-008-T3-FT-005-W2`, then T3 `/red-verify TASK-008-T3-FT-005-W2`. Explicit manual owner /root closes after required verdicts and performs W2 sync. Status remains in_progress; executor did not run verify/red-verify/mb-sync or promote next task.
+
+## Explicit owner closure
+
+/root closes done after separate functional PASS and semantic-pass. Evidence in
+verification.md, red-verification.md and indexed task.verify. W2 sync follows.
