@@ -3,7 +3,7 @@
 ## Purpose
 Deploy ALL current source authorized by operator, preserving one existing watcher and state.
 
-## Execution Attempt
+## Execution Attempt — supporting-only
 - attempt: 1
 - started: 2026-10-07T16:23:59.510687+00:00
 
@@ -21,3 +21,7 @@ none; awaiting fresh task-plan review.
 
 ## Next session
 Read context/plan/progress/task. Next: fresh review gate then start and local native build.
+
+## Execution Attempt
+- attempt: 2
+- started: 2026-10-07T16:31:21.504123+00:00

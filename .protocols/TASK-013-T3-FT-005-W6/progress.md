@@ -30,3 +30,11 @@ Local native gate, release commit/push, fresh production RED/preflight and scope
 - input_state_basis: current entire accepted code, verified repairs, no source changes since independent TASK011/012 verification; c04c287 HEAD plus described repairs.
 - completed_at: 2026-10-07T16:26Z
 - evidence: .tasks/TASK-013-T3-FT-005-W6/local-native-gate.log; format/all tests/vet/CGO/SQLite linkage PASS. Precommit binary is supporting-only version evidence; exact new release commit will be embedded on target.
+
+## Publication / pre-write RED
+Clean gated source committed b7a8c53c1fdf7ca926d35bac0c9a320e1dc8578d; pushed origin main and ls-remote exact ref confirmed. No Go/source changed after gate. Fresh read-only preflight.json captured immediately before first production write: old93cbe9 installed/checkout, healthy one service, integrityOK, unrelated baseline. FT-005-AC-010 RED: installed version differs from expected b7a8c53. This is claim absence, no artificial failure. Next exact FF/build/clone doctor/backup/install/start and comparison.
+
+SSH launch transport timed out during banner exchange before remote Python started (exit255). Fresh preflight-retry.json confirmed exact unchanged old checkout/process/version/state/host. Same attempt safe retry, no uncertain side effect. Initial transport receipt supporting-only; fresh preflight is current.
+
+## Attempt 2 — Git ancestry correction
+Attempt1 remote fetch succeeded, ff-only rejected before build/stage/backup/service/data changes because installed93c is separate published historical hotfix ancestry. Fresh remote inspection confirms non-shallow clean checkout still93c and old runtime. Initial ancestry assumption was false; retained evidence honest, attempt1 receipt supporting-only, original AC010 RED retained. Native current parser includes all historical hotfix changes (diff old93c→current parser is only new validated detail-body checks); old price tests and local native gates passed. Root will create a non-rewriting merge commit retaining EXACT current tree with historical93c as second parent, making target FF possible without resetting production or changing source. This is Git lineage correction within exact-release tactic, no task scope/spec/product/architecture change. New attempt2 exact gate/ref/preflight required before retry.
