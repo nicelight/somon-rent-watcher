@@ -1,0 +1,44 @@
+{
+  "claim": "FT-005-AC-010",
+  "expected_commit": "8b48c4cef11237716e1dbc471cf363018e48c613",
+  "RED": "old installed93cbe9 differs from intended release",
+  "GREEN": "exact installed/running8b48c4c with state and unrelated host preserved",
+  "pre_seen": 14675,
+  "post_seen": 14681,
+  "host_comparison": {
+    "settings_sha256": true,
+    "env_sha256": true,
+    "containers_sha256": true,
+    "container_count": true,
+    "running_services_sha256": true,
+    "listeners_sha256": true,
+    "routes_sha256": true,
+    "firewall_sha256": true,
+    "selinux": true,
+    "failed_units_sha256": true
+  },
+  "release": {
+    "installation": "PASS; final host comparison pending",
+    "commit": "8b48c4cef11237716e1dbc471cf363018e48c613",
+    "binary_sha256": "66a8cdcb83419c0868c4015170495c47f1da3da41672ce578a0b3910ada9d0d2",
+    "backup": "/var/backups/somonwatch/keyword-release-20261007T163309Z",
+    "seen_before": 14675,
+    "seen_after": 14681,
+    "settings_preserved": true,
+    "environment_preserved": true,
+    "database_identity_preserved": true,
+    "prior_state_keys_preserved": true,
+    "telegram_offset_not_reset": true,
+    "old_tables_preserved": true,
+    "keyword_monitors": 0,
+    "additive_tables_present": true,
+    "doctor_scratch_cleaned": true,
+    "unit": {
+      "MainPID": "1063284",
+      "NRestarts": "0",
+      "User": "somonwatch",
+      "ActiveState": "active",
+      "SubState": "running"
+    }
+  }
+}

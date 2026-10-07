@@ -1,8 +1,8 @@
-# FT-005 — Независимая семантическая проверка после двух исправлений
+# FT-005 — Независимая семантическая проверка исправлений и production release
 
 ## Принятый результат
 
-Свежая проверка 2026-10-07 охватывает FT-005-AC-001…009 / REQ-010…014.
+Свежая проверка 2026-10-07 охватывает FT-005-AC-001…010 / REQ-008, REQ-010…014. Bounded refresh добавляет разрешённый production release AC010 к прежнему независимо проверенному результату AC001…009.
 Независимые поиски доставляют существующие и новые совпадения, сохраняют свою
 историю и аренду. По поручению оператора исправлены оба пункта
 [advisory-отчёта](<../../PAPERCUTS/TECHDEBTS/FT-005 __ 10-07-2026 08.15.md>):
@@ -69,14 +69,23 @@ SQLite linkage. Проверены сами probes, logs и команды. По
 Для каждого фокуса fresh GPT-6.1 Sol/xhigh co-review launch и один retry
 завершились `agent thread limit reached`; применён предусмотренный pack fallback.
 Модель указана оператором. Итоговое суждение принадлежит этому Reviewer.
-Доказательства ограничены representative fixtures, local httptest и temporary
-SQLite; live DOM compatibility и production этим verdict не подтверждаются.
+Доказательства исходных AC001…009 ограничены representative fixtures, local httptest и temporary SQLite; широкая live DOM compatibility этим verdict не подтверждается. Production acceptance AC010 подтверждается отдельным свежим release evidence ниже.
+
+## Bounded production refresh — AC010
+
+После TASK013 independent functional PASS и отдельного per-task semantic-pass проверены exact8b48c4cef11237716e1dbc471cf363018e48c613 release и его actual operational surface. Оператор явно разрешил все текущие исходники, включая rental fallback; старые TASK001…005 claims/statuses не присваиваются. Все indexed TASK006…013 теперь done: `/root` закрыл TASK013 после отдельных functional PASS и semantic-pass; feature lifecycle/sync остаётся у `/root`.
+
+Повторное независимое вычисление SHA256 показало: все51 source files точно совпадают с прежним финальным TASK012 snapshot; `git diff HEAD^1 HEAD` пуст, ancestor93cbe9 сохранён. Поэтому прежние два фокуса AC008/detail→retry/backoff и AC009/current-feed→history/restart/revision и governing code evidence сохранены без повторных probes. AC001…009 доказательства и границы остаются прежними.
+
+Для новой AC010 проверены два фокуса: exact current-source publication/build/runtime/host isolation и persisted-state/clone-vs-live/additive-init/backup. [TASK013 semantic protocol](../../.protocols/TASK-013-T3-FT-005-W6/red-verification.md) связывает прямые canonical release inputs, реальный release-procedure.py/ordered log, native local/target gates, staged/live doctor и свежие verifier-live-probe.py/json с outcome. Exact release checkout/build/install/process совпадают; single active unit NRestarts0 связана с DB. Все14675 прежних seen rows, settings/stable state и env сохранены, offset monotonic, original DB identity и unrelated host fingerprints прежние. Поиски/history пусты, automatic activation отсутствует; rental paused, baseline не сброшен. Backup root-only на host, stage/scratch удалены. Первое FF refusal было до runtime mutation; fresh retry привёл к exact FF без source drift/reset.
+
+Required Codex Luna/xhigh launches каждого нового фокуса и один retry отказали по thread limit; pack разрешает продолжение без co-reviewer, без новой модели или дополнительного gate. Reviewer выполнил bounded adversarial coverage самостоятельно. Новых production writes/restarts/messages/tests, code или lifecycle изменений не было.
 
 ## Verdict и передача владельцу
 
 SEMANTIC_VERDICT: semantic-pass
 
-`/root` может принять feature completion после обоих исправлений и выполнить
+`/root` может принять TASK013 closure и feature completion после production acceptance и выполнить
 финальный `/mb-sync` с обязательными boundary gates. Reviewer обновил только
 этот отчёт и matching feature `Semantic Verification`; lifecycle/task state,
 code и normative semantics не менялись.

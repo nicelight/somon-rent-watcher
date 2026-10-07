@@ -118,13 +118,13 @@ Pass/fail меняется при повторном открытии SQLite, р
 | REQ-002 | EP-001, EP-002 | FT-002, FT-005 | FT-002-AC-001, FT-002-AC-002, FT-002-AC-003; FT-005-AC-001 | planned |
 | REQ-003 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
 | REQ-004 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-003, FT-001-AC-004 | planned |
-| REQ-005 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done); FT-005-AC-010 | planned |
+| REQ-005 | EP-001 | FT-003, FT-004 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done) | planned |
 | REQ-006 | EP-001 | FT-001, FT-002 | FT-001-AC-005, FT-002-AC-004 | planned |
 | REQ-007 | EP-001 | FT-001 | FT-001-AC-001, FT-001-AC-002, FT-001-AC-003, FT-001-AC-004 | planned |
-| REQ-008 | EP-001, EP-002 | FT-003, FT-004, FT-005 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done); FT-005-AC-010 | planned |
+| REQ-008 | EP-001, EP-002 | FT-003, FT-004, FT-005 | FT-003-AC-001, FT-003-AC-002; FT-004-AC-002 (hotfix done); FT-005-AC-010 (production verified, TASK013 done) | planned |
 | REQ-009 | EP-001 | FT-004 | FT-004-AC-001; TASK-005-T3-FT-004-W1 | done |
 | REQ-010 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002 — Telegram/store lifecycle checks | verified |
 | REQ-011 | EP-002 | FT-005 | FT-005-AC-003, FT-005-AC-004 — TASK006/007 functional PASS; FT005 semantic-pass | verified |
 | REQ-012 | EP-002 | FT-005 | FT-005-AC-005 — TASK009 functional PASS; FT005 semantic-pass | verified |
 | REQ-013 | EP-002 | FT-005 | FT-005-AC-002, FT-005-AC-003, FT-005-AC-006, FT-005-AC-008 — failure/concurrency/detail-validation checks | verified |
-| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007, FT-005-AC-008, FT-005-AC-009 — authorization, preservation, validation and bounded lookup; FT-005-AC-010 production preservation | active |
+| REQ-014 | EP-002 | FT-005 | FT-005-AC-001, FT-005-AC-002, FT-005-AC-007, FT-005-AC-008, FT-005-AC-009 — authorization, preservation, validation and bounded lookup; FT-005-AC-010 production preservation — TASK013 functional/semantic PASS | verified |

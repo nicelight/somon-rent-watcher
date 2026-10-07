@@ -2,8 +2,8 @@
 description: AlmaLinux 9 operations route with the accepted isolated production-release contract.
 status: active
 baseline_kind: as-is
-last_verified: 2026-09-02
-last_updated: 2026-09-04
+last_verified: 2026-10-07
+last_updated: 2026-10-07
 source_of_truth:
   - .memory-bank/prd.md
   - .memory-bank/requirements.md
@@ -150,3 +150,9 @@ generic multi-runtime deployment mechanism or a runtime migration.
 Operator-authorized 2026-10-07 release publishes ALL current source, including verified keyword functionality/repairs and current rental fallback. Reuse Accepted FT-003 release procedure order and isolation, exact commit, backup and native gates. FT-005 extends only its no-migration restriction: existing Store initializer may add search_monitors/search_ad_state tables/indexes at normal startup, preserving every existing table/row/settings/offset and database file identity. No manual migration, deletion, reset or baseline replay. This exception applies to this authorized FT-005 release and does not rewrite historical FT-003 acceptance.
 
 Before runtime change, staged doctor MUST use a disposable SQLite .backup clone owned by somonwatch and a scratch DEBUG_DIR under watcher data directory; override DB_PATH after sourcing existing env. New Store.Open MUST NOT initialize live SQLite while the old binary is running. Doctor may perform existing read-only Telegram identity/chat and Somon fetch checks, MUST NOT run polling or delivery. Remove scratch/staged artifacts afterward. Keep root-only rollback backup on host. Stop/install/start only somonwatch.service; compare stopped pre-install old rows in all existing tables plus env/settings/DB identity to post-start rows (allow ordinary new seen rows and offset advancement, no reset), healthy single process and unrelated host fingerprints. No automatically enabled keyword monitor. On later failure restore only backed-up binary/unit lifecycle; never restore/delete database or alter unrelated workloads. Evidence belongs to TASK013 operational receipts.
+
+## FT-005 installed release
+
+2026-10-07 exact8b48c4cef11237716e1dbc471cf363018e48c613 installed/running/build binary checksum66a8cdcb83419c0868c4015170495c47f1da3da41672ce578a0b3910ada9d0d2. Local+target native and staged clone/live doctor PASS, single active service zero restarts, existing state/settings/env/DB identity and every prior seen row preserved; all unrelated normalized fingerprints equal. Old rental remains paused, no keyword monitor auto-created/enabled. Backup remains host/root-only /var/backups/somonwatch/keyword-release-20261007T163309Z, stage/scratch removed. [Independent verification](../../.protocols/TASK-013-T3-FT-005-W6/verification.md) and [semantic review](../../.protocols/TASK-013-T3-FT-005-W6/red-verification.md).
+
+Historical deployed93c was a separate branch from main; first ff-only refused before runtime change. Current main already contained its price fixes; local non-rewriting merge retained exact current tree and joined ancestry, then fresh native/ref/preflight yielded safe target FF. For future releases check merge-base exit explicitly before publication; never use reset/stash on production to conceal divergence.

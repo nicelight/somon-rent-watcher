@@ -1,0 +1,19 @@
+{
+  "window_start": "2026-10-07T16:33:09Z",
+  "messages": {
+    "Somon poll completed": 0,
+    "monitoring paused; fresh baseline advanced": 1,
+    "baseline created": 0,
+    "Somon poll failed": 0,
+    "keyword detail failed": 0,
+    "Telegram delivery failed": 0,
+    "detail fetch/parse failed; ad remains unseen": 0,
+    "keyword Telegram delivery failed; will retry": 0,
+    "new exact ad sent": 0,
+    "new fallback ad sent": 0
+  },
+  "error_count": 0,
+  "poll_counts": [],
+  "staged_binary_absent": true,
+  "doctor_scratch_absent": true
+}

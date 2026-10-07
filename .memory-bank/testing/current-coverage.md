@@ -84,3 +84,7 @@ FT-005-AC-002 переиспользует existing application mutation lock и
   covers AC001…009. Final native scripts/build.sh PASS on unchanged combined source;
   non-CGO compile PASS. One existing server-arrival delay test failed then passed
   unchanged rerun and fresh independent gate; logs retained in TASK012.
+
+## Whole-source production release verification
+
+[TASK013 independent functional PASS](../../.protocols/TASK-013-T3-FT-005-W6/verification.md) and [T3 semantic-pass](../../.protocols/TASK-013-T3-FT-005-W6/red-verification.md) cover AC010: release8b48c4c current source, local/target native gates, staged SQLite-clone service-user doctor and installed live doctor, healthy exact binary/unit/checksum, all prior DB rows/state/offset/env and unrelated-host fingerprints.14675→14681 seen with no loss; serviceNRestarts0. Ordinary first poll retained paused state; no baseline recreation/errors. Keyword live delivery wasn't initiated: no monitor configured; product behavior is independently proved by unchanged local task harness/fixtures. [Operational receipt](../../.tasks/TASK-013-T3-FT-005-W6/release-receipt.json).

@@ -1,14 +1,14 @@
 ---
 description: Main project knowledge map for accepted product intent, planning, and brownfield evidence.
 status: active
-last_verified: 2026-09-02
+last_verified: 2026-10-07
 ---
 
 # Memory Bank Index
 
 ## Product and requirements
 
-- [Keyword monitoring proposal](prd.md#keyword-monitoring-proposal--2026-10-06): принятые независимые поиски, подтверждённые scoped URLs и минимальный дизайн; FT-005 реализована и проверена, включая detail validation и bounded history lookup.
+- [Keyword monitoring proposal](prd.md#keyword-monitoring-proposal--2026-10-06): принятые независимые поиски, подтверждённые scoped URLs и минимальный дизайн; FT-005 реализована, проверена и развёрнута как8b48c4c, включая detail validation и bounded history lookup.
 
 - [.memory-bank/analysis/product-brief.md](analysis/product-brief.md): accepted concise product input.
 - [.memory-bank/prd.md](prd.md): clarified, Constitution-checked product requirements.
@@ -20,8 +20,8 @@ last_verified: 2026-09-02
 - [.memory-bank/features/FT-003-isolated-production-release.md](features/FT-003-isolated-production-release.md): ordered state-preserving production delivery.
 - [.memory-bank/features/FT-004-price-extraction-hotfix.md](features/FT-004-price-extraction-hotfix.md): completed price parser correction and isolated production hotfix.
 - [.memory-bank/epics/EP-002-keyword-monitoring.md](epics/EP-002-keyword-monitoring.md): принятая новая возможность независимых поисков, REQ-010…014.
-- [.memory-bank/features/FT-005-keyword-monitoring.md](features/FT-005-keyword-monitoring.md): создание, настройка, удаление и доставка keyword-поисков; native scope подтверждён; AC001…009 verified.
-- [.memory-bank/tasks/plans/IMPL-FT-005.md](tasks/plans/IMPL-FT-005.md): семь выполненных задач FT-005 с AC proof, owners и Docker gates.
+- [.memory-bank/features/FT-005-keyword-monitoring.md](features/FT-005-keyword-monitoring.md): создание, настройка, удаление и доставка keyword-поисков; native scope подтверждён; AC001…010 verified; production8b48c4c.
+- [.memory-bank/tasks/plans/IMPL-FT-005.md](tasks/plans/IMPL-FT-005.md): восемь выполненных задач FT-005 с AC proof, owners и local/production gates.
 
 ## Brownfield current-state baseline
 
@@ -37,7 +37,7 @@ last_verified: 2026-09-02
 - [.memory-bank/invariants.md](invariants.md): accepted-invariant status and routing to descriptive guardrails.
 - [.memory-bank/changelog.md](changelog.md): durable log of synchronized implementation/documentation waves.
 
-Baseline scope and remaining gaps are summarized in [.memory-bank/spec-backbone.md#brownfield-current-state-baseline](spec-backbone.md#brownfield-current-state-baseline). The clarified PRD and product decomposition now define target intent; accepted architecture and task records remain pending downstream design.
+Baseline scope and remaining gaps are summarized in [.memory-bank/spec-backbone.md#brownfield-current-state-baseline](spec-backbone.md#brownfield-current-state-baseline). The clarified PRD and product decomposition now define target intent; accepted architecture is complete at Planning Revision1; task records own current execution evidence.
 
 ## Governing and workflow navigation
 
@@ -47,7 +47,7 @@ Baseline scope and remaining gaps are summarized in [.memory-bank/spec-backbone.
 - [.memory-bank/spec-backbone.md](spec-backbone.md): pre-PRD/Global Backbone status and brownfield handoff.
 - [.memory-bank/foundation.md](foundation.md): executable baseline sufficiency and Foundation Gate anchors.
 - [.memory-bank/requirements.md](requirements.md): accepted REQ registry and RTM.
-- [.memory-bank/contracts/boundary-map.md](contracts/boundary-map.md): canonical accepted target graph; currently empty pending SDD design.
+- [.memory-bank/contracts/boundary-map.md](contracts/boundary-map.md): canonical accepted graph, module ownership and direct contracts.
 - [.memory-bank/workflows/index.md](workflows/index.md): workflow router and shared SDD/execution policies.
 - [.memory-bank/testing/index.md](testing/index.md): testing documentation router.
 - [.memory-bank/skills/index.md](skills/index.md): installed project skill registry.

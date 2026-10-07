@@ -2,7 +2,7 @@
 description: Создание, настройка и мониторинг независимых поисков Somon в Telegram без повторов доставленных объявлений.
 status: active
 last_updated: 2026-10-07
-lifecycle: implemented
+lifecycle: verified
 spec_design_status: complete
 spec_design_links:
   - ".memory-bank/architecture/system-architecture.md#keyword-monitoring-design-proposal"
@@ -125,7 +125,7 @@ authoritative records — [task index](../tasks/index.json). W1 source/price з�
 W2 creation закрыта после independent functional PASS и per-task semantic-pass;
 W3 monitoring закрыт после independent functional PASS; W4 deletion закрыт после
 independent functional PASS и per-task semantic-pass. Feature lifecycle verified
-после отдельного feature semantic-pass;
+после отдельного feature semantic-pass и production acceptance;
 старые identities/status/approvals и Planning Revision 1 сохранены.
 
 ## Implementation evidence
@@ -152,18 +152,26 @@ independent functional PASS и per-task semantic-pass. Feature lifecycle verifie
 
 ## Semantic Verification
 
-Свежий независимый feature review 2026-10-07 подтвердил AC-001…009 / REQ-010…014
-после обоих разрешённых исправлений. Проверены detail body → retry/shared backoff
-и current-feed SQL lookup → history/restart/revision; исходные AC-001…007 сохраняют
-проверенные source/UI/scheduler/delete outcomes. Все семь задач имеют independent
-functional PASS; T3 TASK008/010 также имеют per-task semantic-pass. Все 51 source
-hashes совпадают с финальным TASK012 snapshot; fresh focused/native build PASS
-относится к этой combined реализации. Evidence — local fixtures/httptest/temp SQLite.
+Свежий независимый feature review 2026-10-07 подтвердил AC-001…010 / REQ-008,
+REQ-010…014 после двух исправлений и разрешённого production release. Прежние
+AC001…009 evidence сохранены: повторно вычисленные hashes всех51 source files
+совпадают с финальным independent TASK012 snapshot; release merge сохраняет
+source tree и прежний production ancestor. Все indexed TASK006…013 done; `/root` закрыл TASK013 после отдельных
+independent functional PASS и per-task semantic-pass.
+
+Bounded AC010 refresh проверил exact8b48c4cef11237716e1dbc471cf363018e48c613
+publication/build/install/running identity, clone→live Store sequencing, все
+прежние SQLite rows/settings/state, monotonic offset, original DB identity,
+root-only backup/cleanup и unrelated host fingerprints. Unit здоровая,
+NRestarts0; новые поиски автоматически не включены, прежняя rental pause сохранена.
+[TASK013 semantic proof](../../.protocols/TASK-013-T3-FT-005-W6/red-verification.md):
+release coverage после свежего independent functional PASS.
 
 SEMANTIC_VERDICT: semantic-pass
 
 [FT-005 semantic report](../../.tasks/FT-005/FT-005-S-RED-VERIFY-final-report-docs-01.md):
-два фокуса, inspected outcome evidence и передача `/root` для финального lifecycle/sync/gates.
+прежние inspected code outcomes и bounded release delta; `/root` владеет
+финальным lifecycle/sync/gates. Reviewer lifecycle/status не менял.
 
 ## Authorized debt repair
 
@@ -180,3 +188,7 @@ outcomes. Final native/non-CGO builds PASS, источник и URL-поиск �
 ## Authorized production release
 
 Оператор 2026-10-07: «все что есть свежего в коде - выкладывай». Это снимает вопрос rollout scope: публикуется всё текущее дерево, включая rental fallback. TASK013 — единственный новый final production acceptance W6, зависит от всех done TASK006…012. Старые TASK001…005 и их статусы/claims не присваиваются. AC007 относится к сохранению текущего локального rental поведения; расширение относительно старого server binary явно разрешено. Release contract: [AlmaLinux](../runbooks/almalinux-9-operations.md#accepted-ft-005-release-procedure). Planning Revision 1 сохранён.
+
+## Production acceptance evidence
+
+Вся разрешённая версия8b48c4cef11237716e1dbc471cf363018e48c613 установлена 2026-10-07. TASK013 done после independent functional PASS и T3 semantic-pass; fresh feature semantic review включает AC010. Native local/target, staged clone/live doctor, checksum/unit/SQLite и unrelated fingerprints PASS.14675 прежних seen rows сохранены среди14681, settings/env/DB identity/state/Telegram offset сохранены. Новые таблицы созданы штатно, поисков0; прежняя аренда остаётся на паузе. `/searches` открывает создание/настройку, включение остаётся явным действием администратора. [TASK013 verification](../../.protocols/TASK-013-T3-FT-005-W6/verification.md), [semantic](../../.protocols/TASK-013-T3-FT-005-W6/red-verification.md), [receipt](../../.tasks/TASK-013-T3-FT-005-W6/release-receipt.json). Older queue states/claims remain unchanged.

@@ -1,0 +1,24 @@
+{
+  "unit": {
+    "MainPID": "3820800",
+    "NRestarts": "1",
+    "User": "somonwatch",
+    "ActiveState": "active",
+    "SubState": "running"
+  },
+  "version": "somonwatch 1.0.0 (commit 93cbe9ebcfe6, built 2026-09-09T09:04:30Z)",
+  "checkout_commit": "93cbe9ebcfe6421040461f4ee4e049430bf5028d",
+  "sqlite_integrity": "ok",
+  "settings_sha256": "d4582db13e4b28f987f03ddb89c476488ec2eef9cf05dae3b77a577846c1dc7b",
+  "seen_count": 14675,
+  "seen_sha256": "7abda8245bb652ef6f861da279de52b494ef90ab4063432f157405cf9d3943fb",
+  "env_sha256": "64a7a7ccba4051084711101e4aca1a3a5496591f00241f93c1c6f3d0155517cd",
+  "containers_sha256": "60546f6c81e311d6178af9e6ee0408439ccea2d83972ea12143512f4dd997295",
+  "container_count": 8,
+  "running_services_sha256": "91e5d7fd508e24cccef5f2be0b2a85df76cff8c6dfecb9adde6dc5a6e6b07dc3",
+  "listeners_sha256": "4865044762534b5519949627efbc762a7661bdfb1ce9e8a7cdf4eb33e44cfb39",
+  "routes_sha256": "40ba60860d1153f1b43ab7404c70152c91cee3dfd93fe0474c3064e984f6cb29",
+  "firewall_sha256": "d91f8dcf6c03944fe6e7ed5f48585923c28d513d528491946adeb0515e3e759c",
+  "selinux": "Enforcing",
+  "failed_units_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

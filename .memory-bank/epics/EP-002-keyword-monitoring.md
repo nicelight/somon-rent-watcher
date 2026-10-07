@@ -30,7 +30,7 @@ source_of_truth:
 
 ## Acceptance criteria
 
-Все FT-005-AC-001…009 подтверждены объявленными методами; прежние rental settings,
+Все FT-005-AC-001…010 подтверждены объявленными методами; прежние rental settings,
 история и поведение сохраняются. Product scope и native scope wire mapping закрыты.
 
 ## Planning dependency
@@ -40,4 +40,4 @@ source_of_truth:
 Product decomposition reviewed `APPROVE`; [task plan](../tasks/plans/IMPL-FT-005.md)
 reviewed APPROVE для Planning Revision 1. TASK006…010 done, independent functional
 проверки и T3 gates пройдены; [feature semantic-pass](../features/FT-005-keyword-monitoring.md#semantic-verification)
-подтверждает локальную реализацию. Production deployment не входил в этот этап.
+подтверждает локальную реализацию. Первоначальная разработка была локальной; разрешённый оператором production acceptance TASK013 W6 завершён для всей версии8b48c4c с сохранением данных и окружения (REQ-008/014). Все TASK006…013 done, функциональные и семантические gates пройдены.

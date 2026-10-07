@@ -1,7 +1,7 @@
 {
   "id": "TASK-013-T3-FT-005-W6",
   "title": "Production acceptance: deploy all current code to existing watcher",
-  "status": "in_progress",
+  "status": "done",
   "wave": "W6",
   "feature": "FT-005",
   "reqs": [
@@ -31,7 +31,10 @@
       "required": true
     }
   ],
-  "verify": [],
+  "verify": [
+    "2026-10-07 independent /verify: VERDICT: PASS. Fresh read-only exact8b48 running/build checksum, service/process/DB binding, backup vs all old data/settings/state/offset, unchanged env/unit/host fingerprints, root-only backup/cleanup and scoped logs; repeated local native gate PASS. Evidence: .protocols/TASK-013-T3-FT-005-W6/verification.md; .tasks/TASK-013-T3-FT-005-W6/verifier-live-probe.json, verifier-comparison.json, verifier-local-native-gate.log, verifier-target-toolchain.log. T3 requires separate fresh /red-verify; lifecycle unchanged.",
+    "Explicit GENERAL standalone root owner decision: done 2026-10-07 after independent /verify PASS and independent T3 /red-verify semantic-pass. Exact8b48c4cef11237716e1dbc471cf363018e48c613 whole authorized release healthy, all old DB/settings/state/offset/env and unrelated host preserved. Evidence .protocols/TASK-013-T3-FT-005-W6/verification.md and red-verification.md; .tasks/TASK-013-T3-FT-005-W6/verifier-live-probe.json, verifier-comparison.json, release-receipt.json. No task-owned production remainder; feature semantic refresh/sync follows. Older task identities/statuses unchanged."
+  ],
   "docs": [
     ".memory-bank/runbooks/almalinux-9-operations.md",
     ".memory-bank/features/FT-005-keyword-monitoring.md",

@@ -169,3 +169,9 @@ status: active
 - [Execution evidence](../.protocols/TASK-009-T2-FT-005-W3/handoff.md): честный исходный
   RED, текущий GREEN/race и required package gate. Task in_progress, independent
   verification впереди; closure/production/deletion не выполнялись.
+
+## 2026-10-07 Wave6 — Whole-source production release
+
+- Published and deployed exact8b48c4cef11237716e1dbc471cf363018e48c613, including keyword search, both repaired findings and explicitly accepted current rental fallback.
+- Native local/target/staged clone/live doctor PASS; stopped and fresh independent live proof preserve old data/settings/offset/env/DB identity and unrelated host state. Root-only rollback backup retained; scratch removed. Single service zero restarts, prior pause preserved, no automatic monitor.
+- TASK013 closed by explicit root manual owner after independent functional/T3 semantic PASS and fresh feature semantic-pass. FT005 AC001…010 verified; older unfinished queue untouched. Memory Bank release/RTM/testing/navigation reconciled; [proof](../.protocols/TASK-013-T3-FT-005-W6/verification.md).

@@ -1,0 +1,24 @@
+{
+  "unrelated_comparison_to_attempt2_preflight": {
+    "env_sha256": true,
+    "containers_sha256": true,
+    "container_count": true,
+    "running_services_sha256": true,
+    "listeners_sha256": true,
+    "routes_sha256": true,
+    "firewall_sha256": true,
+    "selinux": true,
+    "failed_units_sha256": true
+  },
+  "exact_binary_matches_release_receipt": true,
+  "execution_required_stage_markers": {
+    "==> Formatting check": 1,
+    "==> Unit and integration tests": 1,
+    "==> go vet": 1,
+    "Build complete:": 1,
+    "Doctor PASS; clone=True": 1,
+    "Doctor PASS; clone=False": 1,
+    "Stopped-state comparison PASS": 1
+  },
+  "source_receipt_revision": "8b48c4cef11237716e1dbc471cf363018e48c613"
+}
