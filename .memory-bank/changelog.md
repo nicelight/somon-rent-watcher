@@ -179,3 +179,5 @@ status: active
 ## 2026-11-07 — promoted-only rental category
 
 - Removed the requirement for an ordinary ad in otherwise valid category pages: production snapshots contained 60 TOP/VIP ads and triggered false parser alerts. Normal seen/filter processing and non-empty snapshot intersection rules remain; genuine parser failures still fail closed. The doctor command accepts the same promoted-only pages. Regression coverage: `internal/app/app_test.go`.
+
+- Deployed promoted-only hotfix `c2baf63de3be` via the isolated backup/install route; postflight, state preservation and first poll passed. [Release evidence](../.protocols/promoted-only-release-20261107/verification.md).

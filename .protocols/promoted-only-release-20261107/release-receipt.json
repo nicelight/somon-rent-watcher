@@ -1,0 +1,24 @@
+{
+  "installation": "PASS; host comparison PASS",
+  "commit": "c2baf63de3be2f4ea9a5ec9cce2f66d0e94488a1",
+  "binary_sha256": "a6272029231de7fadd72370e40f397c797330d8b5276711964981683d61c2942",
+  "backup": "/var/backups/somonwatch/promoted-only-release-20261107T121709Z",
+  "seen_before": 23158,
+  "seen_after": 23159,
+  "settings_preserved": true,
+  "environment_preserved": true,
+  "database_identity_preserved": true,
+  "prior_state_keys_preserved": true,
+  "telegram_offset_not_reset": true,
+  "old_tables_preserved": true,
+  "keyword_monitors": 1,
+  "additive_tables_present": true,
+  "doctor_scratch_cleaned": true,
+  "unit": {
+    "MainPID": "2759545",
+    "NRestarts": "0",
+    "User": "somonwatch",
+    "ActiveState": "active",
+    "SubState": "running"
+  }
+}
