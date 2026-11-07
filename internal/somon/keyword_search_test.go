@@ -98,7 +98,14 @@ func TestKeywordCatalogAndURL(t *testing.T) {
 	wantCategories := []KeywordCategory{
 		{"all", "Все категории", "/search/"},
 		{"furniture", "Мебель", "/vse-dlya-doma/mebel/"},
-		{"tables_chairs", "Столы и стулья", "/vse-dlya-doma/mebel/mebel-dlya-kuhni/stolyi-stulya/"},
+		{"computers", "Компьютеры и оргтехника", "/kompyuteryi-i-orgtehnika/"},
+		{"phones", "Телефоны и связь", "/telefonyi-i-svyaz/"},
+		{"electronics", "Электроника и бытовая техника", "/elektronika-i-tehnika/"},
+		{"transport", "Транспорт", "/transport/"},
+		{"construction", "Строительство, сырье и ремонт", "/stroitelstvo-syrye-i-remont/"},
+		{"clothing", "Одежда и личные вещи", "/odezhda-i-obuv/"},
+		{"children", "Детский мир", "/detskij-mir/"},
+		{"hobbies", "Хобби, музыка и спорт", "/hobbi/"},
 		{"services", "Услуги", "/biznes-i-uslugi/"},
 	}
 	wantCities := []KeywordCity{{"country", "Вся страна", ""}, {"dushanbe", "Душанбе", "dushanbe"}, {"vose", "Восе", "vose"}, {"dangara", "Дангара", "dangara"}}
@@ -112,7 +119,7 @@ func TestKeywordCatalogAndURL(t *testing.T) {
 	}
 	for _, category := range wantCategories {
 		for _, city := range wantCities {
-			raw, err := KeywordSearchURL("  стол & стул + /?  ", category.Key, city.Key)
+			raw, err := KeywordSearchURL("  компьютер & монитор + /?  ", category.Key, city.Key)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -121,12 +128,12 @@ func TestKeywordCatalogAndURL(t *testing.T) {
 			if city.Slug != "" {
 				path += city.Slug + "/"
 			}
-			if u.Host != "somon.tj" || u.Scheme != "https" || u.Path != path || u.Query().Get("q") != "стол & стул + /?" || u.Query().Get("ordering") != "relevance" || len(u.Query()) != 2 {
+			if u.Host != "somon.tj" || u.Scheme != "https" || u.Path != path || u.Query().Get("q") != "компьютер & монитор + /?" || u.Query().Get("ordering") != "relevance" || len(u.Query()) != 2 {
 				t.Fatalf("wrong native request: %s", raw)
 			}
 		}
 	}
-	for _, tc := range [][3]string{{" ", "all", "country"}, {"стол", "https://evil.test/", "country"}, {"стол", "all", "../dushanbe"}, {"стол", "", "country"}, {"стол", "all", ""}} {
+	for _, tc := range [][3]string{{"компьютер", "tables_chairs", "country"}, {" ", "all", "country"}, {"стол", "https://evil.test/", "country"}, {"стол", "all", "../dushanbe"}, {"стол", "", "country"}, {"стол", "all", ""}} {
 		if _, err := KeywordSearchURL(tc[0], tc[1], tc[2]); err == nil {
 			t.Fatalf("accepted invalid request %v", tc)
 		}
@@ -161,7 +168,7 @@ func TestFetchKeywordSearchNativeScope(t *testing.T) {
 	}}
 	for _, category := range KeywordCategories() {
 		for _, city := range KeywordCities() {
-			cards, raw, err := client.FetchKeywordSearch(context.Background(), "стол & стул", category.Key, city.Key)
+			cards, raw, err := client.FetchKeywordSearch(context.Background(), "компьютер & монитор", category.Key, city.Key)
 			if err != nil || !reflect.DeepEqual(keywordIDs(cards), []int64{21000001}) || string(raw) != string(body) {
 				t.Fatalf("fetch primary=%v err=%v", keywordIDs(cards), err)
 			}
@@ -169,7 +176,7 @@ func TestFetchKeywordSearchNativeScope(t *testing.T) {
 			if city.Slug != "" {
 				path += city.Slug + "/"
 			}
-			if captured.Host != "somon.tj" || captured.Path != path || captured.Query().Get("q") != "стол & стул" || captured.Query().Get("ordering") != "relevance" {
+			if captured.Host != "somon.tj" || captured.Path != path || captured.Query().Get("q") != "компьютер & монитор" || captured.Query().Get("ordering") != "relevance" {
 				t.Fatalf("captured native scope=%s", captured)
 			}
 		}

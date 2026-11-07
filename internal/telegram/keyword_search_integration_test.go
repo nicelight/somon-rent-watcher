@@ -195,13 +195,16 @@ func TestKeywordSearchManagementThroughRealApp(t *testing.T) {
 	h.click(1, private, fmt.Sprintf("ks:setcity:%d:vose", id))
 	h.click(1, private, fmt.Sprintf("ks:category:%d", id))
 	buttons = h.requests[len(h.requests)-1].form.Get("reply_markup")
-	for _, label := range []string{"Все категории", "Мебель", "Столы и стулья", "Услуги"} {
+	for _, label := range []string{"Все категории", "Мебель", "Компьютеры и оргтехника", "Телефоны и связь", "Электроника и бытовая техника", "Транспорт", "Строительство, сырье и ремонт", "Одежда и личные вещи", "Детский мир", "Хобби, музыка и спорт", "Услуги"} {
 		if !strings.Contains(buttons, label) {
 			t.Fatal(buttons)
 		}
 	}
-	h.click(1, private, fmt.Sprintf("ks:setcategory:%d:tables_chairs", id))
-	if s := h.search(id); s.CityKey != "vose" || s.CategoryKey != "tables_chairs" {
+	if strings.Contains(buttons, "Столы и стулья") {
+		t.Fatal("removed category still offered")
+	}
+	h.click(1, private, fmt.Sprintf("ks:setcategory:%d:computers", id))
+	if s := h.search(id); s.CityKey != "vose" || s.CategoryKey != "computers" {
 		t.Fatal(s)
 	}
 	h.click(1, private, fmt.Sprintf("ks:price:%d", id))

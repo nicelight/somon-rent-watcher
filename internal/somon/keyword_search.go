@@ -26,7 +26,14 @@ func KeywordCategories() []KeywordCategory {
 	return []KeywordCategory{
 		{"all", "Все категории", "/search/"},
 		{"furniture", "Мебель", "/vse-dlya-doma/mebel/"},
-		{"tables_chairs", "Столы и стулья", "/vse-dlya-doma/mebel/mebel-dlya-kuhni/stolyi-stulya/"},
+		{"computers", "Компьютеры и оргтехника", "/kompyuteryi-i-orgtehnika/"},
+		{"phones", "Телефоны и связь", "/telefonyi-i-svyaz/"},
+		{"electronics", "Электроника и бытовая техника", "/elektronika-i-tehnika/"},
+		{"transport", "Транспорт", "/transport/"},
+		{"construction", "Строительство, сырье и ремонт", "/stroitelstvo-syrye-i-remont/"},
+		{"clothing", "Одежда и личные вещи", "/odezhda-i-obuv/"},
+		{"children", "Детский мир", "/detskij-mir/"},
+		{"hobbies", "Хобби, музыка и спорт", "/hobbi/"},
 		{"services", "Услуги", "/biznes-i-uslugi/"},
 	}
 }

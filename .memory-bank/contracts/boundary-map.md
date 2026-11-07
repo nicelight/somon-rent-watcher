@@ -109,8 +109,10 @@ Shared Data contains passive structures and no I/O, orchestration, mutable singl
   path segment либо вся страна; `q` кодируется через `net/url`,
   `ordering=relevance` — подтверждённый порядок. [Source evidence](current-integrations.md#keyword-search-source-observations)
   подтверждает совместный scope; global page + local city filter его не заменяет.
-  Начальный catalog: `/search/`, `/vse-dlya-doma/mebel/`,
-  `/vse-dlya-doma/mebel/mebel-dlya-kuhni/stolyi-stulya/`, `/biznes-i-uslugi/`;
+  Catalog (operator update 2026-11-07): `/search/`, `/vse-dlya-doma/mebel/`,
+  `/kompyuteryi-i-orgtehnika/`, `/telefonyi-i-svyaz/`, `/elektronika-i-tehnika/`,
+  `/transport/`, `/stroitelstvo-syrye-i-remont/`, `/odezhda-i-obuv/`,
+  `/detskij-mir/`, `/hobbi/`, `/biznes-i-uslugi/`;
   city: вся страна либо `dushanbe`, `vose`, `dangara`. Произвольный URL не принимается.
   Primary results отделяются от рекомендаций других регионов: на реальных страницах
   заголовок «Объявления из других регионов» есть даже при нуле локальных результатов.

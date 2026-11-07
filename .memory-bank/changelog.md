@@ -181,3 +181,7 @@ status: active
 - Removed the requirement for an ordinary ad in otherwise valid category pages: production snapshots contained 60 TOP/VIP ads and triggered false parser alerts. Normal seen/filter processing and non-empty snapshot intersection rules remain; genuine parser failures still fail closed. The doctor command accepts the same promoted-only pages. Regression coverage: `internal/app/app_test.go`.
 
 - Deployed promoted-only hotfix `c2baf63de3be` via the isolated backup/install route; postflight, state preservation and first poll passed. [Release evidence](../.protocols/promoted-only-release-20261107/verification.md).
+
+## 2026-11-07 — main keyword categories
+
+- Operator-requested catalog: ten broad categories plus All, removing the dedicated tables/chairs section. Somon paths checked against live navigation; adapter URL matrix and Telegram category selection checks updated. Existing furniture/services keys and search settings remain unchanged. See [source evidence](contracts/current-integrations.md#keyword-catalog-expansion--2026-11-07).

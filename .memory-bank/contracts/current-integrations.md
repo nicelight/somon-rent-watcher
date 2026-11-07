@@ -115,7 +115,8 @@ Raw HTML/fixtures непустой и нулевой выдачи — execution 
 
 `internal/somon/keyword_search.go` реализует source-owned `KeywordCategories`,
 `KeywordCities`, `KeywordSearchURL`, `FetchKeywordSearch` и `ParseKeywordSearch`.
-Стабильные keys: `all`, `furniture`, `tables_chairs`, `services`;
+Стабильные keys: `all`, `furniture`, `computers`, `phones`, `electronics`,
+`transport`, `construction`, `clothing`, `children`, `hobbies`, `services`;
 `country`, `dushanbe`, `vose`, `dangara`. Native paths соответствуют контракту;
 смена category не заменяет city. `internal/model/keyword_search.go` содержит
 пассивный `KeywordSearch`; `Card` дополнен `Currency`/`City` без rental-правил.
@@ -133,3 +134,15 @@ RSC-only выдача считается неподтверждённой: её 
 полную DOM-совместимость Somon. Execution evidence TASK-006 хранится в
 [протоколе](../../.protocols/TASK-006-T2-FT-005-W1/handoff.md);
 independent `/verify` ещё требуется, production не изменялся.
+
+### Keyword catalog expansion — 2026-11-07
+
+Operator removed the dedicated tables/chairs category and requested 5–10 main
+categories. [Somon navigation](https://somon.tj/) and linked category pages
+confirmed native paths for computers, phones, electronics, transport, construction,
+clothing, children and hobbies. Existing furniture/services/all-category paths
+remain. Full paths live in [boundary contract](boundary-map.md#keyword-monitoring-contract-proposal).
+No persisted search scope is rewritten; production inspection on 2026-11-07 found
+only one search, using `all`, so no existing tables/chairs search needs migration.
+The web reader could not retrieve the scoped computer query; this does not establish
+a source failure. URL encoding and category/city combinations are tested locally.
