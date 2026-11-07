@@ -1,0 +1,12 @@
+{
+  "env_sha256": true,
+  "settings_sha256": true,
+  "containers_sha256": true,
+  "container_count": true,
+  "running_services_sha256": true,
+  "listeners_sha256": true,
+  "routes_sha256": true,
+  "firewall_sha256": true,
+  "selinux": true,
+  "failed_units_sha256": true
+}

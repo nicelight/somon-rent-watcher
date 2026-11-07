@@ -185,3 +185,5 @@ status: active
 ## 2026-11-07 — main keyword categories
 
 - Operator-requested catalog: ten broad categories plus All, removing the dedicated tables/chairs section. Somon paths checked against live navigation; adapter URL matrix and Telegram category selection checks updated. Existing furniture/services keys and search settings remain unchanged. See [source evidence](contracts/current-integrations.md#keyword-catalog-expansion--2026-11-07).
+
+- Category catalog deployed as `4ca196aaa738`; native gates, clone doctor, state/host preservation and first poll passed. [Release evidence](../.protocols/keyword-catalog-release-20261107/verification.md).

@@ -160,3 +160,7 @@ Historical deployed93c was a separate branch from main; first ff-only refused be
 ## Promoted-only category hotfix — 2026-11-07
 
 Installed/running release `c2baf63de3be2f4ea9a5ec9cce2f66d0e94488a1` accepts valid all-TOP/VIP category pages in polling and doctor without parser alerts. Native local/target gates and clone-based doctor passed. Single active watcher, zero restarts, first paused poll successful. SQLite identity/settings/environment, prior seen rows and existing keyword monitor/history preserved; unrelated host fingerprints equal. [Release evidence](../../.protocols/promoted-only-release-20261107/verification.md). Backup: `/var/backups/somonwatch/promoted-only-release-20261107T121709Z`.
+
+## Keyword category release — 2026-11-07
+
+Installed/running `4ca196aaa73820fdf8bff792af6ce544a4b556c3`: ten main categories plus All; tables/chairs removed. Local/target native gates and clone-based doctor passed, first paused poll successful, zero restarts. SQLite/settings/environment and prior data preserved; unrelated host fingerprints unchanged. No saved searches existed at installation. [Release evidence](../../.protocols/keyword-catalog-release-20261107/verification.md); backup `/var/backups/somonwatch/keyword-catalog-release-20261107T125127Z`.
