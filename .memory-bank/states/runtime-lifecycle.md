@@ -115,7 +115,7 @@ Evidence: [hotfix verification](../../.protocols/TASK-005-T3-FT-004-W1/verificat
 
 ## Gap and recovery lifecycle
 
-1. A successful poll stores sorted ordinary IDs and completion time.
+1. A successful poll stores sorted ordinary IDs and completion time. A structurally valid category containing only promoted ads is also successful: its ordinary snapshot is empty, it follows normal baseline/filter/seen processing, and it emits no parser warning. Snapshot intersection is checked only when both ordinary snapshots are non-empty. Minimum-card, required-field and duplicate-ID checks remain enforced.
 2. A later active poll suspects a gap when ordinary snapshots do not intersect and/or the last successful poll is older than the greater of `SOMON_GAP_AFTER` and the persisted maximum poll interval plus five minutes. This keeps an intentionally long configured schedule from being treated as downtime.
 3. A snapshot-only gap starts recovery silently and remains visible in service logs. The service notifies every configured administrator privately only when the successful-poll age exceeds the adaptive time threshold, with hourly per-key suppression.
 4. It derives room-specific recovery URLs from the active room filter, fetches them sequentially and keeps only cards with a parseable age inside the inferred outage window.

@@ -338,3 +338,52 @@ func TestPausedMonitoringConsumesFreshIDsWithoutSending(t *testing.T) {
 		t.Fatalf("seen count=%d err=%v", count, err)
 	}
 }
+
+func TestPromotedOnlyCategoryPollSucceedsWithoutAdminWarning(t *testing.T) {
+	h := newFallbackHarness(t, 20, nil)
+	h.application.cfg.TelegramAdminUserIDs = []int64{100}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, strings.ReplaceAll(testCategoryHTML([]int64{1001, 1002}), `class="item"`, `class="item vip"`))
+	}))
+	defer server.Close()
+	h.application.cfg.CategoryURL = server.URL
+	// An existing paused installation must advance seen without any warning.
+	if err := h.application.saveSuccessfulPoll(time.Now(), []int64{999}, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := h.application.pollOnce(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if count, err := h.db.CountSeen(); err != nil || count != 2 {
+		t.Fatalf("seen count=%d err=%v", count, err)
+	}
+	if ids, err := h.application.loadPreviousOrdinary(); err != nil || len(ids) != 0 {
+		t.Fatalf("ordinary snapshot=%v err=%v", ids, err)
+	}
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	if len(h.deliveries) != 0 || len(h.detailRequests) != 0 {
+		t.Fatalf("paused poll sent messages=%v or requested details=%v", h.deliveries, h.detailRequests)
+	}
+}
+
+func TestCategorySanityStillRejectsInvalidPromotedFeed(t *testing.T) {
+	a := &App{cfg: config.Config{MinCards: 2}}
+	valid := model.Card{ID: 1, URL: "https://somon.tj/adv/1_x/", Title: "Квартира", Promoted: true}
+	second := valid
+	second.ID = 2
+	if err := a.validateCategory([]model.Card{valid, second}); err != nil {
+		t.Fatalf("valid promoted feed: %v", err)
+	}
+	invalid := second
+	invalid.Title = ""
+	for name, cards := range map[string][]model.Card{
+		"too few": {valid}, "duplicate": {valid, valid}, "missing title": {valid, invalid},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if err := a.validateCategory(cards); err == nil {
+				t.Fatal("invalid feed accepted")
+			}
+		})
+	}
+}

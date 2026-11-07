@@ -175,3 +175,7 @@ status: active
 - Published and deployed exact8b48c4cef11237716e1dbc471cf363018e48c613, including keyword search, both repaired findings and explicitly accepted current rental fallback.
 - Native local/target/staged clone/live doctor PASS; stopped and fresh independent live proof preserve old data/settings/offset/env/DB identity and unrelated host state. Root-only rollback backup retained; scratch removed. Single service zero restarts, prior pause preserved, no automatic monitor.
 - TASK013 closed by explicit root manual owner after independent functional/T3 semantic PASS and fresh feature semantic-pass. FT005 AC001…010 verified; older unfinished queue untouched. Memory Bank release/RTM/testing/navigation reconciled; [proof](../.protocols/TASK-013-T3-FT-005-W6/verification.md).
+
+## 2026-11-07 — promoted-only rental category
+
+- Removed the requirement for an ordinary ad in otherwise valid category pages: production snapshots contained 60 TOP/VIP ads and triggered false parser alerts. Normal seen/filter processing and non-empty snapshot intersection rules remain; genuine parser failures still fail closed. The doctor command accepts the same promoted-only pages. Regression coverage: `internal/app/app_test.go`.

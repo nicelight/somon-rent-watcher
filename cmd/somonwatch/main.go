@@ -145,10 +145,6 @@ func runDoctor() error {
 		path, _ := saveDoctorHTML(cfg.DebugDir, body)
 		return fmt.Errorf("Somon parser found only %d cards; minimum is %d; HTML saved to %s", len(cards), cfg.MinCards, nonEmptyPath(path))
 	}
-	if ordinary == 0 {
-		path, _ := saveDoctorHTML(cfg.DebugDir, body)
-		return fmt.Errorf("Somon parser found no ordinary cards; HTML saved to %s", nonEmptyPath(path))
-	}
 	fmt.Printf("[OK] Somon category parsed: %d cards (%d ordinary, %d promoted)\n", len(cards), ordinary, promoted)
 	for i, card := range cards {
 		if i >= 3 {

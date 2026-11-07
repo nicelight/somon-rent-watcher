@@ -393,14 +393,10 @@ func (a *App) validateCategory(cards []model.Card) error {
 		return fmt.Errorf("found %d cards, expected at least %d", len(cards), a.cfg.MinCards)
 	}
 	valid := 0
-	ordinary := 0
 	seen := make(map[int64]struct{}, len(cards))
 	for _, card := range cards {
 		if card.ID > 0 && card.URL != "" && card.Title != "" {
 			valid++
-		}
-		if !card.Promoted {
-			ordinary++
 		}
 		if _, exists := seen[card.ID]; exists {
 			return fmt.Errorf("duplicate card ID %d after parser dedupe", card.ID)
@@ -409,9 +405,6 @@ func (a *App) validateCategory(cards []model.Card) error {
 	}
 	if valid < a.cfg.MinCards {
 		return fmt.Errorf("only %d structurally valid cards", valid)
-	}
-	if ordinary == 0 {
-		return errors.New("ordinary section is empty")
 	}
 	return nil
 }
